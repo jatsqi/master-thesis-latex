@@ -1,0 +1,109 @@
+% ------------------------------------------------------------
+% LaTeX Template für die DHBW zum Schnellstart!
+% Original: https://github.wdf.sap.corp/vtgermany/LaTeX-Template-DHBW
+% ------------------------------------------------------------
+% ---- Präambel mit Angaben zum Dokument
+\input{Inhalt/00_Latex/praeambel}
+
+% ---- Elektronische Version oder Gedruckte Version?
+% ---- Unterschied: Die elektronische Version enthält keinen Platzhalter für die Unterschrift
+\usepackage{ifthen}
+\newboolean{e-Abgabe}
+\setboolean{e-Abgabe}{false}    % false=gedruckte Fassung
+
+% ---- Persönlichen Daten:
+\newcommand{\titel}{Template \LaTeX\ Wiki von BAzubis für BAzubis}
+\newcommand{\titelheader}{Titel welcher im Header auftaucht}
+\newcommand{\arbeit}{Projektarbeit 1 (T3\_2000)}
+\newcommand{\studiengang}{Informatik}
+\newcommand{\studienjahr}{2015}
+\newcommand{\autor}{Vorname Nachname}
+\newcommand{\autorReverse}{Nachname, Vorname}
+\newcommand{\verfassungsort}{Karlsruhe}
+\newcommand{\matrikelnr}{0000000}
+\newcommand{\kurs}{TINF15B1}
+\newcommand{\bearbeitungsmonat}{Januar 2025}
+\newcommand{\abgabe}{01. Februar 2025}
+\newcommand{\bearbeitungszeitraum}{01.10.2024 - 31.01.2025}
+\newcommand{\firmaName}{SAP SE}
+\newcommand{\firmaStrasse}{Dietmar-Hopp-Allee 16}
+\newcommand{\firmaPlz}{69190 Walldorf, Deutschland}
+\newcommand{\betreuerFirma}{B-Vorname B-Nachname}
+\newcommand{\betreuerDhbw}{DH-Vorname DH-Nachname}
+
+\input{Inhalt/00_Latex/kopfundFusszeile}
+
+% ---- Hilfreiches
+\newcommand{\zB}{z.\,B. }   % "z.B." mit kleinem Leeraum dazwischen (ohne wäre nicht korrekt)
+\newcommand{\dash}{d.\,h. }
+
+\newcommand{\code}[1]{\texttt{#1}} % Ist einfacher zu schreiben als ständig \texttt und erlaubt
+                                   % Änderungen im Nachhinein, wenn man z.B. Inline-Code anders stylen möchte.
+
+% ---- Silbentrennung (falls LaTeX defaults falsch / nicht gewünscht sind)
+\hyphenation{HANA}         % anstatt HA-NA
+\hyphenation{Graph-Script} % anstatt GraphS-cript
+
+% ---- Beginn des Dokuments
+\begin{document}
+\setlength{\parindent}{0pt}              % Keine Paragraphen Einrückung.
+                                         % Dafür haben wir den Abstand zwischen den Paragraphen.
+\setcounter{secnumdepth}{2}              % Nummerierungstiefe fürs Inhaltsverzeichnis
+\setcounter{tocdepth}{1}                 % Tiefe des Inhaltsverzeichnisses. Ggf. so anpassen,
+                                         % dass das Verzeichnis auf eine Seite passt.
+\sffamily                                % Serifenlose Schrift verwenden.
+
+% ---- Vorspann
+% ------ Titelseite
+\singlespacing
+\include{Inhalt/01_Standard/titelseite}  % Titelseite
+\newcounter{savepage}
+\pagenumbering{Roman}                    % Römische Seitenzahlen
+\onehalfspacing
+
+% ------ Erklärung, Sperrvermerk, Abstact
+\include{Inhalt/01_Standard/erklaerung}
+\include{Inhalt/02_Abstract/abstract-en}
+\include{Inhalt/02_Abstract/abstract-de}
+
+% ------ Inhaltsverzeichnis
+\singlespacing
+\tableofcontents
+
+% ------ Verzeichnisse
+\renewcommand*{\chapterpagestyle}{plain}
+\pagestyle{plain}
+\include{Inhalt/03_Verzeichnisse/formelgroessen}
+\include{Inhalt/03_Verzeichnisse/abkuerzungen}
+\listoffigures                          % Erzeugen des Abbildungsverzeichnisses 
+\listoftables                           % Erzeugen des Tabellenverzeichnisses
+\renewcommand{\lstlistlistingname}{Quellcodeverzeichnis}
+\lstlistoflistings                      % Erzeugen des Listenverzeichnisses
+\setcounter{savepage}{\value{page}}
+
+
+% ---- Inhalt der Arbeit
+\cleardoublepage
+\pagenumbering{arabic}                  % Arabische Seitenzahlen für den Hauptteil
+\setlength{\parskip}{0.5\baselineskip}  % Abstand zwischen Absätzen
+\rmfamily
+\renewcommand*{\chapterpagestyle}{scrheadings}
+\pagestyle{scrheadings}
+\onehalfspacing
+\include{Inhalt/04_Inhalt/einleitung}
+
+% ---- Literaturverzeichnis
+\cleardoublepage
+\renewcommand*{\chapterpagestyle}{plain}
+\pagestyle{plain}
+\pagenumbering{Roman}                   % Römische Seitenzahlen
+\setcounter{page}{\numexpr\value{savepage}+1}
+\printbibliography[title=Literaturverzeichnis]
+
+% ---- Anhang
+\appendix
+%\clearpage
+%\pagenumbering{Roman}  % römische Seitenzahlen für Anhang
+
+\newpage
+\end{document}
