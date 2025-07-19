@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="332pt" height="44pt" viewBox="0.00 0.00 332.00 44.00">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 40)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-40 328,-40 328,4 -4,4"/>
+<!-- 1 -->
+<g id="node1" class="node">
+<title>1</title>
+<polygon fill="none" stroke="black" points="36,-36 0,-36 0,0 36,0 36,-36"/>
+<text text-anchor="middle" x="18" y="-13.8" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- 2 -->
+<g id="node2" class="node">
+<title>2</title>
+<polygon fill="none" stroke="black" points="90,-36 54,-36 54,0 90,0 90,-36"/>
+<text text-anchor="middle" x="72" y="-13.8" font-family="Times,serif" font-size="14.00">2</text>
+</g>
+<!-- 3 -->
+<g id="node3" class="node">
+<title>3</title>
+<polygon fill="none" stroke="black" points="144,-36 108,-36 108,0 144,0 144,-36"/>
+<text text-anchor="middle" x="126" y="-13.8" font-family="Times,serif" font-size="14.00">3</text>
+</g>
+<!-- 4 -->
+<g id="node4" class="node">
+<title>4</title>
+<polygon fill="none" stroke="black" points="198,-36 162,-36 162,0 198,0 198,-36"/>
+<text text-anchor="middle" x="180" y="-13.8" font-family="Times,serif" font-size="14.00">4</text>
+</g>
+<!-- 5 -->
+<g id="node5" class="node">
+<title>5</title>
+<polygon fill="none" stroke="black" points="252,-36 216,-36 216,0 252,0 252,-36"/>
+<text text-anchor="middle" x="234" y="-13.8" font-family="Times,serif" font-size="14.00">5</text>
+</g>
+<!-- A -->
+<g id="node6" class="node">
+<title>A</title>
+<polygon fill="none" stroke="black" points="297,-36 270,-18 297,0 324,-18 297,-36"/>
+<text text-anchor="middle" x="297" y="-13.8" font-family="Times,serif" font-size="14.00">A</text>
+</g>
+</g>
+</svg>

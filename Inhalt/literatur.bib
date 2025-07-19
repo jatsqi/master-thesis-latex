@@ -1,136 +1,276 @@
-﻿% This file was created with Citavi 5.6.0.2
-
-@book{Bonnen.2016,
- abstract = {},
- author = {B{\"o}nnen, Carsten and Drees, Volker and Fischer, Andr{\'e} and Heinz, Ludwig and Strothmann, Karsten},
- year = {2016},
- title = {SAP Gateway und OData},
- address = {Bonn},
- edition = {2., aktualisierte und erweiterte Auflage},
- publisher = {{Rheinwerk Publishing}},
- isbn = {978-3-8362-4019-2},
- series = {SAP Press}
+@online{achterbergConstraintIntegerProgramming2007,
+  title = {Constraint {{Integer Programming}}},
+  author = {Achterberg, Tobias},
+  namea = {{Technische Universität Berlin} and Grötschel, Martin},
+  nameatype = {collaborator},
+  date = {2007-07-17},
+  eprinttype = {Technische Universität Berlin},
+  doi = {10.14279/DEPOSITONCE-1634},
+  url = {https://depositonce.tu-berlin.de/handle/11303/1931},
+  urldate = {2025-02-03},
+  abstract = {This thesis introduces the novel paradigm of "constraint integer programming" (CIP), which integrates constraint programming (CP) and mixed integer programming (MIP) modeling and solving techniques. It is supplemented by the software SCIP, which is a solver and framework for constraint integer programming that also features SAT solving techniques. SCIP is freely available in source code for academic and non-commercial purposes. Our constraint integer programming approach is a generalization of MIP that allows for the inclusion of arbitrary constraints, as long as they turn into linear constraints on the continuous variables after all integer variables have been fixed. The constraints, may they be linear or more complex, are treated by any combination of CP and MIP techniques: the propagation of the domains by constraint specific algorithms, the generation of a linear relaxation and its solving by LP methods, and the strengthening of the LP by cutting plane separation. The current version of SCIP comes with all of the necessary components to solve mixed integer programs. In the thesis, we cover most of these ingredients and present extensive computational results to compare different variants for the individual building blocks of a MIP solver. We focus on the algorithms and their impact on the overall performance of the solver. In addition to mixed integer programming, the thesis deals with chip design verification, which is an important topic of electronic design automation. Chip manufacturers have to make sure that the logic design of a circuit conforms to the specification of the chip. Otherwise, the chip would show an erroneous behavior that may cause failures in the device where it is employed. An important subproblem of chip design verification is the property checking problem, which is to verify whether a circuit satisfies a specified property. We show how this problem can be modeled as constraint integer program and provide a number of problem-specific algorithms that exploit the structure of the individual constraints and the circuit as a whole. Another set of extensive computational benchmarks compares our CIP approach to the current state-of-the-art SAT methodology and documents the success of our method.},
+  pubstate = {prepublished},
+  keywords = {510 Mathematik,Chip Verification,Chip-Verifikation,Constraint Programmierung,Constraint Programming,Ganzzahlige Programmierung,Integer Programming,Mathematical Programming,Mathematische Programmierung,SAT},
+  file = {C:\Users\I517917\Zotero\storage\Q9KTZRZ7\Achterberg - 2007 - Constraint Integer Programming.pdf}
 }
 
-
-@book{Forsthuber.2016,
- abstract = {},
- author = {Forsthuber, Heinz and Siebert, J{\"o}rg},
- year = {2016},
- title = {SAP{\circledR}-Finanzwesen: Das Praxishandbuch},
- address = {Bonn},
- edition = {6., aktualisierte und erweiterte Auflage},
- publisher = {Rheinwerk},
- isbn = {978-3-8362-3990-5},
- series = {Rheinwerk Publishing}
+@article{achterbergPresolveReductionsMixed2020,
+  title = {Presolve {{Reductions}} in {{Mixed Integer Programming}}},
+  author = {Achterberg, Tobias and Bixby, Robert E. and Gu, Zonghao and Rothberg, Edward and Weninger, Dieter},
+  date = {2020-04},
+  journaltitle = {INFORMS Journal on Computing},
+  shortjournal = {INFORMS Journal on Computing},
+  volume = {32},
+  number = {2},
+  pages = {473--506},
+  issn = {1091-9856, 1526-5528},
+  doi = {10.1287/ijoc.2018.0857},
+  url = {http://pubsonline.informs.org/doi/10.1287/ijoc.2018.0857},
+  urldate = {2025-04-01},
+  abstract = {Mixed integer programming has become a very powerful tool for modeling and solving real-world planning and scheduling problems, with the breadth of applications appearing to be almost unlimited. A critical component in the solution of these mixed integer programs is a set of routines commonly referred to as presolve. Presolve can be viewed as a collection of preprocessing techniques that reduce the size of and, more importantly, improve the “strength” of the given model formulation, that is, the degree to which the constraints of the formulation accurately describe the underlying polyhedron of integer-feasible solutions. As our computational results will show, presolve is a key factor in the speed with which we can solve mixed integer programs and is often the difference between a model being intractable and solvable, in some cases easily solvable. In this paper we describe the presolve functionality in the Gurobi commercial mixed integer programming code. This includes an overview, or taxonomy of the different methods that are employed, as well as more-detailed descriptions of several of the techniques, with some of them appearing, to our knowledge, for the first time in the literature.},
+  langid = {english},
+  file = {C:\Users\I517917\Zotero\storage\RFK2Z4DT\Achterberg et al. - 2020 - Presolve Reductions in Mixed Integer Programming.pdf}
 }
 
-
-@book{Friedl.2017,
- abstract = {Das Standardwerk zum Controlling mit SAP in siebter Auflage. Die Vorz{\"u}ge: Leichte Verst{\"a}ndlichkeit, Beispielorientierung und {\"u}berschaubarer Umfang der Darstellung. Das klar strukturierte Konzept f{\"u}hrt den Leser anhand einer Fallstudie auch ohne Vorkenntnisse zu einem umfassenden Verst{\"a}ndnis der SAP-Software. Die Zusammenh{\"a}nge werden Schritt f{\"u}r Schritt erl{\"a}utert: Von den Grundlagen der Kostenrechnung und des Controllings {\"u}ber die Funktionsweise der SAP-Software bis hin zur Anwendung im praktischen Betrieb. In der siebten Auflage wurden zahlreiche Aktualisierungen vorgenommen. Detailliertere Angaben erh{\"o}hen die Benutzerfreundlichkeit sowohl bei der Durchf{\"u}hrung der Fallstudie als auch beim vorbereitenden Customizing. Der Inhalt {\"U}berblick {\"u}ber Controlling mit SAP - Durchg{\"a}ngige Fallstudie - Kostenstellenrechnung - Produktkalkulation und Kostentr{\"a}gerrechnung - Ergebnis- und Marktsegmentrechnung - Konzeptionelle Entwicklungen des Controllings und ihre Abdeckung durch SAP (ERP, BW, BusinessObjects) - Vorbereitende T{\"a}tigkeiten im Customizing Die Zielgruppen Studierende der Wirtschaftswissenschaften und der Wirtschaftsinformatik Praktiker in Unternehmen Dozenten an Universit{\"a}ten und Fachhochschulen sowie Schulungsleiter Die Autoren Prof. Dr. Gunther Friedl ist Inhaber des Lehrstuhls f{\"u}r Controlling an der Technischen Universit{\"a}t M{\"u}nchen. Prof. Dr. Burkhard Pedell ist Inhaber des Lehrstuhls Controlling an der Universit{\"a}t Stuttgart.},
- author = {Friedl, Gunther and Pedell, Burkhard},
- year = {2017},
- title = {Controlling mit SAP{\circledR}: Eine praxisorientierte Einf{\"u}hrung mit umfassender Fallstudie und beispielhaften Anwendungen},
- address = {Wiesbaden},
- edition = {7. Aufl. 2017},
- publisher = {{Springer Fachmedien Wiesbaden}},
- isbn = {978-3-658-17407-1}
+@book{appaHandbookModellingDiscrete2006,
+  title = {Handbook on {{Modelling}} for {{Discrete Optimization}}},
+  editor = {Appa, Gautam and Pitsoulis, Leonidas and Williams, H. Paul},
+  editora = {Hillier, Frederick S.},
+  editoratype = {redactor},
+  date = {2006},
+  series = {International {{Series}} in {{Operations Research}} \& {{Management Science}}},
+  volume = {88},
+  publisher = {Kluwer Academic Publishers},
+  location = {Boston, MA},
+  doi = {10.1007/0-387-32942-0},
+  url = {https://link.springer.com/10.1007/0-387-32942-0},
+  urldate = {2025-05-28},
+  isbn = {978-0-387-32941-3 978-0-387-32942-0},
+  langid = {english},
+  file = {C\:\\Users\\I517917\\Zotero\\storage\\QALIUZR5\\Appa et al. - 2006 - Handbook on Modelling for Discrete Optimization.pdf;C\:\\Users\\I517917\\Zotero\\storage\\U7K74F9V\\Handbook_on_Modelling_for_Discrete_Optimization.pdf}
 }
 
-
-@book{Kuhnlein.2016,
- abstract = {},
- author = {K{\"u}hnlein, Stefan and Seubert, Holger},
- year = {2016},
- title = {Native Anwendungsentwicklung mit SAP HANA},
- address = {Bonn},
- edition = {1. Auflage},
- publisher = {{Rheinwerk Publishing}},
- isbn = {978-3-8362-3867-0},
- series = {SAP Press}
+@article{bassoDataDrivenDantzig2023,
+  title = {A Data Driven {{Dantzig}}–{{Wolfe}} Decomposition Framework},
+  author = {Basso, Saverio and Ceselli, Alberto},
+  date = {2023-03},
+  journaltitle = {Mathematical Programming Computation},
+  shortjournal = {Math. Prog. Comp.},
+  volume = {15},
+  number = {1},
+  pages = {153--194},
+  issn = {1867-2949, 1867-2957},
+  doi = {10.1007/s12532-022-00230-4},
+  url = {https://link.springer.com/10.1007/s12532-022-00230-4},
+  urldate = {2025-04-17},
+  abstract = {Abstract             We face the issue of finding alternative paradigms for the resolution of generic Mixed Integer Programs (MIP), by considering the perspective option of general purpose solvers which switch to decomposition methods when pertinent. Currently, the main blocking factor in their design is the problem of automatic decomposition of MIPs, that is to produce good MIP decompositions algorithmically, looking only at the algebraic structure of the MIP instance. We propose to employ Dantzig–Wolfe reformulation and machine learning methods to obtain a fully data driven automatic decomposition framework. We also design strategies and introduce algorithmic techniques in order to make such a framework computationally effective. An extensive experimental analysis shows our framework to grant substantial improvements, in terms of both solutions quality and computing time, with respect to state-of-the-art automatic decomposition techniques. It also allows us to gain insights into the relative impact of different techniques. As a side product of our research, we provide a dataset of more than 31 thousand random decompositions of MIPLIB instances, with 121 features, including computations of their root node relaxation.},
+  langid = {english},
+  file = {C\:\\Users\\I517917\\Zotero\\storage\\7MQJTSPP\\A_data_driven_Dantzig-Wolfe_decomposition_framewor.pdf;C\:\\Users\\I517917\\Zotero\\storage\\N4V7GZRP\\Basso and Ceselli - 2023 - A data driven Dantzig–Wolfe decomposition framework.pdf}
 }
 
-
-@book{Mukherjee.2017,
- abstract = {Leverage the flexibility and power of SAP MII to integrate your business operations with your manufacturing processes. You'll explore important new features of the product and see how to apply best practices to connect all the stakeholders in your business. This book starts with an overview of SAP's manufacturing integration and intelligence application and explains why it is so important. You'll then see how it is applied in various manufacturing sectors. The biggest challenge in manufacturing industries is to reduce the manual work and human intervention so that the process becomes automatic. SAP MII: Functional and Technical Concepts in Manufacturing Industries explains how to bridge the gap between management and production and bring sound vital information to the shop floor in real time. With this book you'll see how to ensure existing manufacturing and information systems share a common interface for all users in your enterprise.},
- author = {Mukherjee, Suman and Mukherjee, Saptaparna},
- year = {2017},
- title = {SAP MII: Functional and Technical Concepts in Manufacturing Industries},
- address = {Berkeley, CA},
- publisher = {Apress and {Imprint: Apress}},
- isbn = {978-1-4842-2814-2}
+@book{bertsimasIntroductionLinearOptimization1997,
+  title = {Introduction to Linear Optimization},
+  author = {Bertsimas, Dimitris and Tsitsiklis, John N.},
+  date = {1997},
+  series = {Athena {{Scientific}} Series in Optimization and Neural Computation},
+  publisher = {Athena scientific},
+  location = {Belmont, Mass},
+  isbn = {978-1-886529-19-9},
+  langid = {english}
 }
 
-
-@misc{o.V..o.J.,
- abstract = {},
- author = {o.V.},
- editor = {{Frank Marketing UG}},
- year = {o.J.},
- title = {LaTeX arrows: Informationen zu LaTeX},
- howpublished = {\url{http://www.sascha-frank.com/Arrow/latex-arrows.html}},
- address = {o.O.},
- urldate = {2017-10-30}
+@article{boseDelineationIntimateDetails1975,
+  title = {Delineation of the Intimate Details of the Backbone Conformation of Pyridine Nucleotide Coenzymes in Aqueous Solution},
+  author = {Bose, K. S. and Sarma, R. H.},
+  date = {1975-10-27},
+  journaltitle = {Biochemical and Biophysical Research Communications},
+  shortjournal = {Biochem Biophys Res Commun},
+  volume = {66},
+  number = {4},
+  eprint = {2},
+  eprinttype = {pubmed},
+  pages = {1173--1179},
+  issn = {1090-2104},
+  doi = {10.1016/0006-291x(75)90482-9},
+  langid = {english},
+  keywords = {Fourier Analysis,Magnetic Resonance Spectroscopy,Models Molecular,Molecular Conformation,NAD,NADP,Structure-Activity Relationship,Temperature}
 }
 
-
-@book{Preuss.2017,
- abstract = {},
- year = {2017},
- title = {In-Memory-Datenbank SAP HANA},
- address = {Wiesbaden},
- publisher = {{Springer Gabler}},
- isbn = {978-3-658-18603-6},
- series = {SpringerLink : B{\"u}cher},
- editor = {Preuss, Peter}
+@book{BranchPrice,
+  title = {Branch \& {{Price}}},
+  file = {C:\Users\I517917\Zotero\storage\BC59M2BW\Branch & Price.pdf}
 }
 
-
-@book{Schell.2017,
- abstract = {},
- author = {Schell, Otto and Schocke, Kai-Oliver and Schmid-Lutz, Veronika and Stockrahm, Volker and Zinovieva, Julia},
- year = {2017},
- title = {Industrie 4.0 mit SAP: Digitale Transformation und das Internet of Things (IoT)},
- address = {Bonn},
- edition = {1. Auflage, neue Ausgabe},
- publisher = {Rheinwerk and {SAP PRESS}},
- isbn = {978-3-8362-4272-1},
- series = {SAP Press}
+@book{coverElementsInformationTheory2006,
+  title = {Elements of Information Theory},
+  author = {Cover, Thomas M. and Thomas, Joy A.},
+  date = {2006},
+  edition = {2nd ed},
+  publisher = {Wiley-Interscience},
+  location = {Hoboken, N.J},
+  abstract = {"The latest edition of this classic is updated with new problem sets and material The Second Edition of this fundamental textbook maintains the book's tradition of clear, thought-provoking instruction. Readers are provided once again with an instructive mix of mathematics, physics, statistics, and information theory. All the essential topics in information theory are covered in detail, including entropy, data compression, channel capacity, rate distortion, network information theory, and hypothesis testing. The authors provide readers with a solid understanding of the underlying theory and applications. Problem sets and a telegraphic summary at the end of each chapter further assist readers. The historical notes that follow each chapter recap the main points. The Second Edition features: * Chapters reorganized to improve teaching * 200 new problems * New material on source coding, portfolio theory, and feedback capacity * Updated references Now current and enhanced, the Second Edition of Elements of Information Theory remains the ideal textbook for upper-level undergraduate and graduate courses in electrical engineering, statistics, and telecommunications. An Instructor's Manual presenting detailed solutions to all the problems in the book is available from the Wiley editorial department."--Publisher's website},
+  isbn = {978-0-471-24195-9},
+  langid = {english}
 }
 
-
-@misc{Smith.2017,
- abstract = {},
- author = {Smith, Andre},
- editor = {blogs.sap.com},
- year = {2017},
- title = {SAP Integrates the New Blockchain Technologies: SAP Tests Different Blockchains},
- howpublished = {\url{https://blogs.sap.com/2017/10/24/sap-integrates-the-new-blockchain-technologies/}},
- address = {o.O.},
- urldate = {2017-10-24}
+@inbook{gamrathExperimentsGenericDantzigWolfe2010,
+  title = {Experiments with a {{Generic Dantzig-Wolfe Decomposition}} for {{Integer Programs}}},
+  booktitle = {Lecture {{Notes}} in {{Computer Science}}},
+  date = {2010},
+  pages = {239--252},
+  publisher = {Springer Berlin Heidelberg},
+  location = {Berlin, Heidelberg},
+  issn = {0302-9743, 1611-3349},
+  doi = {10.1007/978-3-642-13193-6_21},
+  url = {http://link.springer.com/10.1007/978-3-642-13193-6_21},
+  urldate = {2025-07-08},
+  bookauthor = {Gamrath, Gerald and Lübbecke, Marco E.},
+  isbn = {978-3-642-13192-9 978-3-642-13193-6}
 }
 
-
-@misc{Visser.2017,
- abstract = {},
- author = {Visser, Corina},
- editor = {{Zeit Online}},
- year = {2017},
- title = {Das Ende eines perfekten Teams},
- howpublished = {\url{http://www.zeit.de/wirtschaft/unternehmen/2013-07/sap-jim-hagemann-snabe-ruecktritt}},
- address = {o.O.},
- urldate = {2017-10-24}
+@online{GCG,
+  title = {{{GCG}}},
+  url = {https://gcg.or.rwth-aachen.de/},
+  urldate = {2025-07-08},
+  file = {C:\Users\I517917\Zotero\storage\R3QMUV9A\gcg.or.rwth-aachen.de.html}
 }
 
-
-@book{Zaidi.2017,
- abstract = {Easily master JavaScript (JS) with this quick guide and develop mobile and desktop applications for SAP Fiori. This book equips ABAP/SAP developers with the essential topics to get started with JS. The focus of JavaScript Essentials for SAP ABAP Developers is on the parts of the JS language that are useful from the perspective of an ABAP developer. The book starts with a brief intro to HTML, the basics of JS, and how to create and run a simple JS program. It then dives into the details of the language, showing how to make simple programs. It covers loops in detail, mathematical operations, and string and regular expressions in JS, as well as a taste of functions, followed by objects and object-oriented programming in JavaScript. The book provides: Sample code and screenshots to help you fully understand JSA chapter on JS best practices and recommendationsDifferences and comparisons of the elements and data structures of ABAP and JavaScript to help you quickly master the material What You'll Learn Create and run a simple JavaScript programUnderstand loops, operations, and expressionsMaster the Create and Use functionsUse objects and object-oriented programming in JSApply the best practices of JS programming Who This Book Is For SAP programmers and developers, ABAP users and developers, and university students learning ABAP and JavaScript.},
- author = {Zaidi, Rehan},
- year = {2017},
- title = {JavaScript essentials for SAP ABAP developers: A guide to mobile and desktop application development},
- address = {[New York, NY]},
- publisher = {Apress},
- isbn = {978-1-4842-2220-1}
+@thesis{GCGBasis,
+  title = {{{GCG Basis}}},
+  file = {C:\Users\I517917\Zotero\storage\EGGNUIB6\GCG Basis.pdf}
 }
 
+@thesis{GCGHMETISDetector,
+  title = {{{GCG HMETIS Detector Thesis}}},
+  file = {C:\Users\I517917\Zotero\storage\WARKH3FD\GCG HMETIS Detector Thesis.pdf}
+}
 
+@incollection{hoskinsPrePackOptimizationProblem2014,
+  title = {The {{PrePack Optimization Problem}}},
+  booktitle = {Integration of {{AI}} and {{OR Techniques}} in {{Constraint Programming}}},
+  author = {Hoskins, Maxim and Masson, Renaud and Gauthier Melançon, Gabrielle and Mendoza, Jorge E. and Meyer, Christophe and Rousseau, Louis-Martin},
+  editor = {Simonis, Helmut},
+  date = {2014},
+  volume = {8451},
+  pages = {136--143},
+  publisher = {Springer International Publishing},
+  location = {Cham},
+  doi = {10.1007/978-3-319-07046-9_10},
+  url = {http://link.springer.com/10.1007/978-3-319-07046-9_10},
+  urldate = {2025-02-02},
+  isbn = {978-3-319-07045-2 978-3-319-07046-9},
+  langid = {english},
+  file = {C:\Users\I517917\Zotero\storage\VJ66KF2W\Hoskins et al. - 2014 - The PrePack Optimization Problem.pdf}
+}
+
+@book{junger50YearsInteger2009,
+  title = {50 Years of Integer Programming, 1958-2008: The Early Years and State-of-the-Art Surveys},
+  shorttitle = {50 Years of Integer Programming, 1958-2008},
+  editor = {Jünger, M.},
+  date = {2009},
+  publisher = {Springer},
+  location = {Heidelberg},
+  isbn = {978-3-540-68274-5},
+  pagetotal = {803},
+  keywords = {Combinatorial optimization,Congresses,Integer programming},
+  file = {C:\Users\I517917\Zotero\storage\AZMHD8VS\Jünger - 2009 - 50 years of integer programming, 1958-2008 the early years and state-of-the-art surveys.pdf}
+}
+
+@inproceedings{karypisMultilevelHypergraphPartitioning1997,
+  title = {Multilevel Hypergraph Partitioning: Application in {{VLSI}} Domain},
+  shorttitle = {Multilevel Hypergraph Partitioning},
+  booktitle = {Proceedings of the 34th Annual Conference on {{Design}} Automation Conference  - {{DAC}} '97},
+  author = {Karypis, George and Aggarwal, Rajat and Kumar, Vipin and Shekhar, Shashi},
+  date = {1997},
+  pages = {526--529},
+  publisher = {ACM Press},
+  location = {Anaheim, California, United States},
+  doi = {10.1145/266021.266273},
+  url = {http://portal.acm.org/citation.cfm?doid=266021.266273},
+  urldate = {2025-07-08},
+  eventtitle = {The 34th Annual Conference},
+  file = {C:\Users\I517917\Zotero\storage\XBUFF547\Karypis et al. - 1997 - Multilevel hypergraph partitioning application in VLSI domain.pdf}
+}
+
+@article{khaniyevStructureDetectionMixedInteger2018,
+  title = {Structure {{Detection}} in {{Mixed-Integer Programs}}},
+  author = {Khaniyev, Taghi and Elhedhli, Samir and Erenay, Fatih Safa},
+  date = {2018-08},
+  journaltitle = {INFORMS Journal on Computing},
+  shortjournal = {INFORMS Journal on Computing},
+  volume = {30},
+  number = {3},
+  pages = {570--587},
+  issn = {1091-9856, 1526-5528},
+  doi = {10.1287/ijoc.2017.0797},
+  url = {https://pubsonline.informs.org/doi/10.1287/ijoc.2017.0797},
+  urldate = {2025-04-17},
+  abstract = {Despite vast improvements in computational power, many large-scale optimization problems involving integer variables remain difficult to solve. Certain classes, however, can be efficiently solved by exploiting special structure. One such structure is the singly bordered block-diagonal (BBD) structure that lends itself to Dantzig-Wolfe decomposition, Lagrangian relaxation, and branch and price. We start by introducing a new measure of goodness to capture desired features in BBD structures such as granularity of the structure, homogeneity of the block sizes, and isomorphism of the blocks. We then use it to propose a new approach to identify the best BBD structure inherent in the constraint matrix. The main building block of the proposed approach is the use of a community detection methodology in lieu of graph/hypergraph partitioning methods to alleviate one major drawback of the existing approaches in the literature: predefining the number of blocks. When tested on MIPLIB2003/2010 instances and compared against the state-of-the-art technique, the proposed algorithm is found to identify very good structures and require shorter CPU time to reach comparable bounds, in most cases.},
+  langid = {english},
+  file = {C:\Users\I517917\Zotero\storage\J5F2LTSV\Khaniyev et al. - 2018 - Structure Detection in Mixed-Integer Programs.pdf}
+}
+
+@book{rossiHandbookConstraintProgramming2006,
+  title = {Handbook of Constraint Programming},
+  editor = {Rossi, Francesca and family=Beek, given=Peter, prefix=van, useprefix=false and Walsh, Toby},
+  date = {2006},
+  series = {Foundations of Artificial Intelligence},
+  edition = {1st ed},
+  publisher = {Elsevier},
+  location = {Amsterdam},
+  abstract = {Constraint programming is a powerful paradigm for solving combinatorial search problems that draws on a wide range of techniques from artificial intelligence, computer science, databases, programming languages, and operations research. Constraint programming is currently applied with success to many domains, such as scheduling, planning, vehicle routing, configuration, networks, and bioinformatics. The aim of this handbook is to capture the full breadth and depth of the constraint programming field and to be encyclopedic in its scope and coverage. While there are several excellent books on constraint programming, such books necessarily focus on the main notions and techniques and cannot cover also extensions, applications, and languages. The handbook gives a reasonably complete coverage of all these lines of work, based on constraint programming, so that a reader can have a rather precise idea of the whole field and its potential. Of course each line of work is dealt with in a survey-like style, where some details may be neglected in favor of coverage. However, the extensive bibliography of each chapter will help the interested readers to find suitable sources for the missing details. Each chapter of the handbook is intended to be a self-contained survey of a topic, and is written by one or more authors who are leading researchers in the area. The intended audience of the handbook is researchers, graduate students, higher-year undergraduates and practitioners who wish to learn about the state-of-the-art in constraint programming. No prior knowledge about the field is necessary to be able to read the chapters and gather useful knowledge. Researchers from other fields should find in this handbook an effective way to learn about constraint programming and to possibly use some of the constraint programming concepts and techniques in their work, thus providing a means for a fruitful cross-fertilization among different research areas. The handbook is organized in two parts. The first part covers the basic foundations of constraint programming, including the history, the notion of constraint propagation, basic search methods, global constraints, tractability and computational complexity, and important issues in modeling a problem as a constraint problem. The second part covers constraint languages and solver, several useful extensions to the basic framework (such as interval constraints, structured domains, and distributed CSPs), and successful appl},
+  isbn = {978-0-08-046380-3},
+  langid = {english},
+  pagetotal = {1},
+  file = {C:\Users\I517917\Zotero\storage\SH3NRWZH\Rossi et al. - 2006 - Handbook of constraint programming.pdf}
+}
+
+@report{sadykovBaPCodGenericBranchandprice2021,
+  type = {Technical Report},
+  title = {{{BaPCod}} - a Generic Branch-and-Price Code},
+  author = {Sadykov, Ruslan and Vanderbeck, François},
+  date = {2021-11},
+  institution = {Inria Bordeaux Sud-Ouest},
+  url = {https://inria.hal.science/hal-03340548}
+}
+
+@incollection{salvagninDetectingSemanticGroups2016,
+  title = {Detecting {{Semantic Groups}} in {{MIP Models}}},
+  booktitle = {Integration of {{AI}} and {{OR Techniques}} in {{Constraint Programming}}},
+  author = {Salvagnin, Domenico},
+  editor = {Quimper, Claude-Guy},
+  date = {2016},
+  volume = {9676},
+  pages = {329--341},
+  publisher = {Springer International Publishing},
+  location = {Cham},
+  doi = {10.1007/978-3-319-33954-2_24},
+  url = {http://link.springer.com/10.1007/978-3-319-33954-2_24},
+  urldate = {2025-02-02},
+  isbn = {978-3-319-33953-5 978-3-319-33954-2},
+  file = {C:\Users\I517917\Zotero\storage\XPPXJYNV\Salvagnin - 2016 - Detecting Semantic Groups in MIP Models.pdf}
+}
+
+@online{SASDataAI,
+  title = {{{SAS}}: {{Data}} and {{AI Solutions}}},
+  shorttitle = {{{SAS}}},
+  url = {https://www.sas.com/en_us/home.html},
+  urldate = {2025-07-08},
+  abstract = {SAS is the leader in analytics. Through innovative Analytics, Artificial Intelligence and Data Management software and services, SAS helps turn your data into better decisions.},
+  langid = {english},
+  file = {C:\Users\I517917\Zotero\storage\9BC5QMWU\home.html}
+}
+
+@online{SCIPDoxygenDocumentation,
+  title = {{{SCIP Doxygen Documentation}}: {{Overview}}},
+  url = {https://www.scipopt.org/doc/html/},
+  urldate = {2025-07-08},
+  file = {C:\Users\I517917\Zotero\storage\DQSXTNK2\html.html}
+}
+
+@unpublished{strIPlib,
+  title = {{{strIPlib}}: {{Structured}} Integer Programming Library},
+  author = {Bastubbe, Michael and Helber, Alexander and Kirchhart, Lukas and Lübbecke, Marco and Rieken, Niklas and Witt, Jonas},
+  date = {2025},
+  url = {https://striplib.or.rwth-aachen.de}
+}

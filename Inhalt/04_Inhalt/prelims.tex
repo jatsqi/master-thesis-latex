@@ -4,11 +4,46 @@
 	\section{Linear Optimization}
 	% 2 Seiten
 	
+		\clearpage
+	
 	\section{Dantzig-Wolfe Decomposition}
 	% 2 Seiten
+	
+		\clearpage
 	
 	\section{Graph Theory}
 	% 2 Seiten
 	
+		\clearpage
+	
 	\section{Partition Refinement}
 	% 2 Seiten
+	
+		\clearpage
+	
+	\section{Surprise and Entropy}
+	
+		\begin{figure}[ht!]
+			\centering
+			\includesvg[scale=0.85]{Bilder/DrawIO/entropy}
+			\caption{Entropy is measure of \enquote{surprise} and it increases with decreasing probability. On the left side, both colors are distributed equally, so one would be equally surprised to draw either one of the colors. On the right side, drawing a red ball from the set of elements would be really surprising, because the probability is only $\frac{1}{12}$. But because this event is very unlikely, one would \textit{not expected} to be surprised. Therefore, the entropy is low.}
+			\label{figure:prelim:entropy}
+		\end{figure}
+	
+		The \textit{information value} or \textit{surprisal} of an event $E$ is defined as
+		\begin{equation}
+			I(E) = \log_b \left( \frac{1}{p(E)} \right) = - \log_b \left( p(E) \right)
+		\end{equation}
+		It increases as the probability of the event $p(E)$ decreases.
+		Intuitively, if the probability is close to $1$, then one wouldn't be surprised if this event actually occurred, so the surprisal is close to $0$.
+		
+		The \textit{entropy}, or \textit{expected surprise}, $H(X)$ of a discrete random variable $X$ which takes values in the set $\mathcal{X}$ is defined by equation \ref{eq:prelims:entropy} \cite{coverElementsInformationTheory2006}.
+		\begin{equation}
+		\label{eq:prelims:entropy}
+			H(X) =  \sum_{x \in \mathcal{X}} p(x) I(X) = - \sum_{x \in \mathcal{X}} p(x) \log_b p(x)
+		\end{equation}
+		where $p(x) \coloneq \mathbb{P}[X = x]$.
+		
+		If not specified any further, the base $b$ of the logarithm is assumed to be $2$.
+		In chapter \todo{ref} these concepts will be used to define a heuristic scoring system based on constraint names.
+	

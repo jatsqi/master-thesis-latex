@@ -2,33 +2,7 @@
 
 \section{MIPLIB Constraint Types}
 	
-	\begin{table}[ht!]
-		\centering
-		\begin{tabular}{l|l|l|l}
-			\textbf{Nr.} & \textbf{Type} & \textbf{Linear Constraint} & \textbf{Notes} \\
-			\hline
-			\hline
-			1 & Empty & $\emptyset$ & - \\
-			2 & Free & $-\infty \leq x \leq \infty$ & No finite side. \\
-			3 & Singleton & $a \leq x \leq b$ & - \\
-			4 & Aggregation & $ax + by = c$ & - \\
-			5 & Precedence & $ax - ay \leq b$ & $x$, $y$ have same type. \\
-			6 & Variable Bound & $ax + by \leq c$ & $x \in \{0, 1\}$ \\
-			7 & Set Partitioning & $\sum 1 x_i = 1$ & $\forall i: x_i \in \{0, 1\}$ \\
-			8 & Set Packing & $\sum 1 x_i \leq 1$ & $\forall i: x_i \in \{0, 1\}$ \\
-			9 & Set Covering & $\sum 1 x_i \geq 1$ & $\forall i: x_i \in \{0, 1\}$ \\
-			10 & Cardinality & $\sum 1 x_i = b$ & $\forall i: x_i \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$ \\
-			11 & Invariant Knapsack & $\sum 1 x_i \leq b$ & $\forall i: x_i \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$ \\
-			12 & Equation Knapsack & $\sum a_i x_i = 1$ & $\forall i: x_i \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$ \\
-			13 & Bin Packing & $\sum a_i x_i + ay \leq a$ & $\forall i: x_i, y \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$ \\
-			14 & Knapsack & $\sum a_i x_i \leq b$ & $\forall i: x_i \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$ \\
-			15 & Integer Knapsack & $\sum a_i x_i \leq b$ & $\forall i: x_i \in \mathbb{Z}, b \in \mathbb{N}$ \\
-			16 & Mixed Binary & $\sum a_i x_i + \sum p_j s_j \; \{\leq, =\} \; b$ & $\forall i: x_i \in \{0, 1\}, \forall j: s_j \; \mathrm{continuous}$ \\
-			17 & General Linear & $\sum a_i x_i \; \{\leq, \geq, =\} \; b$ & No special structure.
-		\end{tabular}
-		\caption{The structure of all 17 constraint types MIPLIB keeps track of.}
-		\label{table:constypes:miplib}
-	\end{table}
+	
 	\clearpage
 
 \section{Relaxed Constraint Types}
