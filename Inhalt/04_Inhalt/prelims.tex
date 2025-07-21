@@ -4,10 +4,25 @@
 	\section{Linear Optimization}
 	% 2 Seiten
 	
+		Linear Programming (LP) is a mathematical optimization technique used to determine the best possible outcome in a given model, whose requirements are represented by linear relationships. The goal is typically to maximize or minimize a linear objective function, subject to a set of linear equality and/or inequality constraints.
+		
+		In a standard form, a linear programming problem can be expressed as follows:
+		\begin{align*}
+			\max c^T x \\
+		\end{align*}
+		\begin{itemize}
+			\item x is the vector of variables,
+			\item c is the vector of coefficients in the objective function,
+			\item A is a matrix representing the coefficients of the constraints, and
+			\item b is the right-hand side vector of the constraints.
+		\end{itemize}
+		
+		Linear programming is widely used in various fields such as operations research, economics, engineering, and logistics, due to its efficiency in solving large-scale real-world optimization problems. Algorithms such as the Simplex Method and Interior Point Methods are commonly used to solve LP problems efficiently.
+	
 		\clearpage
 	
 	\section{Dantzig-Wolfe Decomposition}
-	% 2 Seiten
+	% 3 Seiten
 	
 		\clearpage
 	
@@ -18,6 +33,53 @@
 	
 	\section{Partition Refinement}
 	% 2 Seiten
+		Partition refinement is a fundamental concept in computer science, particularly relevant in fields such as automata theory, graph theory and model checking.
+		A \textit{partition} refers to a decomposition of a set $U$ into disjoint, non-empty subsets $\{ A_1, A_2, \ldots, A_k \}$, called \textit{cells} or \textit{blocks}, such that:
+		\begin{equation*}
+			\bigcup^k_{i=0} A_i = U \; \mathrm{and} \; \forall i \neq j: A_i \cap A_j = \emptyset
+		\end{equation*}
+		A partition $\pi = \{ A_1, A_2, \ldots, A_k \}$ of a set $U$ is called a refinement of a partition $\pi' = \{ B_1, B_2, \ldots, B_m \}$, iff
+		\begin{equation*}
+			\forall A_i \in \pi \;\; \exists B_j \in \pi' : A_i \subseteq B_j
+		\end{equation*} 
+		As a special case, a partition is a refinement of itself.
+		More informally, partition $\pi'$ must reflect a \enquote{finer} classification of the elements than in $\pi$. 
+		
+		Partition refinement refers to an \textit{iterative} process that refines a given initial partition of a set over the course of multiple iterations.
+		Given a splitter-function $f: U \mapsto Q$ which maps every element of $U$ to some element of an arbitrary target set $Q$, an initial partition $\pi_{\mathrm{init}}$ the goal is typically to find the coarsest partition $\pi_f = \{ A_1, A_2, \ldots, A_k \}$ of $U$ such that the following two properties hold:
+		
+		\begin{enumerate}
+			\item The partition $\pi_f$ is a refinement of the initial partition $\pi_{\mathrm{init}}$
+			\item $\forall A_i \in \pi_f \; \forall a, b \in P_i: f(a) = f(b)$, that is, the function $f$ can intuitively be thought of a function expressing a certain \enquote{property} for each element. Elements with different properties cannot be part of the same cell and must be separated from each other during the refinement process.
+		\end{enumerate}
+		
+		Furthermore, the underlying problem structure to which partition refinement is applied, as well as the type of splitter function used, are not inherently restricted. In practice, however, many problems can be reformulated or encoded as graphs, where the function $f$ captures a vertex property.
+		For instance, in deterministic finite automaton (DFA) minimization, partition refinement is used to iteratively distinguish states by observing the equivalence classes of their transitions (Hopcroft's algorithm): two states are grouped together only if, for every input symbol, their transitions lead into the same partition class; in graph isomorphism testing, it could encode vertex degrees or local neighborhood structures; and in Markov decision processes (MDPs), $f$ might reflect the expected reward or transition behavior.
+		These encodings allow partition refinement to exploit structural symmetries and behavioral equivalences in a wide range of domains, especially if problems in that domain can be encoded as graphs.
+		
+		For the purposes of this work, $f$ will usually represent a function structurally similar to a \textit{connection function} as it used in many graph automorphism packages.
+		Given a graph $G = (V, E)$, then we define two types of connection function as follows:
+		\begin{align}
+			f_{\mathrm{count}}(v, X_{\mathrm{ind}}) &= \left| \{ v' \in V \mid \forall (v, v') \in E, v' \in X_{\mathrm{ind}} \} \right| \label{eq:prelims:pref:count} \\
+			f_{\mathrm{exists}}(v, X_{\mathrm{ind}}) &= \begin{cases}
+				1 & \left| \{ v' \in V \mid \forall (v, v') \in E, v' \in X_{\mathrm{ind}}   \} \right| > 0 \label{eq:prelims:pref:exists} \\
+				0 & \mathrm{else}
+			\end{cases}
+		\end{align}
+		
+		Functions \ref{eq:prelims:pref:count} and \ref{eq:prelims:pref:exists}
+		
+		\begin{algorithm}[ht!]
+			\centering
+			\begin{algorithmic}
+				\While{Test}
+				\EndWhile
+			\end{algorithmic}
+			\caption{Partition refinement algorithm}
+			\label{algo:prelims:refinement}
+		\end{algorithm}
+	
+		Furthermore, if the underlying graph is bipartite and the splitter-function is expressing a vertex-property, i.e., 
 	
 		\clearpage
 	
@@ -25,8 +87,8 @@
 	
 		\begin{figure}[ht!]
 			\centering
-			\includesvg[scale=0.85]{Bilder/DrawIO/entropy}
-			\caption{Entropy is measure of \enquote{surprise} and it increases with decreasing probability. On the left side, both colors are distributed equally, so one would be equally surprised to draw either one of the colors. On the right side, drawing a red ball from the set of elements would be really surprising, because the probability is only $\frac{1}{12}$. But because this event is very unlikely, one would \textit{not expected} to be surprised. Therefore, the entropy is low.}
+			\includesvg[scale=0.82]{Bilder/DrawIO/entropy}
+			\caption{Entropy is measure of \enquote{surprise} and it increases with decreasing probability. On the left side, both colors are evenly distributed, so drawing either one is equally surprising. On the right side, drawing a red ball from the set of elements would be very surprising, because the probability is only $\frac{1}{12}$. But because this event is so unlikely, one does \textit{not expect} to be surprised. As a result, the expected surprise - that is, the entropy - is low.}
 			\label{figure:prelim:entropy}
 		\end{figure}
 	
