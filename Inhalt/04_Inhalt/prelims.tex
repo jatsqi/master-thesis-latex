@@ -1,35 +1,163 @@
 \chapter{Preliminaries}
 % 0.5 Seiten
 
+	In this chapter, we provide sufficient background needed to understand the algorithmic details and ideas discussed in Chapter \ref{chap:tree}.
+	First, we take a look at linear optimization as a general concept and discuss necessary basics such as \ac{MIP}.
+	Afterwards, these concepts are used to take a more detailed look into the characteristics of the Dantzig-Wolfe decomposition, which represents a major component of the decomposition solver \acs{GCG}.
+	In addition, notations and basic definitions related to Graph Theory are introduced including the concept of \textit{Partition Refinement}; an algorithmic approach used as a building block in Chapters \ref{chap:tree} and \ref{chap:impl}.
+
 	\section{Linear Optimization}
 	% 2 Seiten
 	
-		Linear Programming (LP) is a mathematical optimization technique used to determine the best possible outcome in a given model, whose requirements are represented by linear relationships. The goal is typically to maximize or minimize a linear objective function, subject to a set of linear equality and/or inequality constraints.
+		\textit{Linear Optimization} is a mathematical optimization technique used to determine the best possible values for a set of variables in a given model, whose constraints or requirements are represented by linear relationships. The goal is typically to maximize or minimize a objective function, subject to a set of equality and/or inequality constraints. Both objective and constraints must be linear.
 		
-		In a standard form, a linear programming problem can be expressed as follows:
-		\begin{align*}
-			\max c^T x \\
-		\end{align*}
-		\begin{itemize}
-			\item x is the vector of variables,
-			\item c is the vector of coefficients in the objective function,
-			\item A is a matrix representing the coefficients of the constraints, and
-			\item b is the right-hand side vector of the constraints.
-		\end{itemize}
+		If all variables are only allowed to take values from $\mathbb{R}^n_{\geq}$, i.e., only continuous values, then this optimization technique is referred to as \textit{Linear Programming}.
+		In a standard form, a linear programming problem with variable vector $\mathbf{x} \in \mathbb{R}^n$, constraint matrix $A \in \mathbb{R}^{m \times n}$, objective coefficients $c \in \mathbb{R}^n$ and right-hand side vector of the constraints $b \in \mathbb{R}^m$ can be expressed as follows:
+		%
+		\begin{alignat*}{3}
+			&z^*_{LP} \; &={}	\min	&\quad  c^T && \mathbf{x} \\
+			&				  		& \text{s.t.} & \quad A && \mathbf{x} \geq b \\
+			&						&					 &					&& \mathbf{x} \geq 0
+		\end{alignat*}
+		%
+		Note that it is also possible to represent a set of equality $A' \mathbf{x} = b'$ by the two sets of inequalities $A' \mathbf{x} \geq b'$ and $A' \mathbf{x} \leq b'$.
+		Without loss of generality, we assume optimization problems to always be minimization problems, unless explicitly stated otherwise.
+		
+		\begin{figure}[ht!]
+			\centering
+			\begin{minipage}{0.45\textwidth}
+				\begin{tikzpicture}[scale=1.0]
+					% Grid
+					\draw[->,thick] (0,0)--(4,0) node[right]{$x_2 \in \mathbb{R}_{\geq 0}$};
+					\draw[->,thick] (0,0)--(0,4) node[above]{$x_1 \in \mathbb{R}_{\geq 0}$};
+					
+					% Beschriftung der Nebenbedingungen
+					\draw[thick] (1,0.64)--(3.43,0.78);
+					\draw[thick] (3.43,0.78)--(3.88,2.34);
+					\draw[thick] (3.88,2.34)--(0.68,3.3);
+					\draw[thick] (0.68,3.3)--(0.5,2.01);
+					\draw[thick] (0.5,2.01)--(1,0.64);
+					
+					% Draw Points
+					\fill (1,0.64) circle (2pt);
+					\fill (3.43,0.78) circle (2pt);
+					\fill (3.88,2.34) circle (2pt);
+					\fill (0.68,3.3) circle (2pt);
+					\fill (0.5,2.01) circle (2pt);
+					
+					\foreach \x in {0, 1, 2,3,4} {
+						\foreach \y in {0, 1, 2,3,4} {
+							\fill (\x, \y) circle (1pt);
+						}
+					}
+					
+					\fill[blue] (1,1) circle (1.3pt);
+					\fill[blue] (2,1) circle (1.3pt);
+					\fill[blue] (3,1) circle (1.3pt);
+					\fill[blue] (1,2) circle (1.3pt);
+					\fill[blue] (2,2) circle (1.3pt);
+					\fill[blue] (3,2) circle (1.3pt);
+					\fill[blue] (1,3) circle (1.3pt);
+					
+					% Zulässiger Bereich (grau hinterlegt)
+					\fill[gray!30,opacity=0.6] 
+					(1,0.64) 
+					-- (3.43,0.78) 
+					-- (3.88,2.34) 
+					-- (0.68,3.3) 
+					-- (0.5,2.01)
+					-- cycle;
+					
+					% Drei rechtwinklige Striche am Ende
+					%\foreach \i in {-0.2, 0, 0.2} {
+						%	\draw[thick] 
+						%	($ (3,0) + (\i,0) $) -- 
+						%	($ (3,0) + (\i,0) + (45:0.2) $); % 45° ist senkrecht zur Linie (315° Linie)
+						%}
+				\end{tikzpicture}
+			\end{minipage}%
+			\begin{minipage}{0.45\textwidth}
+				\begin{tikzpicture}[scale=1.0]
+					% Grid
+					\draw[->,thick] (0,0)--(4,0) node[right]{$x_2 \in \mathbb{R}_{\geq 0}$};
+					\draw[->,thick] (0,0)--(0,4) node[above]{$x_1 \in \mathbb{R}_{\geq 0}$};
+					
+					% Beschriftung der Nebenbedingungen
+					\draw[thick] (1,0.64)--(3.43,0.78);
+					\draw[thick] (3.43,0.78)--(3.88,2.34);
+					\draw[thick] (3.88,2.34)--(0.68,3.3);
+					\draw[thick] (0.68,3.3)--(0.5,2.01);
+					\draw[thick] (0.5,2.01)--(1,0.64);
+					
+					% Draw Points
+					\fill (1,0.64) circle (2pt);
+					\fill (3.43,0.78) circle (2pt);
+					\fill (3.88,2.34) circle (2pt);
+					\fill (0.68,3.3) circle (2pt);
+					\fill (0.5,2.01) circle (2pt);
+					
+					\foreach \x in {0, 1, 2,3,4} {
+						\foreach \y in {0, 1, 2,3,4} {
+							\fill (\x, \y) circle (1pt);
+						}
+					}
+					
+					\fill[blue] (1,1) circle (1.3pt);
+					\fill[blue] (2,1) circle (1.3pt);
+					\fill[blue] (3,1) circle (1.3pt);
+					\fill[blue] (1,2) circle (1.3pt);
+					\fill[blue] (2,2) circle (1.3pt);
+					\fill[blue] (3,2) circle (1.3pt);
+					\fill[blue] (1,3) circle (1.3pt);
+					
+					% Zulässiger Bereich (grau hinterlegt)
+					\fill[gray!30,opacity=0.6] 
+					(1,0.64) 
+					-- (3.43,0.78) 
+					-- (3.88,2.34) 
+					-- (0.68,3.3) 
+					-- (0.5,2.01)
+					-- cycle;
+					
+					% Drei rechtwinklige Striche am Ende
+					%\foreach \i in {-0.2, 0, 0.2} {
+						%	\draw[thick] 
+						%	($ (3,0) + (\i,0) $) -- 
+						%	($ (3,0) + (\i,0) + (45:0.2) $); % 45° ist senkrecht zur Linie (315° Linie)
+						%}
+				\end{tikzpicture}
+			\end{minipage}
+			\caption{Solution space of a linear program highlighted in gray. Point highlighted in blue represent the solution space of the corresponding integer linear program.}
+			\label{fig:prelims:linear:solspace:unbounded}
+		\end{figure}
+		\todo{unbounded on right}
 		
 		Linear programming is widely used in various fields such as operations research, economics, engineering, and logistics, due to its efficiency in solving large-scale real-world optimization problems. Algorithms such as the Simplex Method and Interior Point Methods are commonly used to solve LP problems efficiently.
-	
-		\clearpage
+		The simplex algorithm in particular is widely used in practice because of its efficiency on most problems, even though its worst-case complexity is exponential-time on certain families of problems depending on the chosen pivot-rule. \todo{cite}
+		However, on most problems the simplex algorithm only takes a polynomial number of steps to terminate.
+		
+		\subsection{Mixed-Integer Programs}
+			%
+			\begin{alignat*}{3}
+				&z^*_{LP} \; &={}	\min	&\quad  c^T && \mathbf{x} \\
+				&				  		& \text{s.t.} & \quad A && \mathbf{x} \geq b \\
+				&						&					 &					&& \mathbf{x} \in \mathbb{Z}_{\geq 0}
+			\end{alignat*}
+			%
+			
 	
 	\section{Dantzig-Wolfe Decomposition}
 	% 3 Seiten
 	
 		\clearpage
+		A\clearpage
+		A\clearpage
 	
 	\section{Graph Theory}
 	% 2 Seiten
 	
 		\clearpage
+		A\clearpage
 	
 	\section{Partition Refinement}
 	% 2 Seiten
@@ -108,4 +236,3 @@
 		
 		If not specified any further, the base $b$ of the logarithm is assumed to be $2$.
 		In chapter \todo{ref} these concepts will be used to define a heuristic scoring system based on constraint names.
-	
