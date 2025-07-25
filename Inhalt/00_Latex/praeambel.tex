@@ -129,6 +129,14 @@
 \usepackage{pgfplots}
 \usepackage{svg}
 
+\usepackage{nicematrix}
+\NiceMatrixOptions{
+	code-for-first-row = \color{blue} ,
+	code-for-last-row = \color{blue} ,
+	code-for-first-col = \color{blue} ,
+	code-for-last-col = \color{blue}
+}
+
 % TikZ
 \usetikzlibrary{calc}
 \usetikzlibrary{intersections}
@@ -138,3 +146,4 @@
 \newcommand{\acfreverse}[1]{\acs{#1} (\acl{#1})}
 \newtheorem{definition}{Definition}[section]
 
+\DeclareUnicodeCharacter{25CF}{$\bullet$}

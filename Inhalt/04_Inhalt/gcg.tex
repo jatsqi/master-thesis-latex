@@ -4,7 +4,7 @@
 
 	\begin{figure}[ht!]
 		\centering
-		\includesvg{Bilder/DrawIO/detection_overview}
+		\includesvg[scale=0.8]{Bilder/DrawIO/detection_overview}
 		\caption{A simplified overview of the four major stages of solving a model with \acs{GCG}.}
 		\label{fig:gcg:overview}
 	\end{figure}
@@ -31,7 +31,7 @@
 	
 		\begin{figure}[ht!]
 			\centering
-			\includesvg[scale=0.73]{Bilder/DrawIO/detection_loop}
+			\includesvg[scale=0.7]{Bilder/DrawIO/detection_loop}
 			\caption{A simplified overview of the detection process and its detection loop.}
 			\label{fig:gcg:detectionloop}
 		\end{figure}
@@ -71,16 +71,76 @@
 	\label{chap:gcg:classifiers}
 		% 1 Seite, Var Classifiers
 		% 1 Seite, Cons Classifiers
+
+		As mentioned in the introduction to this chapter, classifiers are responsible for detecting different underlying structures of the constraint matrix, which can be used during the detection loop to make more informed decisions about which constraints to assign to which block or master.
+		Given a set of constraints $C = \{ c_1, c_2, \ldots, c_m \}$, classifiers can be seen as a \textit{injective} function $f: C \mapsto \mathbb{Z}$, i.e., a function that assigns each constraint to exactly one number or \textit{class}.
+		Note that in \acs{GCG}, classifiers are allowed to only classify a subset $C' \subseteq C$, leaving $C \setminus C'$ unassigned to any class \footnote{When using \ac{GCG} as a library, this can be checked via. \lstinline|IndexPartition::isIndexClassified|.}.
+		In the current version of \ac{GCG}, however, all classifiers always assign every constraint to some class.
 		
 		\subsection{Name Classifiers}
 		
+			The names of constraints and variables are, if provided, a strong indicator to which constraints or variables are related to each other.
+			The names usually consist of two parts:
+			\begin{enumerate}
+				\item The semantic group name, such as \enquote{capacity} or \enquote{link} for e.g. a Bin-Packing model. 
+				\item A \textit{modifier}, which usually consists of numbers, capital letters or a combination of both. Typically, the modifier is separated from the semantic group name via.  non alpha-numeric characters such as \enquote{\_} or \enquote{\#}.
+			\end{enumerate}
+		
+			Constraints in the same group typically share similar names, with the \textit{modifier} being the only differentiating factor. For example, in a Bin-Packing problem, capacity constraints such as \enquote{capacity\_1}, \enquote{capacity\_2}, $\ldots$ usually vary only in the index indicating the bin. This similarity can be quantified using metrics like the \textit{Levenshtein Distance}, which is the minimum number of single-character edits required to change one word into the other.
 			
+			Given a alphabet $\Sigma$, words $w, v \in \Sigma^*$ over that alphabet, then the \textit{Levenshtein} distance between those two words can be computed as:
+			%
+			\begin{equation}
+				\label{eq:gcg:levenshtein}
+				\mathrm{lev}(w, v) = \begin{cases}
+					|w| & \mathrm{if} \; v = \epsilon \\
+					|v| & \mathrm{if} \; w = \epsilon \\
+					\mathrm{lev}(\mathrm{prefix}(w), \mathrm{prefix}(v)) & \mathrm{if} \; \mathrm{head}(w) = \mathrm{head}(v) \\
+					1 + \min \begin{cases}
+						\mathrm{lev}(\mathrm{prefix}(w), v) \\
+						\mathrm{lev}(w, \mathrm{prefix}(v)) \\
+						\mathrm{lev}(\mathrm{prefix}(w), \mathrm{prefix}(v)) \\
+					\end{cases} & \mathrm{otherwise}
+				\end{cases}
+			\end{equation}
+			%
+			Equation \ref{eq:gcg:levenshtein} can be computed in $O(|w| \cdot |v|)$ using a dynamic programming approach.
+			Let $B = (\mathrm{lev}(\mathrm{name}(c_i), \mathrm{name}(c_j)))_{1 \leq i,j \leq m}$ the pair-wise Levenshtein Distance between constraint names, $k \in \mathbb{N}$ the \textit{connectivity} and $G = (V, E)$ with $V = \{ c_1, c_2, \ldots, c_m \}, E = \{ \{ u, v \} \mid u, v \in V, u \neq v, \mathrm{lev}(\mathrm{name}(u), \mathrm{name}(v)) \leq k \}$.
+			Furthermore, let $reach(v) = \{ u \in V \mid (v, u) \in E \}$ be the set of reachable vertices from vertex $v \in V$.
+			Then two constraints $c_i, c_j \in V$ are in the same class iff $c_j \in reach(c_i)$.
+			A small example of this concept is shown in Figure \ref{fig:gcg:levenshtein}.
+			
+			\begin{figure}[ht!]
+				\centering
+				\includesvg[scale=0.8]{Bilder/DrawIO/levenshtein}
+				\caption{The graph of pair-wise Levenshtein weights for three capacity constraints. For $k=1$, the edge between $capacity_3$ and $capacity_{12}$ vanishes, but because they is still a connecting path via. $capacity_1$, both constraints are assigned to the same class.}
+				\label{fig:gcg:levenshtein}
+			\end{figure}
 		
 		\subsection{Numeric Classifiers}
+			
+			\subsubsection{Nonzero}
+			
+				\begin{figure}[ht!]
+					\centering
+					\begin{equation*}
+						A \; = \; \begin{pNiceMatrix}[first-row,first-col,last-col]
+							& x_1 & x_2 & x_3 & x_4 & \; \textcolor{red}{class} \\
+							{cons}_1 \; & 1 & 5 & -1 & -1 & \quad \textcolor{red}{4} \\
+							{cons}_2 \; & 20 & 0 & 0 & 20 & \quad \textcolor{red}{2} \\
+							{cons}_3 \;& 20 & 10 & 10 & 0 & \quad \textcolor{red}{3} \\
+							{cons}_4 \; & 0 & 100 & -100 & 100 & \quad \textcolor{red}{3} \\
+						\end{pNiceMatrix}
+					\end{equation*}
+					\caption{A constraint matrix with coefficients for each variable. Each constraint is assigned to a class corresponding to its number of non-zero entries.}
+					\label{fig:gcg:nonzero}
+				\end{figure}
+				
+				The nonzero classifier classified constraints according to their number of non-zero variable coefficients as shown in Figure \ref{fig:gcg:nonzero}.
 		
-			In contrast to a classifier based on properties the  lassifiers are solely based on 
-		
-			\clearpage
+			\subsubsection{Objective}
+			
+				
 		
 		\subsection{Type Classifiers}
 		
@@ -137,10 +197,6 @@
 				\end{table}
 				
 				In order to get a more fine-grained classification based on inferred constraint types, 
-		\clearpage
-		
-	\subsection{Detectors}
-	% 1 Seite
 		\clearpage
 	
 	\section{Existing Detectors}
