@@ -109,6 +109,7 @@
 			Furthermore, let $reach(v) = \{ u \in V \mid (v, u) \in E \}$ be the set of reachable vertices from vertex $v \in V$.
 			Then two constraints $c_i, c_j \in V$ are in the same class iff $c_j \in reach(c_i)$.
 			A small example of this concept is shown in Figure \ref{fig:gcg:levenshtein}.
+			\todo{5000 cons limit}
 			
 			\begin{figure}[ht!]
 				\centering
@@ -140,9 +141,10 @@
 		
 			\subsubsection{Objective}
 			
-				
+				\clearpage
 		
 		\subsection{Type Classifiers}
+		\label{chap:gcg:classifiers:type}
 		
 			Classifiers based 
 			
@@ -196,13 +198,28 @@
 					\label{table:constypes:miplib}
 				\end{table}
 				
-				In order to get a more fine-grained classification based on inferred constraint types, 
+				In order to get a more fine-grained classification based on constraint types.
+				Because all types shown in Table \ref{table:constypes:miplib} are deducible only from \textit{local} information such as type of variables and right hand side coefficient, the types can be detected after one pass over the constraint matrix.
 		\clearpage
 	
 	\section{Existing Detectors}
 	% 1 Seite, trivial Detectors
 	% 1 Seite, HMETIS Detectors
 	% 1 Seite , other Detectors
+	
+		\begin{table}[ht!]
+			\centering
+			\begin{tabular}{l|l|l}
+				\textbf{Nr.} & \textbf{Master} & \textbf{Open} \\
+				\toprule
+				\toprule
+				1 & (\ref{eq:gcg:example:link}) & (\ref{eq:gcg:example:capacity}) \\ 
+				2 & (\ref{eq:gcg:example:capacity}) & (\ref{eq:gcg:example:link}) \\
+				3 & (\ref{eq:gcg:example:link}), (\ref{eq:gcg:example:capacity}) & -
+			\end{tabular}
+			\caption{For each classifier, the \textit{cons class} detector will produce $2^k - 1$ new partial decompositions with $k$ being the number of classes.}
+			\label{table:gcg:example:consclass}
+		\end{table}
 	
 		\clearpage
 		A\clearpage
@@ -213,17 +230,29 @@
 	
 		\begin{figure}[ht!]
 			\centering
-			\begin{align*}
-				&\min &\sum_{j=1}^m y_j \\
-				&\text{s.t.} &\sum_{j=1}^m x_{ij} &= 1 &&\forall i \in \mathcal{I} \\
-				&& \sum_{i=1}^n a_i x_{ij} &\leq C y_j && \forall j \in \mathcal{J} \\
-				&& x_{ij} &\in { 0, 1} && \forall i \in \mathcal{I}, \forall j \in \mathcal{J} \\
-				&& y_j &\in { 0, 1 } && \forall j \in \mathcal{J}
-			\end{align*}
+			\begin{align}
+				&\min &\sum_{j=1}^m y_j \nonumber \\
+				&\text{s.t.} &\sum_{j=1}^m x_{ij} &= 1 &&\forall i \in \mathcal{I} \label{eq:gcg:example:link} \\
+				&& \sum_{i=1}^n a_i x_{ij} &\leq C y_j && \forall j \in \mathcal{J} \label{eq:gcg:example:capacity} \\
+				&& x_{ij} &\in { 0, 1 } && \forall i \in \mathcal{I}, \forall j \in \mathcal{J} \nonumber \\
+				&& y_j &\in { 0, 1 } && \forall j \in \mathcal{J} \nonumber
+			\end{align}
 			\caption{Bin-Packing Model with items $\mathcal{I} = \{ 1, \ldots, n \}$, item sizes $a_i \in \mathbb{Z}_{\geq 0}$, bins $\mathcal{J} = \{ 1, \ldots, m \}$ and capacity $C$.}
 			\label{figure:gcg:example:binpack}
 		\end{figure}
+		\todo{Bild}
 		
-		In order to illustrate the detection 
+		In order to illustrate the detection with a concrete example, we revisit the textbook Bin-Packing model shown in Figure \ref{figure:gcg:example:binpack}.
+		Constraints \ref{eq:gcg:example:link} enforce that every item is packed in exactly one bin, while inequalities \ref{eq:gcg:example:link} ensure that the capacity of each bin is respected if some item is packed in it.
+		The objective is to minimize the number of bins.
+		
+		Without pre-solving enabled, a classifier such as MIPLIB would assign constraints \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the classes \textit{Set Partitioning} and \textit{Bin-Packing} respectively.
+		If unique, this classification is added to a list provided to the detection stage.
+		
+		If no further classifications are found, the \textit{cons class} detector will yield 3 new partial decompositions, first assigning constraints \ref{eq:gcg:example:link}, then \ref{eq:gcg:example:capacity} and finally both \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the master.
+		The constraint group not assigned to the master remains \textit{open}.
+		
+		During the next round of detection, a detector such as \textit{Connected Base} will receive the partial decomposition with only the packing constraints assigned to the master as input.
+		Here, the induced constraint adjacency graph of the $q \ge 0$ open capacity constraints consists of $q$ isolated connected components, forming the desired block-diagonal structure.
 		
 		

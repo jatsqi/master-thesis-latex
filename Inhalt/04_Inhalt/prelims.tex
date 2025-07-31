@@ -14,14 +14,14 @@
 		If all variables are only allowed to take values from $\mathbb{R}^n_{\geq}$, i.e., only continuous values, then this optimization technique is referred to as \textit{Linear Programming}.
 		In a standard form, a linear programming problem with variable vector $\mathbf{x} \in \mathbb{R}^n$, constraint matrix $A \in \mathbb{R}^{m \times n}$, objective coefficients $c \in \mathbb{R}^n$ and right-hand side vector of the constraints $b \in \mathbb{R}^m$ can be expressed as follows:
 		%
-		\begin{alignat*}{3}
-			&z^*_{LP} \; &={}	\min	&\quad  c^T && \mathbf{x} \\
-			&				  		& \text{s.t.} & \quad A && \mathbf{x} \geq b \\
-			&						&					 &					&& \mathbf{x} \geq 0
-		\end{alignat*}
+		\begin{alignat}{3}
+			&z^*_{LP} \; &={}	\min	&\quad  c^T && \mathbf{x} \label{eq:prelims:linprog:obj} \\
+			&				  		& \text{s.t.} & \quad A && \mathbf{x} \geq b \label{eq:prelims:linprog:A} \\
+			&						&					 &					&& \mathbf{x} \geq 0 \label{eq:prelims:linprog:nonneg}
+		\end{alignat}
 		%
-		Note that it is also possible to represent a set of equality $A' \mathbf{x} = b'$ by the two sets of inequalities $A' \mathbf{x} \geq b'$ and $A' \mathbf{x} \leq b'$.
-		Without loss of generality, we assume optimization problems to always be minimization problems, unless explicitly stated otherwise.
+		
+		\clearpage
 		
 		\begin{figure}[ht!]
 			\centering
@@ -132,36 +132,53 @@
 		\end{figure}
 		\todo{unbounded on right}
 		
+		Note that it is also possible to represent a set of equality $A' \mathbf{x} = b'$ by the two sets of inequalities $A' \mathbf{x} \geq b'$ and $A' \mathbf{x} \leq b'$.
+		Without loss of generality, we assume optimization problems to always be minimization problems, unless explicitly stated otherwise.
+		Constraints \ref{eq:prelims:linprog:A} specify a \textit{convex} polytope over which the Objective Function \ref{eq:prelims:linprog:obj} is optimized as shown in Figure \ref{fig:prelims:linear:solspace:unbounded}. A solution vector $\mathbf{x} \in \mathbb{R}_{\geq 0}$ is called \textit{feasible}, iff it satisfies both both constraints \ref{eq:prelims:linprog:A} and \ref{eq:prelims:linprog:nonneg}.
+		The linear program as a whole is called \textit{feasible}, if there exists such a vector, otherwise it is considered \textit{infeasible}.
+		A feasible solution $\mathbf{x} \in \mathbb{R}_{\geq 0}$ is called \textit{optimal} iff
+		%
+		\begin{equation*}
+			c^T \mathbf{x} = \min \{ c^T \mathbf{x} \mid \mathbf{x} \; \text{is feasible} \} \iff \not\exists \mathbf{y} \in \mathbb{R}_{\geq 0}: \; \left(\mathbf{y} \; \text{feasible}\right) \land \underbrace{\left(c^T \mathbf{y} < c^T \mathbf{x}\right)}_{\mathbf{y} \; \text{is \enquote{better}}}
+		\end{equation*}
+		%
+		If there exists a feasible solution vector, but no optimal one, then the problem is called \textit{unbounded}, as shown in Figure \ref{fig:prelims:linear:solspace:unbounded}.
+		
 		Linear programming is widely used in various fields such as operations research, economics, engineering, and logistics, due to its efficiency in solving large-scale real-world optimization problems. Algorithms such as the Simplex Method and Interior Point Methods are commonly used to solve LP problems efficiently.
 		The simplex algorithm in particular is widely used in practice because of its efficiency on most problems, even though its worst-case complexity is exponential-time on certain families of problems depending on the chosen pivot-rule. \todo{cite}
 		However, on most problems the simplex algorithm only takes a polynomial number of steps to terminate.
+		For more information about how the algorithms work and their mathematical details we refer to \cite{BranchPrice}.
 		
+		\clearpage
+
 		\subsection{Mixed-Integer Programs}
 			%
-			\begin{alignat*}{3}
-				&z^*_{LP} \; &={}	\min	&\quad  c^T && \mathbf{x} \\
-				&				  		& \text{s.t.} & \quad A && \mathbf{x} \geq b \\
-				&						&					 &					&& \mathbf{x} \in \mathbb{Z}_{\geq 0}
+			\begin{alignat*}{7}
+				&z^*_{LP} \; &={}	\min	&\quad  c^T && \mathbf{x} && \quad+\quad && d^T && \mathbf{y} \\
+				&& \text{s.t.} & \quad A && \mathbf{x} && \quad+\quad  && B && \mathbf{y} && \geq b \\
+				&&&&& \mathbf{x} &&&&&& &&\in \mathbb{R}_{\geq 0} \\
+				&&&&&&&&&&& \mathbf{y} &&\in \mathbb{Z}_{\geq 0}
 			\end{alignat*}
 			%
+			
+			Even thought linear programs are often sufficient to model a certain problem 
 			
 	
 	\section{Dantzig-Wolfe Decomposition}
 	% 3 Seiten
 	
-		\clearpage
-		A\clearpage
-		A\clearpage
+		The \textit{Dantzig-Wolfe Decomposition} is a 
 	
 	\section{Graph Theory}
 	% 2 Seiten
 	
+		
+	
 		\clearpage
-		A\clearpage
 	
 	\section{Partition Refinement}
 	% 2 Seiten
-		Partition refinement is a fundamental concept in computer science, particularly relevant in fields such as automata theory, graph theory and model checking.
+		Partition refinement is a fundamental concept in computer science, particularly relevant in fields such as automata theory \cite{hopcroftLogALGORITHMMINIMIZING1971a}, graph theory, and model checking \cite{baierPrinciplesModelChecking2008}.
 		A \textit{partition} refers to a decomposition of a set $U$ into disjoint, non-empty subsets $\{ A_1, A_2, \ldots, A_k \}$, called \textit{cells} or \textit{blocks}, such that:
 		\begin{equation*}
 			\bigcup^k_{i=0} A_i = U \; \mathrm{and} \; \forall i \neq j: A_i \cap A_j = \emptyset
@@ -183,14 +200,15 @@
 		
 		Furthermore, the underlying problem structure to which partition refinement is applied, as well as the type of splitter function used, are not inherently restricted. In practice, however, many problems can be reformulated or encoded as graphs, where the function $f$ captures a vertex property.
 		For instance, in deterministic finite automaton (DFA) minimization, partition refinement is used to iteratively distinguish states by observing the equivalence classes of their transitions (Hopcroft's algorithm): two states are grouped together only if, for every input symbol, their transitions lead into the same partition class; in graph isomorphism testing, it could encode vertex degrees or local neighborhood structures; and in Markov decision processes (MDPs), $f$ might reflect the expected reward or transition behavior.
-		These encodings allow partition refinement to exploit structural symmetries and behavioral equivalences in a wide range of domains, especially if problems in that domain can be encoded as graphs.
+		These encodings allow partition refinement to exploit structural symmetries and behavioral equivalences in a wide range of domains, especially if problems in that domain can be encoded as graphs. 
+		Further domains of application include Model Checking \cite{baierPrinciplesModelChecking2008} and sorting algorithms \cite{mehlhornAlgorithmsDataStructures2008}.
 		
 		For the purposes of this work, $f$ will usually represent a function structurally similar to a \textit{connection function} as it used in many graph automorphism packages.
 		Given a graph $G = (V, E)$, then we define two types of connection function as follows:
 		\begin{align}
 			f_{\mathrm{count}}(v, X_{\mathrm{ind}}) &= \left| \{ v' \in V \mid \forall (v, v') \in E, v' \in X_{\mathrm{ind}} \} \right| \label{eq:prelims:pref:count} \\
 			f_{\mathrm{exists}}(v, X_{\mathrm{ind}}) &= \begin{cases}
-				1 & \left| \{ v' \in V \mid \forall (v, v') \in E, v' \in X_{\mathrm{ind}}   \} \right| > 0 \label{eq:prelims:pref:exists} \\
+				1 & f_{\mathrm{count}}(v, X_{\mathrm{ind}}) \geq 1 \label{eq:prelims:pref:exists} \\
 				0 & \mathrm{else}
 			\end{cases}
 		\end{align}
@@ -207,7 +225,17 @@
 			\label{algo:prelims:refinement}
 		\end{algorithm}
 	
-		Furthermore, if the underlying graph is bipartite and the splitter-function is expressing a vertex-property, i.e., 
+		Furthermore, if the underlying graph is bipartite and the splitter-function is expressing a vertex property, such as Function \ref{eq:prelims:pref:count} or \ref{eq:prelims:pref:exists}, then the partition refinement algorithm can be implemented more efficiently as highlighted in \cite{salvagninDetectingSemanticGroups2016}.
+		
+		\begin{algorithm}[ht!]
+			\centering
+			\begin{algorithmic}
+				\State Test
+				
+			\end{algorithmic}
+			\caption{Partition refinement algorithm}
+			\label{algo:prelims:refinement:bipartite}
+		\end{algorithm}
 	
 		\clearpage
 	
@@ -236,3 +264,61 @@
 		
 		If not specified any further, the base $b$ of the logarithm is assumed to be $2$.
 		In chapter \todo{ref} these concepts will be used to define a heuristic scoring system based on constraint names.
+		
+	\section{Adjusted Rand Index}
+	
+		The \textit{Rand Index} is a statistical measure used to compare two different partitions $\pi = \{ A_1, A_2, \ldots, A_k \}, \pi' = \{ B_1, B_2, \ldots, B_l \}$ of elements from the same set $U = \{ 1, 2, \ldots, n \}$.
+		Let $f_\pi(x): U \mapsto \mathbb{N}$ be a function mapping an element $x \in U$ to the index of its cell in partition $\pi$. Function $f_{\pi'}$ is defined analogously.
+		Furthermore, let
+		%
+		\begin{equation*}
+			E_{\circ_1, \circ_2} = \{ (x, y) \in U \times U \mid (f_\pi(x) \circ_1 f_\pi(y)) \land (f_{\pi'}(x) \circ_2 f_{\pi'}(y)) \}
+		\end{equation*}
+		%
+		Intuitively, e.g. the set $E_{=, \not=}$ refers to the set of pairs $(x, y) \in U \times U$ of elements which are in the same cell in $\pi$, but in different cells in $\pi'$.
+		Now we can define the \textit{Rand Index} as follows:
+		%
+		\begin{equation}
+			\label{eq:prelims:rand}
+			\mathrm{RI} = \frac{\overbrace{|E_{=, =}| + |E_{\not=, \not=}|}^{\text{Number of pairs for which}\; \pi, \pi' \;\text{agree}}}{\underbrace{|E_{=, =}| + |E_{\not=, =}| + |E_{=, \not=}| + |E_{\not=, \not=}|}_{\text{Number of all pairs}}} = \frac{|E_{=, =}| + |E_{\not=, \not=}|}{\binom{n}{2}} \quad \in [0, 1]
+		\end{equation}
+		%
+		With appropriate data structures, e.g. a mapping between elements and cell index for each partition, Equation \ref{eq:prelims:rand} can be evaluated in $O(n)$.
+		
+		The \textit{Adjusted Rand Index} is a chanced-adjusted version of the regular \textit{Rand Index} which accounts for similarities that might occur by random chance.
+		It is one of the most popular measures for comparing partitions or clusters and can be computed by using Equation \ref{eq:prelims:rand:adjusted} \cite{sundqvistAdjustingAdjustedRand2020}.
+		%		
+		\begin{equation}
+			\label{eq:prelims:rand:adjusted}
+			\mathrm{ARI} = \frac{\mathrm{RI}\; - \;\text{Expected RI}}{\text{Max RI}\; \text{Expected RI} \;} = \frac{\sum\nolimits_{ij} \binom{v_{ij}}{2} - \left[ \sum\nolimits_i \binom{a_i}{2} \sum\nolimits_j \binom{b_j}{2} \right] \div \binom{n}{2}}{\frac{1}{2} \left[ \sum\nolimits_i \binom{a_i}{2} +  \sum\nolimits_j \binom{b_j}{2} \right] - \left[ \sum\nolimits_i \binom{a_i}{2} \sum\nolimits_j \binom{b_j}{2} \right] \div \binom{n}{2}}
+		\end{equation}
+		%
+		The values $v_{ij}, a_i$ and $b_j$ are taken from the so called Contingency Table shown in Figure \ref{fig:prelims:rand:contingency}.
+		%
+		\begin{table}[ht!]
+			\centering
+			\begin{tabular}{c|cccc|c}
+				$\pi$, $\pi'$ & $A_1$ & $A_2$ & $\ldots$ & $A_k$ & \textbf{sums} \\
+				\toprule
+				$B_1$ & $v_{11}$ & $v_{12}$ & $\cdots$ & $v_{1k}$ & $a_1$ \\
+				$B_2$ & $v_{21}$ & $v_{22}$ & $\cdots$ & $v_{2k}$ & $a_2$ \\
+				$\vdots$ & $\vdots$ & $\vdots$ & $\ddots$ & $\vdots$ & $\vdots$\\
+				$B_l$ & $v_{l1}$ & $v_{l2}$ & $\cdots$ & $v_{lk}$ & $a_l$ \\
+				\midrule
+				\textbf{sums} & $b_1$ & $b_2$ & $\cdots$ & $b_k$ &
+			\end{tabular}
+			\caption{Contingency Table of partitions $\pi$ and $\pi'$. Entry $v_{ij}$ denotes the number of elements sets $A_i$ and $B_j$ have in common, i.e., $v_{ij} = A_i \cap B_j$.}
+			\label{fig:prelims:rand:contingency}
+		\end{table}
+		%
+		We refer to \cite{warrensUnderstandingAdjustedRand2022} for a more detailed discussion on different similarity measures and their mathematical derivation.
+		
+%		\begin{align*}
+%			a &={} \underbrace{|\{ x \in U \mid \forall y \in U: \; (f_\pi(x) = f_\pi(y)) \land (f_{\pi'}(x) = f_{\pi'}(y)) \}|}_{\text{Elements in the same cell in both partitions}} \\
+%			%
+%			b &={} \underbrace{|\{ x \in U \mid \forall y \in U: \; (f_\pi(x) \not= f_\pi(y)) \land (f_{\pi'}(x) \not= f_{\pi'}(y)) \}|}_{\text{Elements in different cells in both partitions}} \\
+%			%
+%			c &={} \underbrace{|\{ x \in U \mid \forall y \in U: \; (f_\pi(x) = f_\pi(y)) \land (f_{\pi'}(x) \not= f_{\pi'}(y)) \}|}_{\text{Elements in same cell in}\; \pi \;\text{but different in}\; \pi'} \\
+%			%
+%			d &={} \underbrace{|\{ x \in U \mid \forall y \in U: \; (f_\pi(x) \not= f_\pi(y)) \land (f_{\pi'}(x) = f_{\pi'}(y)) \}|}_{\text{Elements in same cell in}\; \pi' \;\text{but different in}\; \pi}
+%		\end{align*}
