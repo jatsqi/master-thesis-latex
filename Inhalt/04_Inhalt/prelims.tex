@@ -169,10 +169,46 @@
 	
 		The \textit{Dantzig-Wolfe Decomposition} is a 
 	
+		\clearpage
+	
 	\section{Graph Theory}
 	% 2 Seiten
 	
+		Graphs are the fundamental data structure used in almost every aspect of computer science.
+		This section will \textit{not} introduce new concepts not already found in standard literature about graphs and related topics.
+		We will mainly introduce the notation used for the following sections and chapters.
+	
+		A \textit{graph} is a tuple $G = (V, E)$ with $V \subseteq \{ 1, 2, \ldots, n \}$ for some $n \in \mathbb{N}$ and $E \subseteq \{ (u, v) \mid (u, v) \in V \times V \}$. The elements of set $V$ are called \textit{vertices} or \textit{nodes}.
+		The elements of set are ordered pairs called \textit{directed edges}, \textit{arcs} or simply \textit{edges} which connect two vertices with each other.
+		The set of outgoing neighbors of a specific vertex $v \in V$ is denoted $E(v) = \{ (v, v') \; | \; v' \in V, vEv' \}$. 
+		The set of incoming neighbors $E^{-1}(v) = \{ (v', v) \; | \; v' \in V, v'Ev \}$ is defined analogously.
+		In this thesis, we will distinguish three types of graphs: directed, un-directed and bipartite, with directed being the assumed type if not stated explicitly.
 		
+		For \textit{un-directed} graphs, the edge relation $E$ must be symmetric $\forall u,v \in V: \; uEv \xrightarrow{} vEu$, i.e., if vertex $u$ is connected to $v$ or vice versa, then the corresponding back-edge must exists as well.
+		
+		\textit{Bi-partite} graphs are a special kind of graph class, where the set $V$ can be represented with two sets $L, R \subseteq V$ such that $L \cap R = \emptyset$ and $E \subseteq \{ (u, v) \mid u \in L, v \in R \}$.
+		More informally, the vertex $V$ can be split into two disjoint subsets $L, R \subseteq V$ such that no edges exists between vertices in each corresponding set.
+		Bi-partite graphs are especially interesting, because the relationship between variables and the constraints they participate in can be encoded as such a graph as shown in Figure \ref{fig:prelims:graphs:binpackbipartite}. This concept will be used in Chapter \ref{chap:gcg} to algorithmically detect various underlying structures. \todo{Wording}
+	
+		\begin{figure}[ht!]
+			\centering
+			\begin{minipage}{0.47\textwidth}
+				\includesvg[scale=0.9]{Bilder/DrawIO/bipart_binpack}
+			\end{minipage}
+			%
+			\begin{minipage}{0.47\textwidth}
+				\begin{align}
+					&\min &\sum_{j=1}^m y_j \nonumber \\
+					&\text{s.t.} &x_{11} &= 1 & \text{\textcolor{blue}{itemPacked}}_1 \nonumber \\
+					&& x_{21} &= 1 & \text{\textcolor{blue}{itemPacked}}_2\nonumber \\
+					&& 100 x_{11} + 99 x_{21} &\leq 200 y_1 & \text{\textcolor{blue}{binCapacity}}_1\nonumber \\
+					&& x_{11}, x_{21} &\in { 0, 1 }  \nonumber \\
+					&& y_1 &\in { 0, 1 } \nonumber
+				\end{align}
+			\end{minipage}
+			\caption{A simple binpacking problem with $2$ items and $1$ bin represented as  graph.}
+			\label{fig:prelims:graphs:binpackbipartite}
+		\end{figure}
 	
 		\clearpage
 	
@@ -230,10 +266,21 @@
 		\begin{algorithm}[ht!]
 			\centering
 			\begin{algorithmic}
-				\State Test
-				
+				\Require Initial partition $\Pi_{init} = \{ A_1, A_2, \ldots, A_k \}$, Bi-partite graph $G = ((L, R), E)$
+				\Ensure Coarsest stable partition
+				\Statex
+				%
+				\Function{refineFast}{$\Pi_{init}, G$}
+					\State $i \gets -1$
+					\State $\Pi_0 \gets \Pi_{init}$
+					\For{$v \in R$}
+						\State $i \gets i + 1$
+						\State $\Pi_{i} \gets \Call{Refine}{\Pi_{i-1}, E^{-1}(v)}$
+					\EndFor
+					\State \Return $\Pi_i$
+				\EndFunction
 			\end{algorithmic}
-			\caption{Partition refinement algorithm}
+			\caption{More efficient refinement, if graph $G=((U, V), E)$ bipartite and $\forall v \in U:\; |E^{-1}(v)| \leq 1$ or $\forall v \in V:\; |E^{-1}(v)| \leq 1$. For the algorithm we assume the former.}
 			\label{algo:prelims:refinement:bipartite}
 		\end{algorithm}
 	
@@ -295,7 +342,7 @@
 		%
 		The values $v_{ij}, a_i$ and $b_j$ are taken from the so called Contingency Table shown in Figure \ref{fig:prelims:rand:contingency}.
 		%
-		\begin{table}[ht!]
+		\begin{table}[h!]
 			\centering
 			\begin{tabular}{c|cccc|c}
 				$\pi$, $\pi'$ & $A_1$ & $A_2$ & $\ldots$ & $A_k$ & \textbf{sums} \\
