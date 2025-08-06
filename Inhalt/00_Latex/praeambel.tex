@@ -109,13 +109,18 @@
 \usepackage{booktabs}  % Für schönere Tabellen. Enthält neue Befehle wie \midrule
 \usepackage{multirow}  % Mehrzeilige Tabellen
 \usepackage{siunitx}   % Für SI Einheiten und das Ausrichten Nachkommastellen
-\sisetup{locale=DE, range-phrase={~bis~}, output-decimal-marker={,}} % Damit ein Komma und kein Punkt verwendet wird.
+\sisetup{locale=US, range-phrase={~bis~}, output-decimal-marker={.}} % Damit ein Komma und kein Punkt verwendet wird.
 \usepackage{xfrac} % Für siunitx Option "fraction-function=\sfrac"
 
 % ---- Für Definitionsboxen in der Einleitung
 \usepackage{amsthm}                     % Liefert die Grundlagen für Theoreme
 \usepackage[framemethod=tikz]{mdframed} % Boxen für die Umrandung
 \input{Inhalt/00_Latex/highlightBoxen}  % Weitere Details sind ausgelagert
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}[section]
 
 % ---- Für Todo Notes
 \usepackage{todonotes}
@@ -144,7 +149,6 @@
 
 % Custom Commands
 \newcommand{\acfreverse}[1]{\acs{#1} (\acl{#1})}
-\newtheorem{definition}{Definition}[section]
 
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}

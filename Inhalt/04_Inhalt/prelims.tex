@@ -215,24 +215,76 @@
 	\section{Partition Refinement}
 	% 2 Seiten
 		Partition refinement is a fundamental concept in computer science, particularly relevant in fields such as automata theory \cite{hopcroftLogALGORITHMMINIMIZING1971a}, graph theory, and model checking \cite{baierPrinciplesModelChecking2008}.
-		A \textit{partition} refers to a decomposition of a set $U$ into disjoint, non-empty subsets $\{ A_1, A_2, \ldots, A_k \}$, called \textit{cells} or \textit{blocks}, such that:
+		A \textit{partition} refers to a decomposition of a finite set $U$ into disjoint, non-empty subsets $\{ A_1, A_2, \ldots, A_k \}$, called \textit{cells} or \textit{blocks}, such that:
+		%
 		\begin{equation*}
 			\bigcup^k_{i=0} A_i = U \; \mathrm{and} \; \forall i \neq j: A_i \cap A_j = \emptyset
 		\end{equation*}
-		A partition $\pi = \{ A_1, A_2, \ldots, A_k \}$ of a set $U$ is called a refinement of a partition $\pi' = \{ B_1, B_2, \ldots, B_m \}$, iff
+		%
+		The set of all partitions over a set $U$ is denoted $\Pi(U)$. A partition $\pi = \{ A_1, A_2, \ldots, A_k \}$ of a set $U$ is called a refinement of another partition $\pi' = \{ B_1, B_2, \ldots, B_m \}$, denoted $\pi \sqsubseteq \pi'$, iff
+		%
 		\begin{equation*}
 			\forall A_i \in \pi \;\; \exists B_j \in \pi' : A_i \subseteq B_j
 		\end{equation*} 
+		%
 		As a special case, a partition is a refinement of itself.
 		More informally, partition $\pi'$ must reflect a \enquote{finer} classification of the elements than in $\pi$. 
 		
 		Partition refinement refers to an \textit{iterative} process that refines a given initial partition of a set over the course of multiple iterations.
-		Given a splitter-function $f: U \mapsto Q$ which maps every element of $U$ to some element of an arbitrary target set $Q$, an initial partition $\pi_{\mathrm{init}}$ the goal is typically to find the coarsest partition $\pi_f = \{ A_1, A_2, \ldots, A_k \}$ of $U$ such that the following two properties hold:
+		In the following, let $f: P \times Q \mapsto \Pi(A)$ be a function monotone in its first argument, which partitions the elements from $P \subseteq U$ with respect to the elements in $Q \subseteq U$. The arguments $P$ and $Q$ are called \textit{target cell} and \textit{inducing cell} respectively.
+		A partition $\pi$ is called \textit{stable} with respect to $f$, iff
+		%
+		\begin{equation*}
+			\forall A_i, A_j \in \pi: \; |f(A_i, A_j)| = 1
+		\end{equation*}
+		%
+		That is, there is no cell in $\pi$ which acts as a \enquote{splitter} to another cell according to $f$.
+		Let $\pi_{\mathrm{init}}$ be an \textit{initial} partition. The goal is typically to find the coarsest partition $\pi_f = \{ A_1, A_2, \ldots, A_k \}$ of $U$ such that the following properties hold:
 		
 		\begin{enumerate}
-			\item The partition $\pi_f$ is a refinement of the initial partition $\pi_{\mathrm{init}}$
-			\item $\forall A_i \in \pi_f \; \forall a, b \in P_i: f(a) = f(b)$, that is, the function $f$ can intuitively be thought of a function expressing a certain \enquote{property} for each element. Elements with different properties cannot be part of the same cell and must be separated from each other during the refinement process.
+			\item The partition $\pi_f$ is a \textit{refinement} of the initial partition $\pi_{\mathrm{init}}$
+			\item The partition $\pi_f$ is \textit{stable} with respect to $f$.
 		\end{enumerate}
+		
+		In the following, we define $Step: \Pi(U) \mapsto \Pi(U)$ as function performing one refinement step, i.e., it picks a splitter-cell $B_j$ if it exists and replaces each cell $B_i$ of the input partition with $f(B_i, B_j)$.
+
+		\begin{algorithm}[ht!]
+			\centering
+			\begin{algorithmic}
+				\Require Initial partition $\Pi_{init} = \{ A_1, A_2, \ldots, A_k \}$, monotone splitter-function $f: P \times Q \mapsto \Pi(P)$
+				\Ensure Coarsest stable partition
+				\Statex
+				%
+				\Function{IterateRefinement}{$\Pi_{init}, f$}
+					\State $i \gets 0$
+					\State $\Pi_0 \gets \Pi_{init}$
+					\Repeat
+						\State $i \gets i + 1$
+						\State $\Pi_i \gets Step(\Pi_{i-1})$
+					\Until{$\Pi_i = \Pi_{i-1}$}
+					\State \Return $\Pi_i$
+				\EndFunction
+			\end{algorithmic}
+			\caption{A simple partition refinement algorithm which refines $\pi_{\mathrm{init}}$ until a fixed-point is reached.}
+			\label{algo:prelims:refinement}
+		\end{algorithm}
+		
+		\begin{theorem}
+			If $f: P \times X \mapsto \Pi(P)$ is monotone in its first argument, then $Step: \pi \mapsto \pi' \sqsubseteq \pi$ is monotone.
+		\end{theorem}
+		
+		It $f$ is monotone, then $A_i \subseteq A_j$ implies $f(A_i, B) \sqsubseteq f(A_j, B)$ for some fixed $B \in \pi$.  Because
+		
+		$\qed$
+		
+		\begin{theorem}
+			Algorithm \ref{algo:prelims:refinement} terminates after at most $n-1$ steps.
+		\end{theorem}
+		
+		The function
+		$\qed$
+		
+		Algorithm \ref{algo:prelims:refinement} always maintains the invariant $\Pi_i \sqsubseteq \Pi_{i-1}$.
 		
 		Furthermore, the underlying problem structure to which partition refinement is applied, as well as the type of splitter function used, are not inherently restricted. In practice, however, many problems can be reformulated or encoded as graphs, where the function $f$ captures a vertex property.
 		For instance, in deterministic finite automaton (DFA) minimization, partition refinement is used to iteratively distinguish states by observing the equivalence classes of their transitions (Hopcroft's algorithm): two states are grouped together only if, for every input symbol, their transitions lead into the same partition class; in graph isomorphism testing, it could encode vertex degrees or local neighborhood structures; and in Markov decision processes (MDPs), $f$ might reflect the expected reward or transition behavior.
@@ -250,16 +302,6 @@
 		\end{align}
 		
 		Functions \ref{eq:prelims:pref:count} and \ref{eq:prelims:pref:exists}
-		
-		\begin{algorithm}[ht!]
-			\centering
-			\begin{algorithmic}
-				\While{Test}
-				\EndWhile
-			\end{algorithmic}
-			\caption{Partition refinement algorithm}
-			\label{algo:prelims:refinement}
-		\end{algorithm}
 	
 		Furthermore, if the underlying graph is bipartite and the splitter-function is expressing a vertex property, such as Function \ref{eq:prelims:pref:count} or \ref{eq:prelims:pref:exists}, then the partition refinement algorithm can be implemented more efficiently as highlighted in \cite{salvagninDetectingSemanticGroups2016}.
 		
