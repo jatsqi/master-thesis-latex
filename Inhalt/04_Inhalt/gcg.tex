@@ -138,8 +138,20 @@
 				\end{figure}
 				
 				The nonzero classifier classified constraints according to their number of non-zero variable coefficients as shown in Figure \ref{fig:gcg:nonzero}.
+				Many types of models including Bin-Packing and Cutting-Stock consist only of constraint groups with a rather \enquote{stable} internal structure, i.e., the capacity constraint for each bin in model \ref{eq:gcg:example:capacity} \todo{Wrong ref} consist of the same number of variables, because each constraint is just a sum over all items differing only in index for the respective bin.
+				In general, constraint groups that are suited for this type of classifiers usually involve summations over fixed-sized sets (e.g. a set of items or bins) whose choice is not dependent on any quantified variable.
+				Example for the latter include problems whose formulation is based on graphs and usually contains flow-conservation constraints shown in Equation \ref{eq:gcg:numerics:flow}. 
+				%
+				\begin{equation}
+					\label{eq:gcg:numerics:flow}
+					\sum_{u \in E(v)} x_{uv} - \sum_{u \in E^{-1}(v)} x_{vu} = 0\quad \forall v \in V
+				\end{equation}
+				%
+				The amount of non-zeros in these constraint is entirely dependent on the number of outgoing and incoming edges for each vertex.
 		
 			\subsubsection{Objective}
+
+				
 			
 				\clearpage
 		
