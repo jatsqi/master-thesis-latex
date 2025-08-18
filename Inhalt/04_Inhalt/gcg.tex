@@ -88,6 +88,9 @@
 		
 			Constraints in the same group typically share similar names, with the \textit{modifier} being the only differentiating factor. For example, in a Bin-Packing problem, capacity constraints such as \enquote{capacity\_1}, \enquote{capacity\_2}, $\ldots$ usually vary only in the index indicating the bin. This similarity can be quantified using metrics like the \textit{Levenshtein Distance}, which is the minimum number of single-character edits required to change one word into the other.
 			
+			Because there is no standardized naming scheme for either variables or constraints, name classifiers usually operate under the assumption that the modeler provided \textit{reasonable} names, if any at all.
+			A non-exhaustive collection of different naming schemes observed is provided in Appendix \todo{Appendix}.
+			
 			Given a alphabet $\Sigma$, words $w, v \in \Sigma^*$ over that alphabet, then the \textit{Levenshtein} distance between those two words can be computed as:
 			%
 			\begin{equation}
@@ -148,13 +151,32 @@
 				\end{equation}
 				%
 				The amount of non-zeros in these constraint is entirely dependent on the number of outgoing and incoming edges for each vertex.
+				
+				\clearpage
 		
-			\subsubsection{Objective}
+			\subsubsection{Objective Function}
+			
+				A simple classification for variables can be done using information from the objective function, such as:
+				
+				\begin{enumerate}
+					\item Partition variables according to the sign of their coefficient in the objective function. This approach yields three classes in total Positive, Negative and Zero.
+					\item Partition them according to the actual \textit{value} of the coefficient.
+				\end{enumerate}
+				
+				Partitioning variables according to the first approach is sufficient for models such as Bin-Packing, in which only the $y$-variables appear in the objective function.
+				
+				The second approach might partition the variables in too many small cells when e.g. different costs are associated with variables in the objective function.
+				This behavior can be observed on model types such as Multi-Commodity-Flow and Unit-Commitment.
+				
+				\clearpage
 		
 		\subsection{Type Classifiers}
 		\label{chap:gcg:classifiers:type}
 		
-			Classifiers based 
+			Type classifiers examine the constraint matrix to infer a higher-level \textit{type} for each individual constraint.
+			A key objective of such classifiers is ensuring or at least improving \textit{robustness}.
+			Even minor modifications to a single constraint - such as the removal of one variable - can lead to a different classification, as seen with the previously discussed nonzero classifier.
+			Moreover, the likelihood of such changes increases when pre-processing is enabled.
 			
 			\subsubsection{SCIP Types}
 			
@@ -169,12 +191,10 @@
 				In order to use this feature properly and retrieve a meaningful type via. the two methods, pre-solving must have been executed prior to detection.
 				When \ac{GCG} reads the problem as e.g. an \lstinline|.lp| file, all constraints are added as linear constraints to the underlying \ac{SCIP} model.
 				These constraints are usually \enquote{upgraded} if possible, that is, their structure is analyzed and assigned to the correct constraint handler during pre-solving.
-				This is done to take advantage of properties only possessed by certain types of constraints, e.g. a solution to a set of Knapsack constraints \textit{can} be computed more efficiently by using an algorithm based on dynamic programming.
+				This is done in order to take advantage of properties only possessed by certain types of constraints, e.g. a solution to a set of Knapsack constraints \textit{can} be computed more efficiently by using an algorithm based on dynamic programming.
 				For more detailed information we refer to the official documentation \cite{SCIPDoxygenDocumentation}.
 				
 				Preliminary testing showed that it is not trivial to configure the pre-processing in such a way that \textit{only} the upgrade mechanism is triggered and variables and constraints remain unchanged. \todo{Add test config to appendix}
-				
-				\clearpage
 		
 			\subsubsection{MIPLIB Constraint Types}
 			
@@ -206,14 +226,31 @@
 					\label{table:constypes:miplib}
 				\end{table}
 				
-				In order to get a more fine-grained classification based on constraint types.
-				Because all types shown in Table \ref{table:constypes:miplib} are deducible only from \textit{local} information such as type of variables and right hand side coefficient, the types can be detected after one pass over the constraint matrix.
-		\clearpage
+				In contrast to the automatic constraint classification performed by SCIP during presolving, the MIPLIB benchmark set provides its own static classification scheme \cite{gleixnerMIPLIB2017Datadriven2021a}. This classification assigns constraints to a set of well-defined structural types such as knapsack, set-partitioning and others as shown in Table \ref{table:constypes:miplib}. Since it is based solely on the syntactic form of the constraints in the original model, it can be applied \textit{independently} of solver presolving.
+				Because all types shown in Table \ref{table:constypes:miplib} are deducible only from \textit{local} information such as type of variables and right hand side coefficient, the types can be detected with one pass over the constraint matrix.
+				
+				This type of classifier shares some issues related to robustness with numeric classifiers.
+				Constraint types such as Singleton, Aggregation or Variable Bound depend on the number of non-zeroes, leading to potential miss-classifications on graph based models.
+				Furthermore, the only differentiating factor for more \enquote{complex} types such as \textit{Bin Packing} and \textit{Knapsack} is the presence of a variable which happens to have the same coefficient as the right-hand of that constraint.
 	
 	\section{Existing Detectors}
 	% 1 Seite, trivial Detectors
 	% 1 Seite, HMETIS Detectors
 	% 1 Seite , other Detectors
+	
+		\begin{figure}[ht!]
+			\centering
+			\begin{align}
+				&\min &\sum_{j=1}^m y_j \nonumber \\
+				&\text{s.t.} &\sum_{j=1}^m x_{ij} &= 1 &&\forall i \in \mathcal{I} \label{eq:gcg:example:link} \\
+				&& \sum_{i=1}^n a_i x_{ij} &\leq C y_j && \forall j \in \mathcal{J} \label{eq:gcg:example:capacity} \\
+				&& x_{ij} &\in { 0, 1 } && \forall i \in \mathcal{I}, \forall j \in \mathcal{J} \nonumber \\
+				&& y_j &\in { 0, 1 } && \forall j \in \mathcal{J} \nonumber
+			\end{align}
+			\caption{Bin-Packing Model with items $\mathcal{I} = \{ 1, \ldots, n \}$, item sizes $a_i \in \mathbb{Z}_{\geq 0}$, bins $\mathcal{J} = \{ 1, \ldots, m \}$ and capacity $C$.}
+			\label{figure:gcg:example:binpack}
+		\end{figure}
+		\todo{Bild}
 	
 		\begin{table}[ht!]
 			\centering
@@ -233,20 +270,6 @@
 	
 	\section{Example}
 	\label{chap:gcg:example}
-	
-		\begin{figure}[ht!]
-			\centering
-			\begin{align}
-				&\min &\sum_{j=1}^m y_j \nonumber \\
-				&\text{s.t.} &\sum_{j=1}^m x_{ij} &= 1 &&\forall i \in \mathcal{I} \label{eq:gcg:example:link} \\
-				&& \sum_{i=1}^n a_i x_{ij} &\leq C y_j && \forall j \in \mathcal{J} \label{eq:gcg:example:capacity} \\
-				&& x_{ij} &\in { 0, 1 } && \forall i \in \mathcal{I}, \forall j \in \mathcal{J} \nonumber \\
-				&& y_j &\in { 0, 1 } && \forall j \in \mathcal{J} \nonumber
-			\end{align}
-			\caption{Bin-Packing Model with items $\mathcal{I} = \{ 1, \ldots, n \}$, item sizes $a_i \in \mathbb{Z}_{\geq 0}$, bins $\mathcal{J} = \{ 1, \ldots, m \}$ and capacity $C$.}
-			\label{figure:gcg:example:binpack}
-		\end{figure}
-		\todo{Bild}
 		
 		In order to illustrate the detection with a concrete example, we revisit the textbook Bin-Packing model shown in Figure \ref{figure:gcg:example:binpack}.
 		Constraints \ref{eq:gcg:example:link} enforce that every item is packed in exactly one bin, while inequalities \ref{eq:gcg:example:link} ensure that the capacity of each bin is respected if some item is packed in it.

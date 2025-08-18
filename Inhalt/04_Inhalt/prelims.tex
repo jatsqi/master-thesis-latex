@@ -383,11 +383,16 @@
 		\end{equation}
 		%
 		The values $v_{ij}, a_i$ and $b_j$ are taken from the so called Contingency Table shown in Figure \ref{fig:prelims:rand:contingency}.
+		
+		The notation of Table \ref{fig:prelims:rand:contingency} makes it seem like that $l \cdot k$ set intersection operations have to be computed in order to compute the full contingency table.
+		Computing the intersection $A \cap B$, with $A, B \subseteq U$ being of roughly similar size, can be quite an expensive operation, depending on the precise data structures used.
+		However, when there is an efficient data structure available mapping each element to the index of its containing cell, then the contingency table can be computed in one pass over all elements as shown in Algorithm.
+		
 		%
 		\begin{table}[h!]
 			\centering
 			\begin{tabular}{c|cccc|c}
-				$\pi$, $\pi'$ & $A_1$ & $A_2$ & $\ldots$ & $A_k$ & \textbf{sums} \\
+				$\pi'$ $\backslash$ $\pi$ & $A_1$ & $A_2$ & $\ldots$ & $A_k$ & \textbf{sums} \\
 				\toprule
 				$B_1$ & $v_{11}$ & $v_{12}$ & $\cdots$ & $v_{1k}$ & $a_1$ \\
 				$B_2$ & $v_{21}$ & $v_{22}$ & $\cdots$ & $v_{2k}$ & $a_2$ \\
@@ -399,7 +404,33 @@
 			\caption{Contingency Table of partitions $\pi$ and $\pi'$. Entry $v_{ij}$ denotes the number of elements sets $A_i$ and $B_j$ have in common, i.e., $v_{ij} = A_i \cap B_j$.}
 			\label{fig:prelims:rand:contingency}
 		\end{table}
-		%
+		
+		\begin{algorithm}[ht!]
+			\centering
+			\begin{algorithmic}
+				\Require Partitions $\pi = \{ A_1, A_2, \ldots, A_k \}, \pi' = \{ B_1, B_2, \ldots, B_l \}$, function $f_C: U \mapsto \mathbb{N}$ for $C = \{ C_1, C_2, \ldots \} \in \Pi(U)$ mapping $u \in U$ to $C_i$ iff $u \in C_i$
+				\Ensure Contingency Table of partitions $\pi, \pi'$ and sums of columns and rows
+				\Statex
+				%
+				\Function{computeContingencyMatrix}{$\Pi_{init}, G$}
+					\State $A \gets$ 2D Array with $l$ rows and $k$ columns
+					\State $sumsOfColumns \gets$ 1D Array with $k$ entries
+					\State $sumsOfRows \gets$ 1D Array with $l$ entries
+					\For{$u \in U$}
+						\State $column \gets f_\pi(u)$
+						\State $row \gets f_{\pi'}(u)$
+						\Statex
+						\State $A[row, column] \gets A[row, column] + 1$
+						\State $sumsOfColumns[column] \gets sumsOfColumns[column] + 1$
+						\State $sumsOfRows[row] \gets sumsOfRows[row] + 1$
+					\EndFor
+					\State \Return $(A, sumsOfRows, sumsOfColumns)$
+				\EndFunction
+			\end{algorithmic}
+			\caption{A simple algorithm computing the contingency table with one pass over all elements of $U$.}
+			\label{algo:prelims:rand:contingency}
+		\end{algorithm}
+		
 		We refer to \cite{warrensUnderstandingAdjustedRand2022} for a more detailed discussion on different similarity measures and their mathematical derivation.
 		
 %		\begin{align*}

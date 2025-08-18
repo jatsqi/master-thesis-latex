@@ -19,6 +19,8 @@
 	
 	Some concrete details about the implementation itself are not subject of the following sections, but are discussed in Chapter \ref{chap:impl}.
 
+	\clearpage
+
 	\section{Information}
 	% 1 Seite
 	
@@ -29,7 +31,18 @@
 		\label{fig:tree:information}
 	\end{figure}
 	
-	Before we present 
+	Before we present any algorithmic details, we give an overview about the available information.
+	
+	\begin{enumerate}
+		\item \textbf{Objective}: For the objective functions, information about the participating variables and their coefficients is available. For some models e.g. for Bin-Packing, this information alone is sufficient to partition the variables.
+		\item \textbf{Coefficients}:
+		The use of coefficients to classify constraints and variables was already in discussed in Section \ref{chap:gcg:classifiers}.
+		\item \textbf{Bounds}: For all variables $lb \leq x \leq ub$ information about their lower- and upper-bounds is available.
+		Furthermore, the left- and right-hand-side of linear constraints $lhs \leq \sum_i a_i x_i \leq rhs$ are available as well.
+		\item \textbf{Types}: Variable types such as \textit{Integer} are usually stated explicitly in the input format. If not, then information about the variable bounds can be used to deduce a type, e.g. $0 \leq x \leq 1$ is a strong indicator that $x$ is a \textit{Binary} variable.
+		\item \textbf{Names}: If specified by the modeler, then variables and constraints might have meaningful names which can be used as a strong indicator which constraints and variables belong to the same group.
+		\item \textbf{Order}: In contrast to other kinds of information, the constraint \enquote{order} is no intrinsic property of the model itself. With the term \enquote{order}, we refer to the order of the constraints as specified in the input format. When a model is created e.g. via. a script, constraints are usually added in \textit{blocks} by the modeler. This information is used in Section \ref{chap:tree:classifiers:voting} to conceptualize a classifier based on that.
+	\end{enumerate}
 	
 	\section{Motivation}
 	% 2 Seiten
@@ -37,23 +50,28 @@
 	\section{Classifiers}
 	% 2 Seite
 	
-		\section{Variable Bounds}
+		\subsection{Bounds}
 		
-		\section{Relaxed MIPLIB types}
 			
-		\section{Ordered Voting}
 		
-	\section{Tree Refinement}
-	% 4 Seiten
-	
-		\begin{figure}[ht!]
-			\centering
-			\includesvg{Bilder/Hierarchy/hierarchy_binpack_NOP}
-			\caption{Test}
-			\label{fig:tree:binpackNOP}
-		\end{figure}
+		\subsection{Relaxed MIPLIB types}
+			
+		\subsection{Ordered Voting}
+		\label{chap:tree:classifiers:voting}
+		
+%	\section{Tree Refinement}
+%	% 4 Seiten
+%	
+%		\begin{figure}[ht!]
+%			\centering
+%			\includesvg{Bilder/Hierarchy/hierarchy_binpack_NOP}
+%			\caption{Test}
+%			\label{fig:tree:binpackNOP}
+%		\end{figure}
 		
 	\section{Strategies}
+	
+		
 	
 		\subsection{Slice}
 		
@@ -61,15 +79,14 @@
 		
 		\subsection{Recursive}
 		
-		\subsection{Finishing}
+	\section{Rules}
+	
+		
 	
 	\section{Scoring}
 	% 1 Seite
-	
-		\subsection{Entropy Score}
-		% 1 Seite
 
-		\subsection{RAND Score}
+		\subsection{Rand Score}
 		% 1 Seite
 
 		\subsection{Connected Block Score}
