@@ -109,10 +109,16 @@
 			%
 			Equation \ref{eq:gcg:levenshtein} can be computed in $O(|w| \cdot |v|)$ using a dynamic programming approach.
 			Let $B = (\mathrm{lev}(\mathrm{name}(c_i), \mathrm{name}(c_j)))_{1 \leq i,j \leq m}$ the pair-wise Levenshtein Distance between constraint names, $k \in \mathbb{N}$ the \textit{connectivity} and $G = (V, E)$ with $V = \{ c_1, c_2, \ldots, c_m \}, E = \{ \{ u, v \} \mid u, v \in V, u \neq v, \mathrm{lev}(\mathrm{name}(u), \mathrm{name}(v)) \leq k \}$.
-			Furthermore, let $reach(v) = \{ u \in V \mid (v, u) \in E \}$ be the set of reachable vertices from vertex $v \in V$.
+			Furthermore, let $reach(v)$ be the set of reachable vertices from vertex $v \in V$ which is defined as the fix-point of the following function for $s = v$:
+			%
+			\begin{equation*}
+				{reachEventually}_t(T) = \{ u \in V \mid \exists v \in T: v \in E(u) \;  \} \cup \{ t \}
+			\end{equation*}
+			%
 			Then two constraints $c_i, c_j \in V$ are in the same class iff $c_j \in reach(c_i)$.
 			A small example of this concept is shown in Figure \ref{fig:gcg:levenshtein}.
 			\todo{5000 cons limit}
+			This idea can also be applied to variable names.
 			
 			\begin{figure}[ht!]
 				\centering
@@ -232,6 +238,8 @@
 				This type of classifier shares some issues related to robustness with numeric classifiers.
 				Constraint types such as Singleton, Aggregation or Variable Bound depend on the number of non-zeroes, leading to potential miss-classifications on graph based models.
 				Furthermore, the only differentiating factor for more \enquote{complex} types such as \textit{Bin Packing} and \textit{Knapsack} is the presence of a variable which happens to have the same coefficient as the right-hand of that constraint.
+	
+				\clearpage
 	
 	\section{Existing Detectors}
 	% 1 Seite, trivial Detectors

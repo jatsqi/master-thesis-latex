@@ -182,14 +182,16 @@
 		The elements of set are ordered pairs called \textit{directed edges}, \textit{arcs} or simply \textit{edges} which connect two vertices with each other.
 		The set of outgoing neighbors of a specific vertex $v \in V$ is denoted $E(v) = \{ (v, v') \; | \; v' \in V, vEv' \}$. 
 		The set of incoming neighbors $E^{-1}(v) = \{ (v', v) \; | \; v' \in V, v'Ev \}$ is defined analogously.
-		In this thesis, we will distinguish three types of graphs: directed, un-directed and bipartite, with directed being the assumed type if not stated explicitly.
+		In this thesis, we will distinguish four types of graphs: directed, un-directed and bipartite, with directed being the assumed type if not stated explicitly.
 		
 		For \textit{un-directed} graphs, the edge relation $E$ must be symmetric $\forall u,v \in V: \; uEv \xrightarrow{} vEu$, i.e., if vertex $u$ is connected to $v$ or vice versa, then the corresponding back-edge must exists as well.
 		
 		\textit{Bi-partite} graphs are a special kind of graph class, where the set $V$ can be represented with two sets $L, R \subseteq V$ such that $L \cap R = \emptyset$ and $E \subseteq \{ (u, v) \mid u \in L, v \in R \}$.
 		More informally, the vertex $V$ can be split into two disjoint subsets $L, R \subseteq V$ such that no edges exists between vertices in each corresponding set.
 		Bi-partite graphs are especially interesting, because the relationship between variables and the constraints they participate in can be encoded as such a graph as shown in Figure \ref{fig:prelims:graphs:binpackbipartite}. This concept will be used in Chapter \ref{chap:gcg} to algorithmically detect various underlying structures. \todo{Wording}
-	
+	%
+	%	A graph is called a \textit{tree} iff all unordered pairs of vertices $\{ u, v \} \in V \times V$ by \textit{at most} one path in the underlying un-directed graph.
+	%
 		\begin{figure}[ht!]
 			\centering
 			\begin{minipage}{0.47\textwidth}
@@ -213,6 +215,7 @@
 		\clearpage
 	
 	\section{Partition Refinement}
+	\label{chap:prelims:partitionref}
 	% 2 Seiten
 		Partition refinement is a fundamental concept in computer science, particularly relevant in fields such as automata theory \cite{hopcroftLogALGORITHMMINIMIZING1971a}, graph theory, and model checking \cite{baierPrinciplesModelChecking2008}.
 		A \textit{partition} refers to a decomposition of a finite set $U$ into disjoint, non-empty subsets $\{ A_1, A_2, \ldots, A_k \}$, called \textit{cells} or \textit{blocks}, such that:
@@ -231,7 +234,7 @@
 		More informally, partition $\pi'$ must reflect a \enquote{finer} classification of the elements than in $\pi$. 
 		
 		Partition refinement refers to an \textit{iterative} process that refines a given initial partition of a set over the course of multiple iterations.
-		In the following, let $f: P \times Q \mapsto \Pi(A)$ be a function monotone in its first argument, which partitions the elements from $P \subseteq U$ with respect to the elements in $Q \subseteq U$. The arguments $P$ and $Q$ are called \textit{target cell} and \textit{inducing cell} respectively.
+		In the following, let $f: P \times Q \mapsto \Pi(A)$ be a function, which partitions the elements from $P \subseteq U$ with respect to the elements in $Q \subseteq U$. The arguments $P$ and $Q$ are called \textit{target cell} and \textit{inducing cell} respectively.
 		A partition $\pi$ is called \textit{stable} with respect to $f$, iff
 		%
 		\begin{equation*}
@@ -269,27 +272,23 @@
 			\label{algo:prelims:refinement}
 		\end{algorithm}
 		
-		\begin{theorem}
-			If $f: P \times X \mapsto \Pi(P)$ is monotone in its first argument, then $Step: \pi \mapsto \pi' \sqsubseteq \pi$ is monotone.
-		\end{theorem}
+%		\begin{theorem}
+%			If $f: P \times X \mapsto \Pi(P)$ is monotone in its first argument, then $Step: \pi \mapsto \pi' \sqsubseteq \pi$ is monotone.
+%		\end{theorem}
+%		
+%		It $f$ is monotone, then $A_i \subseteq A_j$ implies $f(A_i, B) \sqsubseteq f(A_j, B)$ for some fixed $B \in \pi$.  Because
+%		
+%		$\qed$
+%		
+%		\begin{theorem}
+%			Algorithm \ref{algo:prelims:refinement} terminates after at most $n-1$ steps.
+%		\end{theorem}
+%		
+%		The function
+%		$\qed$
+
 		
-		It $f$ is monotone, then $A_i \subseteq A_j$ implies $f(A_i, B) \sqsubseteq f(A_j, B)$ for some fixed $B \in \pi$.  Because
-		
-		$\qed$
-		
-		\begin{theorem}
-			Algorithm \ref{algo:prelims:refinement} terminates after at most $n-1$ steps.
-		\end{theorem}
-		
-		The function
-		$\qed$
-		
-		Algorithm \ref{algo:prelims:refinement} always maintains the invariant $\Pi_i \sqsubseteq \Pi_{i-1}$.
-		
-		Furthermore, the underlying problem structure to which partition refinement is applied, as well as the type of splitter function used, are not inherently restricted. In practice, however, many problems can be reformulated or encoded as graphs, where the function $f$ captures a vertex property.
-		For instance, in deterministic finite automaton (DFA) minimization, partition refinement is used to iteratively distinguish states by observing the equivalence classes of their transitions (Hopcroft's algorithm): two states are grouped together only if, for every input symbol, their transitions lead into the same partition class; in graph isomorphism testing, it could encode vertex degrees or local neighborhood structures; and in Markov decision processes (MDPs), $f$ might reflect the expected reward or transition behavior.
-		These encodings allow partition refinement to exploit structural symmetries and behavioral equivalences in a wide range of domains, especially if problems in that domain can be encoded as graphs. 
-		Further domains of application include Model Checking \cite{baierPrinciplesModelChecking2008} and sorting algorithms \cite{mehlhornAlgorithmsDataStructures2008}.
+		This process is illustrated in Algorithm \ref{algo:prelims:refinement}. Note that new cells are continuously being produced in the loop which are able to act as inducing cells during the next iteration.
 		
 		For the purposes of this work, $f$ will usually represent a function structurally similar to a \textit{connection function} as it used in many graph automorphism packages.
 		Given a graph $G = (V, E)$, then we define two types of connection function as follows:
@@ -301,9 +300,17 @@
 			\end{cases}
 		\end{align}
 		
-		Functions \ref{eq:prelims:pref:count} and \ref{eq:prelims:pref:exists}
+		If Function \ref{eq:prelims:pref:exists} is used, then the problem of finding the coarsest partition with respect to $f$ is equivalent to the \textit{Relational coarsest partition problem} described in  \cite{paigeThreePartitionRefinement1987} which also contains corresponding correctness and termination proofs.
+		For this case in particular, Algorithm \ref{algo:prelims:refinement} always maintains the invariant $\Pi_i \sqsubseteq \Pi_{i-1}$.
+		
+		Furthermore, the underlying problem structure to which partition refinement is applied, as well as the type of splitter function used, are not inherently restricted. In practice, however, many problems can be reformulated or encoded as graphs, where the function $f$ captures a vertex property.
+		For instance, in deterministic finite automaton (DFA) minimization, partition refinement is used to iteratively distinguish states by observing the equivalence classes of their transitions (Hopcroft's algorithm): two states are grouped together only if, for every input symbol, their transitions lead into the same partition class; in graph isomorphism testing, it could encode vertex degrees or local neighborhood structures; and in Markov decision processes (MDPs), $f$ might reflect the expected reward or transition behavior.
+		These encodings allow partition refinement to exploit structural symmetries and behavioral equivalences in a wide range of domains, especially if problems in that domain can be encoded as graphs. 
+		Further domains of application include Model Checking \cite{baierPrinciplesModelChecking2008} and sorting algorithms \cite{mehlhornAlgorithmsDataStructures2008}.
 	
-		Furthermore, if the underlying graph is bipartite and the splitter-function is expressing a vertex property, such as Function \ref{eq:prelims:pref:count} or \ref{eq:prelims:pref:exists}, then the partition refinement algorithm can be implemented more efficiently as highlighted in \cite{salvagninDetectingSemanticGroups2016}.
+		Furthermore, if the underlying graph is bipartite, the splitter-function is expressing a vertex property such as Function \ref{eq:prelims:pref:count} or \ref{eq:prelims:pref:exists} and each vertex on one of the two sides of the graph is in its own class, then the partition refinement algorithm can be implemented more efficiently as highlighted in \cite{salvagninDetectingSemanticGroups2016}.
+		This is due to the fact that one of the sides is already fully refined, thus only the other side might change. Combined with the fact that the graph is bi-partite, splits that occur within one cell cannot affect other cells.
+		Thus, we don't have to \enquote{go back} during the execution of the loop in Algorithm \ref{algo:prelims:refinement:bipartite}.
 		
 		\begin{algorithm}[ht!]
 			\centering
@@ -321,10 +328,20 @@
 					\EndFor
 					\State \Return $\Pi_i$
 				\EndFunction
+				\Statex
+				%
+				\Function{Refine}{$\pi, S$}
+					\For{$A_i \in \pi$}
+						\State $\pi \gets \pi \setminus A_i$
+						\State $\pi \gets \pi \cup \{ A_i \cap S \} \cup \{ A_i \setminus S \}$ \Comment{Set $S$ \enquote{splits} $A_i$ into two parts}
+					\EndFor
+				\EndFunction
 			\end{algorithmic}
 			\caption{More efficient refinement, if graph $G=((U, V), E)$ bipartite and $\forall v \in U:\; |E^{-1}(v)| \leq 1$ or $\forall v \in V:\; |E^{-1}(v)| \leq 1$. For the algorithm we assume the former.}
 			\label{algo:prelims:refinement:bipartite}
 		\end{algorithm}
+		
+		
 	
 		\clearpage
 	
@@ -379,7 +396,7 @@
 		%		
 		\begin{equation}
 			\label{eq:prelims:rand:adjusted}
-			\mathrm{ARI} = \frac{\mathrm{RI}\; - \;\text{Expected RI}}{\text{Max RI}\; \text{Expected RI} \;} = \frac{\sum\nolimits_{ij} \binom{v_{ij}}{2} - \left[ \sum\nolimits_i \binom{a_i}{2} \sum\nolimits_j \binom{b_j}{2} \right] \div \binom{n}{2}}{\frac{1}{2} \left[ \sum\nolimits_i \binom{a_i}{2} +  \sum\nolimits_j \binom{b_j}{2} \right] - \left[ \sum\nolimits_i \binom{a_i}{2} \sum\nolimits_j \binom{b_j}{2} \right] \div \binom{n}{2}}
+			\mathrm{ARI} = \frac{\mathrm{RI}\; - \;\text{Expected RI}}{\text{Max RI}\; - \text{Expected RI} \;} = \frac{\sum\nolimits_{ij} \binom{v_{ij}}{2} - \left[ \sum\nolimits_i \binom{a_i}{2} \sum\nolimits_j \binom{b_j}{2} \right] \div \binom{n}{2}}{\frac{1}{2} \left[ \sum\nolimits_i \binom{a_i}{2} +  \sum\nolimits_j \binom{b_j}{2} \right] - \left[ \sum\nolimits_i \binom{a_i}{2} \sum\nolimits_j \binom{b_j}{2} \right] \div \binom{n}{2}}
 		\end{equation}
 		%
 		The values $v_{ij}, a_i$ and $b_j$ are taken from the so called Contingency Table shown in Figure \ref{fig:prelims:rand:contingency}.
