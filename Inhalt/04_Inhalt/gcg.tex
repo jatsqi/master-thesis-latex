@@ -78,6 +78,7 @@
 		In the current version of \ac{GCG}, however, all classifiers always assign every constraint to some class.
 		
 		\subsection{Name Classifiers}
+		\label{chap:gcg:classifiers:name}
 		
 			The names of constraints and variables are, if provided, a strong indicator to which constraints or variables are related to each other.
 			The names usually consist of two parts:
@@ -90,8 +91,9 @@
 			
 			Because there is no standardized naming scheme for either variables or constraints, name classifiers usually operate under the assumption that the modeler provided \textit{reasonable} names, if any at all.
 			A non-exhaustive collection of different naming schemes observed is provided in Appendix \todo{Appendix}.
+			If the modelers provided no names of it's own, then the underlying solver usually chooses a default prefix such as \enquote{c} or \enquote{cons} for constraints, followed by an increasing number, resulting in constraint names \enquote{c0} - \enquote{c4999} for a model with 5000 constraints.
 			
-			Given a alphabet $\Sigma$, words $w, v \in \Sigma^*$ over that alphabet, then the \textit{Levenshtein} distance between those two words can be computed as:
+			Given a alphabet $\Sigma$, words $w, v \in \Sigma^*$, then the \textit{Levenshtein} distance between those two words can be computed as:
 			%
 			\begin{equation}
 				\label{eq:gcg:levenshtein}
@@ -126,6 +128,8 @@
 				\caption{The graph of pair-wise Levenshtein weights for three capacity constraints. For $k=1$, the edge between $capacity_3$ and $capacity_{12}$ vanishes, but because they is still a connecting path via. $capacity_1$, both constraints are assigned to the same class.}
 				\label{fig:gcg:levenshtein}
 			\end{figure}
+			
+			\FloatBarrier
 		
 		\subsection{Numeric Classifiers}
 			
@@ -157,8 +161,6 @@
 				\end{equation}
 				%
 				The amount of non-zeros in these constraint is entirely dependent on the number of outgoing and incoming edges for each vertex.
-				
-				\clearpage
 		
 			\subsubsection{Objective Function}
 			
@@ -199,7 +201,6 @@
 				These constraints are usually \enquote{upgraded} if possible, that is, their structure is analyzed and assigned to the correct constraint handler during pre-solving.
 				This is done in order to take advantage of properties only possessed by certain types of constraints, e.g. a solution to a set of Knapsack constraints \textit{can} be computed more efficiently by using an algorithm based on dynamic programming.
 				For more detailed information we refer to the official documentation \cite{SCIPDoxygenDocumentation}.
-				
 				Preliminary testing showed that it is not trivial to configure the pre-processing in such a way that \textit{only} the upgrade mechanism is triggered and variables and constraints remain unchanged. \todo{Add test config to appendix}
 		
 			\subsubsection{MIPLIB Constraint Types}
@@ -238,6 +239,8 @@
 				This type of classifier shares some issues related to robustness with numeric classifiers.
 				Constraint types such as Singleton, Aggregation or Variable Bound depend on the number of non-zeroes, leading to potential miss-classifications on graph based models.
 				Furthermore, the only differentiating factor for more \enquote{complex} types such as \textit{Bin Packing} and \textit{Knapsack} is the presence of a variable which happens to have the same coefficient as the right-hand of that constraint.
+				
+				
 	
 				\clearpage
 	

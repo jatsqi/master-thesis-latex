@@ -156,18 +156,34 @@
 			\begin{alignat*}{7}
 				&z^*_{LP} \; &={}	\min	&\quad  c^T && \mathbf{x} && \quad+\quad && d^T && \mathbf{y} \\
 				&& \text{s.t.} & \quad A && \mathbf{x} && \quad+\quad  && B && \mathbf{y} && \geq b \\
-				&&&&& \mathbf{x} &&&&&& &&\in \mathbb{R}_{\geq 0} \\
+				&&&&& \mathbf{x} &&&&&& &&\in \mathbb{Q}_{\geq 0} \\
 				&&&&&&&&&&& \mathbf{y} &&\in \mathbb{Z}_{\geq 0}
 			\end{alignat*}
 			%
 			
-			Even thought linear programs are often sufficient to model a certain problem 
+			Even thought linear programs are already a powerful tool on its own, some problems require \textit{discrete} bounds for some variables, e.g., the $y$-variables shown in the system above. These variables are usually restricted to a subset of $\mathbb{Z}$.
+			If the system contains integer \textit{and} continuous variables, then the model is called a \textit{Mixed Integer Program} (MIP).
+			If only discrete variables are present, the prefix \enquote{Mixed} is omitted.
 			
+			MIPs are significantly more difficult to solve than pure linear programs, since the integer restrictions make the feasible region \textit{non-convex}, eliminating a key assumption of the simplex algorithm and its optimality conditions. Standard solution approaches include branch-and-bound, branch-and-cut, and cutting-plane methods, which systematically explore and prune the search space.
+
+			It can be shown that the decision problem of whether an \acl{IP} with all variables restricted to the domain $\{ 0, 1 \}$ has a solution is NP-hard.
+			Despite the higher computational complexity, MIPs are extremely powerful because they allow the modeling of a wide range of practical decision-making problems, including scheduling, routing, facility location and production planning
+	
+			\clearpage		
 	
 	\section{Dantzig-Wolfe Decomposition}
 	% 3 Seiten
 	
 		The \textit{Dantzig-Wolfe Decomposition} is a 
+		
+		\clearpage
+		
+		Seite 2
+		
+		\clearpage
+		
+		Seite 3
 	
 		\clearpage
 	
@@ -372,6 +388,7 @@
 		In chapter \todo{ref} these concepts will be used to define a heuristic scoring system based on constraint names.
 		
 	\section{Adjusted Rand Index}
+	\label{chap:prelims:rand}
 	
 		The \textit{Rand Index} is a statistical measure used to compare two different partitions $\pi = \{ A_1, A_2, \ldots, A_k \}, \pi' = \{ B_1, B_2, \ldots, B_l \}$ of elements from the same set $U = \{ 1, 2, \ldots, n \}$.
 		Let $f_\pi(x): U \mapsto \mathbb{N}$ be a function mapping an element $x \in U$ to the index of its cell in partition $\pi$. Function $f_{\pi'}$ is defined analogously.
@@ -403,7 +420,7 @@
 		
 		The notation of Table \ref{fig:prelims:rand:contingency} makes it seem like that $l \cdot k$ set intersection operations have to be computed in order to compute the full contingency table.
 		Computing the intersection $A \cap B$, with $A, B \subseteq U$ being of roughly similar size, can be quite an expensive operation, depending on the precise data structures used.
-		However, when there is an efficient data structure available mapping each element to the index of its containing cell, then the contingency table can be computed in one pass over all elements as shown in Algorithm.
+		However, when there is an efficient data structure available mapping each element to the index of its containing cell, then the contingency table can be computed in one pass over all elements as shown in Algorithm \ref{algo:prelims:rand:contingency}.
 		
 		%
 		\begin{table}[h!]

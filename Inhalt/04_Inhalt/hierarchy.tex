@@ -5,7 +5,7 @@
 	With the existing capabilities of \ac{GCG} presented in the previous chapter, we continue with the main contributions of this thesis:
 	
 	\begin{itemize}
-		\item A new module which is integrated into the detection framework of \ac{GCG} for reverse engineering semantic groupings of the original formulation.
+		\item A new module which is integrated into the detection framework of \ac{GCG} for reverse engineering semantic groupings of the original formulation. This can be seen as a generalization of the approach presented in \cite{}
 		\item Additional auxiliary classifiers which implement constraint and variable classification based on information not currently used including examples of \textit{when} they are crucial detecting semantics.
 	\end{itemize}
 
@@ -53,22 +53,40 @@
 	% 2 Seite
 	
 		In the following Sections we describe different classifiers which are not yet implemented in \ac{GCG} but could potentially provide new information about the model.
+		Adding new classifiers has, in addition to practical implications such as higher maintenance overhead, additional side-effects regarding runtime and memory requirements.
+		Each new classifier provides new opportunities for existing detectors to find new partial decompositions.
+		This can prove especially useful for detectors like consclass, which directly depend on the found classifications.
+		On the other hand, this dependence can result in a sub-optimal runtime investment if the found classifications provide no new information, because the generated partial decompositions based on that will most certainly be of bad quality as well. \todo{wording}
+		
+		Therefore, we will refrain from mentioning all missing model properties for which a classifier \textit{could} be built, and only focus on promising candidates. 
+		
+		\clearpage
 		
 		\subsection{Bounds}
 			
-			When considering bounds, we differentiate between two types:
-			\begin{enumerate}
-				\item Bounds of a single variable $\text{lower bound} \leq x \leq \text{upper bound}$
-				\item Constraint Bounds, $\text{lhs} \leq \sum a \mathbf{x} \leq \text{rhs}$
-			\end{enumerate}
+			When considering bounds, we differentiate between variables and constraint respectively.
 			
 			\subsubsection{Variable bounds}
 			
+				The classifier for variable bounds can be considered as a simple mapping from pairs of bounds to a unique class index.
+				More formally, given a list of all unique pairs of lower and upper bounds for variables $B = (b_1, b_2, \ldots, b_k)$, with $b_i \in \mathbb{Q} \times \mathbb{Q}$, we map each variable to the index of its bounds in $B$.
+				This mapping trivially unique.
 				
+				Mapping the variables in the described way has the side-effect that $0 \leq x \leq 1$ and $y \in \{ 0, 1 \} $ are mapped to the same class.
+				This behavior is able to account for missing declarations of variables as binary in the input format read by \ac{GCG}.
+				The classification is wrong if $x$ is truly meant to be a continuous variable, but this is offset by the fact that \ac{GCG} already includes a classifiers based on \ac{SCIP} types, which will correctly classify both variables in this case.
+				
+				\todo{container loading example}
 				
 			\subsubsection{Constraint bounds}
 			
-			\clearpage
+				A classifier for constraint bounds works in a similar manner as for variables.
+				By collection all bounds and assigning a class to each constraint based on that list, we obtain a unique mapping.
+				Note that for inequalities the absolute value either of the two bounds will always be infinity. For equalities which were not replaced with equivalent inequalities, both bounds will be equal.
+				
+				\todo{cap. lot sizing example}
+				
+				\clearpage
 		
 		\subsection{Relaxed MIPLIB types}
 			
@@ -100,23 +118,38 @@
 				\label{table:constypes:relaxedd}
 			\end{table}
 			
-			This table
-			
 			\clearpage
 			
-		\subsection{Ordered Voting}
+		\subsection{Voting (ordered)}
 		\label{chap:tree:classifiers:voting}
 		
-			Ordered Voting
-		
-			\clearpage
+			As mentioned earlier, the motivating idea behind each individual classifier is to group constraints according to some property, while the type of this property can vary greatly between classifiers.
+			Under the assumptions that groups of constraints share at least \textit{some} of these properties and are thus assigned to the same classes, we can define a new type of classifier.
+			Note that this classifier can be equivalently conceptualized as an additional \textit{strategy}, which are the basic building blocks of the refinement algorithm and explained in Section \ref{chap:tree:strategies}.
+			This assumption is, at least on examples that can be observed in practice, a reasonable one.
 			
-		\subsubsection{Co-occurence clustering}
-		\label{chap:tree:classifiers:cooccurence}
-		
-			Co
+			\subsubsection{Voting (unordered)}
 			
-			\clearpage
+				\begin{figure}[ht!]
+					\centering
+					\includegraphics[scale=1.05]{Bilder/DrawIO/strat_ordered_voting_pdf}
+					\caption{text}
+					\label{fig:tree:classifiers:ovoting}
+				\end{figure}
+			
+				In order to derive a simple and efficient algorithmic approach to this problem, we can make an additional assumptions not based on the model itself, but on its representation in common input formats like \lstinline|.lp| and \lstinline|.mps| files.
+				A lot of models are generated via. scripts and written to such files for portability and interoperability with other solvers.
+				One exploitable property which can be observed in a lot of models is, that groups constraints are usually \textit{added in bulk}.
+				This results in consecutive blocks of constraints which are semantically related, which is illustrated in the \enquote{Input} column of Figure \ref{fig:tree:classifiers:ovoting}.
+				If a class of constraints is split into two non-consecutive groups like the second partition from Figure \ref{fig:tree:classifiers:ovoting}, then we can deduce that they are meant to be two different groups.
+			
+			\subsubsection{Voting (unordered)}
+			\label{chap:tree:classifiers:cooccurence}
+			
+				If the read model does \textit{not} have the property of properly ordered constraint blocks, a more involved algorithmic approach can be used.
+				Here, the general problem can be reduced to group constraints with each other which are \textit{often} assigned to the same class.
+					
+				\clearpage
 		
 %	\section{Tree Refinement}
 %	% 4 Seiten
@@ -129,6 +162,7 @@
 %		\end{figure}
 		
 	\section{Strategies}
+	\label{chap:tree:strategies}
 	
 		Strategies are \textit{the} central building block of the algorithm and are responsible for refining sets of constraints or variables.
 		Let $U$ be a the total set of constraints or variables.
@@ -159,11 +193,23 @@
 			This concept is illustrated in Figure \ref{fig:tree:strat:slice}.
 			Because strategies only refine single sets and not whole partitions, Equation \ref{eq:tree:strat:slice:overlay} always degenerates to $\pi_{slice} \sqcap \{ S, U \setminus S \}$ for some partition $\pi_{slice} \in \Pi(U)$ and a set $S$ we want to refine.
 			The result is then restricted to elements of $S$, which yields a partition of $S$.
-			More formally, this strategy can be expressed as Function \ref{eq:tree:strat:slice:function} and computed efficiently using Algorithm \ref{algo:tree:strat:slice}. 
+			More formally, this strategy can be expressed as Function \ref{eq:tree:strat:slice:function} and computed efficiently using Algorithm \ref{algo:tree:strat:slice}.
+			%
 			\begin{equation}
 			\label{eq:tree:strat:slice:function}
-				f(\pi_{splitter}, S) = \left\{ A_i \cap S \mid A_i \in \pi_{splitter} \right\}
+				f(\pi_{splitter}, S) = \left\{ A_i \cap S \mid A_i \in \pi_{splitter} \right\} \setminus \emptyset
 			\end{equation}
+			%
+			Note that the operator $\sqcap$ is trivially associative, i.e., $(\pi \sqcap \pi') \sqcap \pi'' = \pi \sqcap (\pi' \sqcap \pi'')$:
+			%
+			\begin{alignat*}{4}
+				X \in (\pi \sqcap \pi') \sqcap \pi'' &\iff \exists Z \in (\pi \sqcap \pi'), C \in \pi'' && : \; && X && ={} Z \cap C \\
+				&\iff \exists A \in \pi, B \in \pi', C \in \pi''&& : \; && X && ={} (A \cap B) \cap C \\
+				&\iff \exists A \in \pi, B \in \pi', C \in \pi''&& : \; && X && ={} A \cap (B \cap C) \\
+				&\iff  X \in \pi \sqcap (\pi' \sqcap \pi'')
+			\end{alignat*}
+			
+			In conjunction with commutativity, this fact can be used to e.g. eliminate part of the search space by pruning duplicated nodes in the tree and only expanding one instance of any given sub-tree.
 		
 			\begin{algorithm}[ht!]
 				\centering
@@ -186,9 +232,12 @@
 				\label{algo:tree:strat:slice}
 			\end{algorithm}
 			
+			\FloatBarrier
 			\clearpage
 		
 		\subsection{Slice (Covering)}
+		
+			Before we explain the \textit{covering} version of the previous strategy, Function \ref{eq:tree:strat:slice:function} can be seen as an instantiation f
 		
 			This strategy is functionally equivalent to the refinement method \enquote{fast} from \cite{salvagninDetectingSemanticGroups2016}.
 			The name most likely stems from an algorithm informally described a fast algorithm based on bucket sort to implement such a partition refinement algorithm.
@@ -205,7 +254,38 @@
 	\section{Scoring}
 	% 1 Seite
 	
+		Up until this point we have only described how the algorithm refines sets based on different strategies, despite the goal being a list of promising partitions.
+		Before we describe how to select such partitions, we have to define how we actually \textit{get} a list of partitions from the refinement tree.
+		\todo{WIP}
+	
 		\subsection{Constraint Names}
+		\label{chap:tree:scoring:names}
+		
+			One important piece of information that usually reflects the modelers \textit{intent} when it comes to the semantic difference are the names of the constraints or variables, in the following abbreviated with just \enquote{names}.
+			As discusses in Section \ref{chap:gcg:classifiers:name}, names usually consist of multiple parts, with one part containing all the information related to \textit{semantics}.
+			Extracting this part of the name can be done heuristically using Algorithm \ref{algo:tree:scoring:nameheur}.
+			The heuristic consist of four major steps:
+			\begin{enumerate}
+				\item Remove \textit{modifies} which are usually enclosed in either brackets or some other special character combination which consists of an \textit{opening} and \textit{closing} character.
+				\item \enquote{Normalize} the string by replacing any non-alpha-numeric separators such as spaces, tabs, $\ldots$ with a single character $c$ such as \enquote{\_}.
+				\item Split the string according to $c$ and try to detect the part with the relevant semantics. 
+				\item \textit{(Optional)} Remove any left-over non-alpha characters such as numbers.
+			\end{enumerate}
+			
+			Step 4 is explicitly marked as optional, because sometimes numbers are integral part of the name, sometimes they are not.
+			Both of these cases can actually be observed in the same model \footnote{StrIPlib UUID: d48c9568-e0ea-4c77-9a3b-b7f4dc530d5f}.
+			For this model in particular, the constraints \enquote{cut1} to \enquote{cut4} are of interest.
+			The constraints with the prefix \enquote{cut1} and \enquote{cut2} are structurally identical, i.e, the they all share the same number of non-zeros and the same type of variables, while \enquote{cut3} and \enquote{cut4} do not.
+			Here, \enquote{cut1} and \enquote{cut2} would have to belong to the same group, while \enquote{cut3} and \enquote{cut4} belong in a group their own.
+			With the heuristic as is, this case is not detected with or without step 4 because additional information about the actual structure of constraint is required.
+			
+			Note that the Algorithm makes some implicit key assumptions, such as:
+			\begin{itemize}
+				\item That the name actually carriers any semantically relevant information at all.
+				\item The names adhere to a \enquote{common} format, i.e., the modifier comes \textit{after} the part semantics part.
+			\end{itemize}
+			
+			These assumptions proved reasonable for almost all models observed in practice which had proper names available. Still, there cases where this approach fails \todo{Give MIPLIB examples}.
 		
 			\begin{algorithm}[ht!]
 				\centering
@@ -235,8 +315,23 @@
 		\subsection{Ground Truth based}
 		% 1 Seite
 		
-			Ground-Truth
-		
+			As discusses in the previous Sections, the algorithm starts with a set in which all constraints or variables are in the same cell.
+			In order to \textit{guide} the search towards a plausible semantic partitioning, the existence of a ground-truth partition which approximates the desired partition reasonably well can be used to terminate the search or select promising partitions after the search-space has been explored.
+			Terminating the search can, in practice, be very useful, because preventing the algorithm from expanding a node not only prevents unnecessary work being done for this particular node, but also prevents the generation of the entire sub-tree below; reducing the number of potential candidate partitions and overall runtime and space requirements of the algorithm.
+			
+			Potential sources for a suitable ground-truth partitions include
+			\begin{itemize}
+				\item Constraint names using the heuristic from Section \ref{chap:tree:scoring:names}. 
+				\item Variable information, i.e., given a ground-truth of semantic groupings of variables, one could obtain a corresponding ground-truth partition for constraints by assigning two constraints to different groups iff they contain different kinds of variables according to the ground-truth.
+			\end{itemize}
+			
+			Without the availability of a reasonably ground-truth, it is currently unclear how to know when to terminate the search and more importantly, what structured the desired target partitions should have.
+			Here, the term \enquote{structure} refers to all relevant properties of the target partition, including but not limited to, the number and size of the cells.
+			
+			Assuming a reasonable ground-truth has been obtained, a partition-comparing score such as the Rand-Index already discussed in Section \ref{chap:prelims:rand} can be used a number of promising candidates.
+			Furthermore, the refinement can be terminates for sets which are already \textit{homogeneous} according to the ground-truth partition.
+			The idea being is that by refining the set further we do not gain any new information.
+			
 			\clearpage
 	
 		\subsection{Connected Block Score}
