@@ -1,6 +1,6 @@
 %% Creator: Inkscape 1.4 (86a8ad7, 2024-10-11), www.inkscape.org
 %% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
-%% Accompanies image file 'entropy_shapes_svg-tex.pdf' (pdf, eps, ps)
+%% Accompanies image file 'strat_rec_svg-tex.pdf' (pdf, eps, ps)
 %%
 %% To include the image in your LaTeX document, write
 %%   \input{<filename>.pdf_tex}
@@ -38,7 +38,7 @@
   \newcommand*\fsize{\dimexpr\f@size pt\relax}%
   \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
   \ifx\svgwidth\undefined%
-    \setlength{\unitlength}{332bp}%
+    \setlength{\unitlength}{305.25bp}%
     \ifx\svgscale\undefined%
       \relax%
     \else%
@@ -50,20 +50,9 @@
   \global\let\svgwidth\undefined%
   \global\let\svgscale\undefined%
   \makeatother%
-  \begin{picture}(1,0.13253012)%
+  \begin{picture}(1,0.27395577)%
     \lineheight{1}%
     \setlength\tabcolsep{0pt}%
-    \put(0,0){\includegraphics[width=\unitlength,page=1]{entropy_shapes_svg-tex.pdf}}%
-    \put(0.06626506,0.05361446){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}1\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=2]{entropy_shapes_svg-tex.pdf}}%
-    \put(0.22891566,0.05361446){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}2\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=3]{entropy_shapes_svg-tex.pdf}}%
-    \put(0.39156627,0.05361446){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}3\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=4]{entropy_shapes_svg-tex.pdf}}%
-    \put(0.55421687,0.05361446){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}4\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=5]{entropy_shapes_svg-tex.pdf}}%
-    \put(0.71686747,0.05361446){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}5\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=6]{entropy_shapes_svg-tex.pdf}}%
-    \put(0.90662651,0.05361446){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}A\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{strat_rec_svg-tex.pdf}}%
   \end{picture}%
 \endgroup%

@@ -174,6 +174,7 @@
 		\clearpage
 	
 		\subsection{Slice (Partition)}
+		\label{chap:tree:strategies:slice:part}
 		
 			\begin{figure}[ht!]
 				\centering
@@ -237,16 +238,57 @@
 		
 		\subsection{Slice (Covering)}
 		
-			Before we explain the \textit{covering} version of the previous strategy, Function \ref{eq:tree:strat:slice:function} can be seen as an instantiation f
-		
-			This strategy is functionally equivalent to the refinement method \enquote{fast} from \cite{salvagninDetectingSemanticGroups2016}.
+			\begin{figure}[ht!]
+				\centering
+				\includesvg[scale=1.25]{Bilder/DrawIO/setcov}
+				\caption{Given $U = \{ 1, \ldots, 6 \}$, and $S = \{ \{ 1, 2, 3 \}, \{ 3, 4 \}, \{ 4, 5, 6 \} \} \subseteq 2^U$, with each $C \in S$ corresponding to one \textit{feature}.
+				Each element $x \in U$ is part of at least one set $C \in S$, thus possessing at least one feature.
+				This example can be encoded as a graph, where the right side \enquote{the features} are pre-partitioned into individual cells. By applying the standard partition refinement framework from Section \ref{chap:prelims:partitionref} with function \ref{eq:prelims:pref:exists}, we obtain a partition $\pi \in \Pi(U)$ in which the elements any given cell possess the same features.} 
+				\label{fig:tree:strat:cov}
+			\end{figure}
+			
+			%Before we explain the \textit{covering} version of the previous strategy, Function \ref{eq:tree:strat:slice:function} can be seen as an instantiation f
+			Let $U$ be an arbitrary set. Then a covering can be defined as a set $S \subseteq 2^U$, where $S^U$ denotes the power set, such that:
+			%
+			\begin{equation*}
+				U = \bigcup_{C \in S} C
+			\end{equation*}
+			%
+			The definition is equivalent to a set partitioning without the condition that sets of $S$ must be pairwise disjuct.
+			Each set $C \in S$ corresponds to one \textit{feature}, with the elements $x \in C$ considered to possessing said feature.			
+			The goal of the covering version of the slicing strategy is to partition the elements of a given set in such a way, that elements in the same cells all possess the same features.
+			In order to obtain such a partition from a set covering $S$, we can encode the underlying problem as a graph and use the standard partition refinement framework.
+			%The splitter-function that is being used here corresponds to Function \ref{eq:prelims:pref:exists}.
+			Afterwards, the resulting partition can be used to slice the given set as described in Section \ref{chap:tree:strategies:slice:part}.
+			
+			The strategy can be used to e.g. partition constraints according to the types of variables that they contain.
+			It is functionally equivalent to the refinement method \enquote{fast} from \cite{salvagninDetectingSemanticGroups2016}.
 			The name most likely stems from an algorithm informally described a fast algorithm based on bucket sort to implement such a partition refinement algorithm.
 			
 			\clearpage
 		
 		\subsection{Recursive}
+		
+			\begin{figure}[ht!]
+				\centering
+				\includesvg[scale=1.25]{Bilder/DrawIO/strat_rec}
+				\caption{text}
+				\label{fig:tree:strat:rec}
+			\end{figure}
 
-			The \textit{recursive} strategy is the the only strategy which utilizes the full blown partition refinement framework.
+			The \textit{recursive} strategy is the the only strategy which needs to utilizes the full blown partition refinement framework.
+			The strategy is based on the canonical constraint-variable un-directed graph already shown in Figure \ref{fig:prelims:graphs:binpackbipartite}.
+			Each variable and constraint corresponds to exactly one vertex, while an edge between a constraint and variable node exists iff the variable is part of the constraint.
+			More formally, given a set of constraints $C = \{ c_1, \ldots, c_m \}$ and a set of variables $X = \{ x_1, \ldots, x_n \}$. Let $a_{ij}$ be the coefficient of variable $x_i \in X$ in constraint $c_j \in C$.
+			Then we can define the graph as follows:
+			%
+			\begin{equation*}
+				G = (V, E) = (X \cup C, \{ \{ x_i, c_j \} \mid x_i \in X, c_j \in C, a_{ij} \neq 0 \})
+			\end{equation*}
+			%
+			The size of the graph in terms of it's edges and vertices depends entirely to the underlying problem. 
+			A partition is obtained by running the algorithm with either Function \ref{eq:prelims:pref:count} or Function \ref{eq:prelims:pref:exists}.
+			Afterwards, the partition is used to slice a given set according to the method described in Section \ref{chap:tree:strategies:slice:part}.
 			
 			\clearpage
 			
