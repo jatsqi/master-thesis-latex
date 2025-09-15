@@ -1,0 +1,8 @@
+@startuml Original Paper
+start
+:Choose Refinement Function;
+:Create Graph;
+:Run Partition Refinement;
+:Output partition stable with respect to function;
+stop
+@enduml

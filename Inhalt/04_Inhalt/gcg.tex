@@ -77,6 +77,8 @@
 		Note that in \acs{GCG}, classifiers are allowed to only classify a subset $C' \subseteq C$, leaving $C \setminus C'$ unassigned to any class \footnote{When using \ac{GCG} as a library, this can be checked via. \lstinline|IndexPartition::isIndexClassified|.}.
 		In the current version of \ac{GCG}, however, all classifiers always assign every constraint to some class.
 		
+		Furthermore, each classifier is identified with an unique \textit{name} and an integral priority, influencing the order in which the classifiers are being executed by the framework. 
+		
 		\subsection{Name Classifiers}
 		\label{chap:gcg:classifiers:name}
 		
@@ -88,6 +90,8 @@
 			\end{enumerate}
 		
 			Constraints in the same group typically share similar names, with the \textit{modifier} being the only differentiating factor. For example, in a Bin-Packing problem, capacity constraints such as \enquote{capacity\_1}, \enquote{capacity\_2}, $\ldots$ usually vary only in the index indicating the bin. This similarity can be quantified using metrics like the \textit{Levenshtein Distance}, which is the minimum number of single-character edits required to change one word into the other.
+			
+			\clearpage
 			
 			Because there is no standardized naming scheme for either variables or constraints, name classifiers usually operate under the assumption that the modeler provided \textit{reasonable} names, if any at all.
 			A non-exhaustive collection of different naming schemes observed is provided in Appendix \todo{Appendix}.
@@ -116,6 +120,7 @@
 			\begin{equation*}
 				{reachEventually}_t(T) = \{ u \in V \mid \exists v \in T: v \in E(u) \;  \} \cup \{ t \}
 			\end{equation*}
+			\todo{WIP}
 			%
 			Then two constraints $c_i, c_j \in V$ are in the same class iff $c_j \in reach(c_i)$.
 			A small example of this concept is shown in Figure \ref{fig:gcg:levenshtein}.

@@ -1,0 +1,28 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="28.2.1">
+  <diagram name="Page-1" id="WQoq2shkfPpYlNjBiQMA">
+    <mxGraphModel dx="1154" dy="698" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="oneNBx5EOi1U19oZSII6-1" value="GCG&lt;div&gt;Core&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=30;fontFamily=Times New Roman;fontSize=20;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="180" y="150" width="120" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="oneNBx5EOi1U19oZSII6-2" value="Detector&lt;div&gt;Plugin&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=20;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="400" y="150" width="110" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="oneNBx5EOi1U19oZSII6-4" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.rect;fillColor2=none;strokeWidth=1;size=15;indent=5;absoluteCornerSize=1;rectStyle=rounded;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="410" y="610" width="130" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="oneNBx5EOi1U19oZSII6-5" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.rect;fillColor2=none;strokeWidth=1;size=15;indent=5;absoluteCornerSize=1;rectStyle=rounded;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="200" y="500" width="120" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="oneNBx5EOi1U19oZSII6-6" value="" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=30;" vertex="1" parent="1">
+          <mxGeometry x="770" y="480" width="110" height="330" as="geometry" />
+        </mxCell>
+        <mxCell id="oneNBx5EOi1U19oZSII6-7" value="Detector&lt;div&gt;Plugin&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=20;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="610" y="150" width="110" height="140" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

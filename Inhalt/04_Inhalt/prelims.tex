@@ -324,7 +324,7 @@
 		These encodings allow partition refinement to exploit structural symmetries and behavioral equivalences in a wide range of domains, especially if problems in that domain can be encoded as graphs. 
 		Further domains of application include Model Checking \cite{baierPrinciplesModelChecking2008} and sorting algorithms \cite{mehlhornAlgorithmsDataStructures2008}.
 	
-		Furthermore, if the underlying graph is bipartite, the splitter-function is expressing a vertex property such as Function \ref{eq:prelims:pref:count} or \ref{eq:prelims:pref:exists} and each vertex on one of the two sides of the graph is in its own class, then the partition refinement algorithm can be implemented more efficiently as highlighted in \cite{salvagninDetectingSemanticGroups2016}.
+		Furthermore, if the underlying graph is bipartite, the splitter-function is expressing a vertex property such as Function \ref{eq:prelims:pref:count} or \ref{eq:prelims:pref:exists} and each vertex on one of the two sides of the graph is in its own class, then the partition refinement algorithm can be implemented more efficiently as hinted on in \cite{salvagninDetectingSemanticGroups2016}.
 		This is due to the fact that one of the sides is already fully refined, thus only the other side might change. Combined with the fact that the graph is bi-partite, splits that occur within one cell cannot affect other cells.
 		Thus, we don't have to \enquote{go back} during the execution of the loop in Algorithm \ref{algo:prelims:refinement:bipartite}.
 		

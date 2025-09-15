@@ -1,0 +1,28 @@
+@startuml
+
+package "GCG Core Layer" {
+    [GCG Data Structures] as GCGData
+    [Detection Framework] as GCGFrame
+
+    GCGData -down- GCGFrame
+}
+
+package "Plugin Layer" {
+    [Detector Callbacks] as Callbacks
+}
+
+package "Refinement Layer" {
+    [Adapter] as Adapter
+    [Tree Refinement Logic] as Tree
+    [Internal Data Structures] as InternalData
+}
+
+GCGFrame -right-> Callbacks
+GCGFrame <-left- Callbacks
+
+Callbacks <-right-> Adapter
+Adapter -right- Tree
+Tree -up- InternalData
+InternalData -down- Adapter
+
+@enduml

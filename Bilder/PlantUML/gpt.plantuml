@@ -1,0 +1,14 @@
+@startuml
+component "Parsing Layer" {
+  [Parser] -down-> (ParsedData)
+}
+
+component "Processing Layer" {
+  (ParsedData) -down-> [Processor]
+  [Processor] -down-> (ProcessedModel)
+}
+
+component "Output Layer" {
+  (ProcessedModel) -down-> [Exporter]
+}
+@enduml

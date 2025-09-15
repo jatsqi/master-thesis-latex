@@ -2,22 +2,62 @@
 \label{chap:impl}
 % 0.5 Seiten
 
+	Building upon the algorithmic descriptions of Chapter \ref{chap:tree}, we want to discuss how such an algorithm can be efficiently implemented and practice and how the component is integrated into \ac{GCG} as a detector.
+	The Chapter is divided into multiple sections, each describing a different aspect of the implementation:
+	
+	\begin{enumerate}
+		\item Section \ref{chap:impl:architecture} contains a high-level overview about the architecture of the detector and its relation with other components in \ac{GCG}.
+		\item In Sections \ref{chap:impl:architecture} - \ref{chap:impl:hashing}, we will give a brief overview about a few custom data structures required to implement the refinement more efficiently and how the tree is represented in memory.
+		\item Sections \ref{chap:impl:cutoff} and \ref{chap:impl:multi} conclude the Chapter with two practical considerations:
+		\begin{itemize}
+			\item Is it possible to reduce to the number of candidate partitions before scoring?
+			\item For larger and more complicated models, can we ensure a reasonable runtime?
+		\end{itemize}
+	\end{enumerate}
+	
+	This Chapter does not include actual numbers concerning space and runtime, we only look at the underlying concepts which are widely used in other algorithms to achieve e.g. a better practical runtime.
+	
+	\clearpage
+
 	\section{Architecture}
+	\label{chap:impl:architecture}
 	% 2 Seiten
 	
+		\begin{figure}[ht!]
+			\centering
+			\includesvg[scale=0.7, inkscapelatex=false]{Bilder/PlantUML/out/comp/comp}
+			\caption{text}
+			\label{fig:impl:arch:overview}
+		\end{figure}
+		
+		As mentioned in the introduction to Chapter \ref{chap:tree}, the approach is implemented as a \textit{Detector} in \ac{GCG}, contrary to the fact that the algorithm outputs a one or multiple partitions of constraints or variables.
+		Generating such partitions is more aligned with the concept of a \textit{classifiers} from Section \ref{chap:gcg:classifiers}, but this comes with an important drawback.
+		Because we want to incorporate information about variables for partitioning constraints and vice vrca for constraints, we have to delay the execution of the algorithm to a point in time \textit{after} the classification has finished, i.e., all relevant data is available.
+	
 	\section{Metadata}
+	\label{chap:impl:meta}
 	% 1 Seite
 	
-	\section{Multi-Threading}
+	\section{Data Structures}
+	\label{chap:impl:structures}
+	
 	% 2 Seiten
 	
 	\section{Hashing}
+	\label{chap:impl:hashing}
 	% 1 Seite
 	
 	\section{Cutoff Conditions}
+	\label{chap:impl:cutoff}
 	
 		\subsection{Local Conditions}
 		% 1 Seite
 		
 		\subsection{Global Conditions}
 		% 1 Seite
+		
+	
+	\section{Multi-Threading}
+	\label{chap:impl:multi}
+	% 1 Seite
+

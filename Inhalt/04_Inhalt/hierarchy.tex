@@ -5,7 +5,7 @@
 	With the existing capabilities of \ac{GCG} presented in the previous chapter, we continue with the main contributions of this thesis:
 	
 	\begin{itemize}
-		\item A new module which is integrated into the detection framework of \ac{GCG} for reverse engineering semantic groupings of the original formulation. This can be seen as a generalization of the approach presented in \cite{}
+		\item A new module which is integrated into the detection framework of \ac{GCG} for reverse engineering semantic groupings of the original formulation. This can be seen as a generalization of the approach presented in \cite{salvagninDetectingSemanticGroups2016}
 		\item Additional auxiliary classifiers which implement constraint and variable classification based on information not currently used including examples of \textit{when} they are crucial detecting semantics.
 	\end{itemize}
 
@@ -21,33 +21,35 @@
 
 	\clearpage
 
-	\section{Information}
-	% 1 Seite
-	
-	\begin{figure}[ht!]
-		\centering
-		\includegraphics[scale=0.8]{Bilder/DrawIO/model_information}
-		\caption{All parts of a model that contain useful information for semantic grouping of constraints and variables. Elements with a thick border are already used as a key concept in one of the existing detectors.}
-		\label{fig:tree:information}
-	\end{figure}
-	
-	Before we present any algorithmic details, we give an overview about the available information.
-	
-	\begin{enumerate}
-		\item \textbf{Objective}: For the objective functions, information about the participating variables and their coefficients is available. For some models e.g. for Bin-Packing, this information alone is sufficient to partition the variables.
-		\item \textbf{Coefficients}:
-		The use of coefficients to classify constraints and variables was already in discussed in Section \ref{chap:gcg:classifiers}.
-		\item \textbf{Bounds}: For all variables $lb \leq x \leq ub$ information about their lower- and upper-bounds is available.
-		Furthermore, the left- and right-hand-side of linear constraints $lhs \leq \sum_i a_i x_i \leq rhs$ are available as well.
-		\item \textbf{Types}: Variable types such as \textit{Integer} are usually stated explicitly in the input format. If not, then information about the variable bounds can be used to deduce a type, e.g. $0 \leq x \leq 1$ is a strong indicator that $x$ is a \textit{Binary} variable.
-		\item \textbf{Names}: If specified by the modeler, then variables and constraints might have meaningful names which can be used as a strong indicator which constraints and variables belong to the same group.
-		\item \textbf{Order}: In contrast to other kinds of information, the constraint \enquote{order} is no intrinsic property of the model itself. With the term \enquote{order}, we refer to the order of the constraints as specified in the input format. When a model is created e.g. via. a script, constraints are usually added in \textit{blocks} by the modeler. This information is used in Section \ref{chap:tree:classifiers:voting} to conceptualize a classifier based on that.
-	\end{enumerate}
-	
 	\section{Motivation}
 	% 2 Seiten
 	
+		In \cite{salvagninDetectingSemanticGroups2016}
+	
 		\clearpage
+
+	\section{Information}
+	% 1 Seite
+	
+		\begin{figure}[ht!]
+			\centering
+			\includegraphics[scale=0.8]{Bilder/DrawIO/model_information}
+			\caption{All parts of a model that contain useful information for semantic grouping of constraints and variables. Elements with a thick border are already used as a key concept in one of the existing detectors.}
+			\label{fig:tree:information}
+		\end{figure}
+		
+		Before we present any algorithmic details, we give an overview about the available information.
+		
+		\begin{enumerate}
+			\item \textbf{Objective}: For the objective functions, information about the participating variables and their coefficients is available. For some models e.g. for Bin-Packing, this information alone is sufficient to partition the variables.
+			\item \textbf{Coefficients}:
+			The use of coefficients to classify constraints and variables was already in discussed in Section \ref{chap:gcg:classifiers}.
+			\item \textbf{Bounds}: For all variables $lb \leq x \leq ub$ information about their lower- and upper-bounds is available.
+			Furthermore, the left- and right-hand-side of linear constraints $lhs \leq \sum_i a_i x_i \leq rhs$ are available as well.
+			\item \textbf{Types}: Variable types such as \textit{Integer} are usually stated explicitly in the input format. If not, then information about the variable bounds can be used to deduce a type, e.g. $0 \leq x \leq 1$ is a strong indicator that $x$ is a \textit{Binary} variable.
+			\item \textbf{Names}: If specified by the modeler, then variables and constraints might have meaningful names which can be used as a strong indicator which constraints and variables belong to the same group.
+			\item \textbf{Order}: In contrast to other kinds of information, the constraint \enquote{order} is no intrinsic property of the model itself. With the term \enquote{order}, we refer to the order of the constraints as specified in the input format. When a model is created e.g. via. a script, constraints are usually added in \textit{blocks} by the modeler. This information is used in Section \ref{chap:tree:classifiers:voting} to conceptualize a classifier based on that.
+		\end{enumerate}
 	
 	\section{Classifiers}
 	% 2 Seite
@@ -272,7 +274,7 @@
 			\begin{figure}[ht!]
 				\centering
 				\includesvg[scale=1.25]{Bilder/DrawIO/strat_rec}
-				\caption{text}
+				\caption{A simple example of a graph for which the partition refinement algorithm takes multiple iterations to yield a stable partition with respect to Function \ref{eq:prelims:pref:exists}. In this example, the algorithm is provided with the initial partition $\{ \{ 1, 2 \}, \{ 3, 4 \}, \{ A, B, C, D \}$}.
 				\label{fig:tree:strat:rec}
 			\end{figure}
 
@@ -290,15 +292,48 @@
 			A partition is obtained by running the algorithm with either Function \ref{eq:prelims:pref:count} or Function \ref{eq:prelims:pref:exists}.
 			Afterwards, the partition is used to slice a given set according to the method described in Section \ref{chap:tree:strategies:slice:part}.
 			
-			\clearpage
+			Note that even thought the generated graph is always bi-partite, it does not necessarily fulfill the conditions mentioned in Section \ref{chap:prelims:partitionref} for the fast variant of the refinement algorithm, i.e., that all nodes on one of the two sides of the bi-partite graph are all in their own cell.
+			As a consequence, one full execution of the recursive strategy might take orders of magnitude longer than an execution of one of the two slice variants explained previously. \todo{"orders of magnitude" ein wenig übertrieben}
 			
+			\clearpage
 	
 	\section{Scoring}
 	% 1 Seite
 	
 		Up until this point we have only described how the algorithm refines sets based on different strategies, despite the goal being a list of promising partitions.
 		Before we describe how to select such partitions, we have to define how we actually \textit{get} a list of partitions from the refinement tree.
+		
+		Let $G = (V, R, E)$ the set refinement tree with vertex set $V$, designated root node $R \in V$ and edges $E \subseteq V \times V$. \\
+		Let $Recombine_k(U_1, U_2, \ldots, U_k): U_1 \times U_2 \times \ldots \times U_k \xrightarrow{} 2^{U_1 \cup U_2 \cup \ldots \cup U_k}, k \in \mathbb{N}$ be a Function defined as follows:
+		%
+		\begin{equation*}
+			Recombine_k(U_1, U_2, \ldots, U_k) = \begin{cases}
+				\emptyset & k = 0 \\
+				U_1 & k = 1 \\
+				\{ \{ u \} \cup r \mid u \in U_1, r \in Recombine_{k-1}(U_2, U_3, \ldots, U_k) \} & else
+			\end{cases}
+		\end{equation*}
+		%
+		More informally, $Reombine_k$ takes a total of $k$ arbitrary sets $U_1, \ldots, U_k$ and computes a set containing all possible $k$-tuples $(u_1, u_2, \ldots, u_k)$ with $u_i$ restricted to elements from $U_i$.
+		Thus, the set of \textit{all} partitions constructible from a sub-tree rooted at vertex $v \in V$ can be computed using Function \ref{eq:tree:scoring:partcomp}.
+		%
+		\begin{equation}
+		\label{eq:tree:scoring:partcomp}
+			Partitions(v) = \begin{cases}
+				Sets(v) & \text{if $v$ is leaf node} \\
+				\left\{ Recombine_{|Sets(v)|} \right\} & else
+			\end{cases}
+		\end{equation}
 		\todo{WIP}
+		%
+		It is clear that setting $v = R$ gives the set of all possible partitions.
+		\todo{Add simple proof}
+		
+		One can deduce from the definition of Function \ref{eq:tree:scoring:partcomp} that the number of partitions depends on the depth and maximum out-degree of any given node of the tree.
+		Therefore, it will be of vital interest to only consider \enquote{interesting} sets.
+		Ideas and possible implementations are discusses in Chapter \ref{chap:impl}.
+		
+		\clearpage
 	
 		\subsection{Constraint Names}
 		\label{chap:tree:scoring:names}
@@ -350,6 +385,17 @@
 				\label{algo:tree:scoring:nameheur}
 			\end{algorithm}
 			\todo{WIP}
+			
+			As soon as the semantic part of all names is extracted, constraints and variables can be grouped based on this information.
+			Possible post-processing steps might include an application of the mentioned Levenshtein-Distance from Chapter \ref{chap:gcg}.
+			Even thought the Algorithm has quadratic time complexity and is therefore unlikely to be used with the full set of original constraint or variable names, a reasonable assumption is that
+			%
+			\begin{equation*}
+				\{ \; \Call{ExtractSemanticPart}{Name(c)} \mid c \in Cons \; \} \ll \{ \; Name(c) \mid c \in Cons \; \}
+			\end{equation*}
+			%
+			Analogously, the assumption is made for variable names as well.
+			Thus, an Algorithm for the Levenshtein-Distance, even under worst-case considerations, might be applicable and thus resulting in a better partitioning.
 			
 			\clearpage
 			

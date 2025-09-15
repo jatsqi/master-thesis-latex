@@ -1,0 +1,18 @@
+{
+    "d": {
+        "__count": "2",
+        "results": [
+            {
+                "__metadata": {
+                    "id": "https://IPP.BSS.NET.SAP:443/sap/opu/odata/sap/HCMFAB_LEAVE_REQUEST_CR_SRV/SearchApproverSet(EmployeeID='00000000',ApproverEmployeeID='01351266')",
+                    "uri": "https://IPP.BSS.NET.SAP:443/sap/opu/odata/sap/HCMFAB_LEAVE_REQUEST_CR_SRV/SearchApproverSet(EmployeeID='00000000',ApproverEmployeeID='01351266')",
+                    "type": "HCMFAB_LEAVE_REQUEST_CR_SRV.SearchApprover"
+                },
+                "EmployeeID": "00000000",
+                "ApproverEmployeeID": "01351266",
+                "ApproverEmployeeName": "Anthony Quast",
+                "ApproverUserID": ""
+            }
+        ]
+    }
+}
