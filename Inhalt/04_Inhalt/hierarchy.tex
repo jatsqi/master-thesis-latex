@@ -24,7 +24,41 @@
 	\section{Motivation}
 	% 2 Seiten
 	
-		In \cite{salvagninDetectingSemanticGroups2016}
+		In \cite{salvagninDetectingSemanticGroups2016}, the implemented approaches can be seen as a three-step process:
+		
+		\begin{enumerate}
+			\item Transform a given model to a graph-based representation.
+			\item Select a suitable initial partitioning.
+			\item Choose \textit{one} splitter-function and run the standard partition refinement algorithm until a stable partition is reached.
+		\end{enumerate}
+		
+		Depending on the type of model, running the refinement with different initial partitions and splitter-functions might be necessary, which was already recognized in \cite{salvagninDetectingSemanticGroups2016}.
+		Furthermore, we suspect that for some models it might even be required to use different splitter-funtions on different \textit{parts} of the model.
+		
+		In the following, we will generalize this process by adopting a similar approach as the one shown in Chapter \ref{chap:gcg}. 
+		Instead of choosing \textit{one} way of refining the constraints or variables based on an initial partition, we try different \textit{strategies} to explore a more broader search space.
+		Afterwards, the found partitions are scored and the most promising ones are selected.
+		Note that the overall goal remains unchanged: Based on an initial partition, we aim to iteratively refine the cells in such a way, that ultimately the constraints or variables in each cell belong to the same semantic grouping as the modeler intended to.
+		
+		In order to achieve this, we propose multiple \textit{strategies} which form the basic building blocks of the algorithm and are discusses in Section \ref{chap:tree:strategies}.
+		Each strategy takes a single cell $C_i$ as input and computes a partition $\pi_{C_i} \in \Pi(C_i)$ as output, thereby refining the cell.
+		In the following, the process of refining a cell according to a certain strategy is sometimes referred to as \enquote{expanding a cell}.
+		The partitions of the cells are organized in a \acf{SRT} as shown in Figure \ref{fig:tree:motivation}, i.e., each node, with exception of the root node, corresponds to a possible partitioning of its parent cell, which was computed by a strategy.
+		The root node and its cells correspond to the initial partition and it is the \textit{only} node for which the union of its cells corresponds to the whole set of constraints or variables. The cells of all other nodes only partition its immediate parent cell in the tree.
+		This process implies that an additional post-processing step is required which translates the tree of cell-refinements to actual partitions. This step is discussed in Section \ref{chap:gcg:scoring}.
+		
+		In order to use a unified notation in the following sections, we will define the \ac{SRT} and its associated information more formally.
+		A \ac{SRT} can be formalized as a tuple $T = (V, E, U, R, S)$ with universe $U$ corresponding to the set of all constraints or variables, designated root node $R \in V$ and set of strategies $S \subseteq \mathbb{N}$.
+		The tuple $(V, E)$ must induce an directed acyclic graph.
+		Each node $v \in V \setminus R$ of the tree is associated with a parent cell $\mathrm{ParentCell}_v \in 2^U$, a set of cells $\mathrm{Cells}_{v} \in \Pi(\mathrm{ParentCell}_v)$ and the strategy $\mathrm{Strategy}_v$ that was used to compute $v$ from its parent.
+		For the root node it holds that $\mathrm{Cells}_R \in \Pi(U)$.
+		
+		\begin{figure}[ht!]
+			\centering
+			\includesvg[scale=0.6, inkscapelatex=false]{Bilder/Hierarchy/hierarchy_binpack_NOP}
+			\caption{WIP WIP WIP A example of a simple refinement tree for the Bin-Packing Problem.}
+			\label{fig:tree:motivation}
+		\end{figure}
 	
 		\clearpage
 
@@ -38,7 +72,7 @@
 			\label{fig:tree:information}
 		\end{figure}
 		
-		Before we present any algorithmic details, we give an overview about the available information.
+		Before we present any algorithmic details, we give an overview about the available information which might be used to define suitable strategies.
 		
 		\begin{enumerate}
 			\item \textbf{Objective}: For the objective functions, information about the participating variables and their coefficients is available. For some models e.g. for Bin-Packing, this information alone is sufficient to partition the variables.
@@ -149,7 +183,7 @@
 			\label{chap:tree:classifiers:cooccurence}
 			
 				If the read model does \textit{not} have the property of properly ordered constraint blocks, a more involved algorithmic approach can be used.
-				Here, the general problem can be reduced to group constraints with each other which are \textit{often} assigned to the same class.
+				Here, the general problem can be reduced to group constraints with each other which are \textit{often} assigned to the same class. \todo{WIP}
 					
 				\clearpage
 		
@@ -274,7 +308,7 @@
 			\begin{figure}[ht!]
 				\centering
 				\includesvg[scale=1.25]{Bilder/DrawIO/strat_rec}
-				\caption{A simple example of a graph for which the partition refinement algorithm takes multiple iterations to yield a stable partition with respect to Function \ref{eq:prelims:pref:exists}. In this example, the algorithm is provided with the initial partition $\{ \{ 1, 2 \}, \{ 3, 4 \}, \{ A, B, C, D \}$}.
+				\caption{An example of a graph for which the partition refinement algorithm takes multiple iterations to yield a stable partition (Function \ref{eq:prelims:pref:exists}). Red circles around the vertices highlight changes to the cells in the respective iterations. The algorithm is initialized with $\pi_{init} = \{ \{ 1, 2 \}, \{ 3, 4 \}, \{ A, B, C, D \} \}$. During the first iteration, all vertices on the right side are in the same cell so no changes can happen on the left side. Vertices $A, B$ are not connected to cell $\{ 3, 4 \}$. A similar reasoning applies for the second iteration.}
 				\label{fig:tree:strat:rec}
 			\end{figure}
 
@@ -291,13 +325,13 @@
 			The size of the graph in terms of it's edges and vertices depends entirely to the underlying problem. 
 			A partition is obtained by running the algorithm with either Function \ref{eq:prelims:pref:count} or Function \ref{eq:prelims:pref:exists}.
 			Afterwards, the partition is used to slice a given set according to the method described in Section \ref{chap:tree:strategies:slice:part}.
-			
 			Note that even thought the generated graph is always bi-partite, it does not necessarily fulfill the conditions mentioned in Section \ref{chap:prelims:partitionref} for the fast variant of the refinement algorithm, i.e., that all nodes on one of the two sides of the bi-partite graph are all in their own cell.
 			As a consequence, one full execution of the recursive strategy might take orders of magnitude longer than an execution of one of the two slice variants explained previously. \todo{"orders of magnitude" ein wenig übertrieben}
 			
 			\clearpage
 	
 	\section{Scoring}
+	\label{chap:gcg:scoring}
 	% 1 Seite
 	
 		Up until this point we have only described how the algorithm refines sets based on different strategies, despite the goal being a list of promising partitions.
@@ -359,7 +393,7 @@
 			Note that the Algorithm makes some implicit key assumptions, such as:
 			\begin{itemize}
 				\item That the name actually carriers any semantically relevant information at all.
-				\item The names adhere to a \enquote{common} format, i.e., the modifier comes \textit{after} the part semantics part.
+				\item The names adhere to a \enquote{common} format, i.e., the modifier comes \textit{after} the semantics part. Here, constraint names such as \enquote{capacity\_bin\_k}, \enquote{out\_flow\_k} qualify, but the same names in reverse do not.
 			\end{itemize}
 			
 			These assumptions proved reasonable for almost all models observed in practice which had proper names available. Still, there cases where this approach fails \todo{Give MIPLIB examples}.
@@ -378,6 +412,7 @@
 							\State ${name}_{old} \gets name$
 							\State $start \gets$ Position of opening character e.g. $\lbrack$, \{, (, $\ldots$
 							\State $end \gets$ Position of corresponding closing character e.g. $\rbrack$, \}, ), $\ldots$
+							\State ${name}_{new} \gets {name}_{old}$ without characters in range $[start, end]$ 
 						\Until{${name}_{new} = {name}_{old}$}
 					\EndFunction
 				\end{algorithmic}
@@ -401,6 +436,7 @@
 			
 
 		\subsection{Ground Truth based}
+		\label{chap:tree:scoring:groundtruth}
 		% 1 Seite
 		
 			As discusses in the previous Sections, the algorithm starts with a set in which all constraints or variables are in the same cell.
@@ -419,12 +455,31 @@
 			Assuming a reasonable ground-truth has been obtained, a partition-comparing score such as the Rand-Index already discussed in Section \ref{chap:prelims:rand} can be used a number of promising candidates.
 			Furthermore, the refinement can be terminates for sets which are already \textit{homogeneous} according to the ground-truth partition.
 			The idea being is that by refining the set further we do not gain any new information.
+			\todo{completeness missing} 
 			
 			\clearpage
 	
-		\subsection{Connected Block Score}
+		\subsection{Connected Components Score}
 		% 1 Seite
 	
-			Connected
-
+			The ground-truth based scoring from Section \ref{chap:tree:scoring:groundtruth} scores candidates based on a partition $\pi$, which is assumed to resemble a semantic grouping reasonable close to the real partitioning in order to \enquote{guide} the search and find promising candidates.
+			In case this assumption is not true, it can be expected that the selected partitions provide no useful information about the model.
+			
+			In the following, let $A \in \mathbb{Q}^{m \times n}$ be a constraint matrix, $G = (V, E)$ with $V = \{ 1, 2, \ldots, m \}$ and $E = \{ \{ u, v \} \in V \times V \mid \exists i: \; A_{ui} \neq 0 \land A_{vi} \neq 0 \}$ a graph with the constraints as its vertices.
+			There exists an edge between two constraints iff they share at least one variable with non-zero coefficient.
+			Furthermore, let $cc(v): V \xrightarrow{} 2^V$ be a function mapping every vertex to its connected component in $G$.
+			It is a well known result from graph-theory that every graph can be decomposed into its connected components, so the function is unique.
+			
+			In order to get to a score based on connected components, we define the relation $\sim_\pi = \{ (B_i, B_j) \in \pi \times \pi \mid (cc(B_i) \divides cc(B_j)) \lor (cc(B_j) \divides cc(B_i)) \}$, where $a \divides b$ with $a, b \in \mathbb{N}$ denotes the standard divisibility relation defined on natural numbers. 
+			Given a partition $\pi = \{ B_1, B_2, \ldots, B_k \}$, we can compute a \enquote{connected components score} as follows:
+			%
+			\begin{equation*}
+				\mathrm{connectedScore}(\pi) = |\pi/\sim_\pi|				
+			\end{equation*}
+			%
+			The score corresponds to the amount of connected components of \enquote{different} sizes.
+			Here, two sizes $a, b \in \mathbb{N}$ are considered different, if $a$ is not divisible by $b$ \textit{and} vice-versa.
+			\todo{motivating example}
+			\todo{consequence}
+			
 			\clearpage

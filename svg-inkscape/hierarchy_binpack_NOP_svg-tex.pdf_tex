@@ -1,0 +1,123 @@
+%% Creator: Inkscape 1.4 (86a8ad7, 2024-10-11), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'hierarchy_binpack_NOP_svg-tex.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{496bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,1.06649866)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.55794458,1.02357678){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\textbf{Node 0}\end{tabular}}}}%
+    \put(0.48765742,0.9953652){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Set -, Parent Index -\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.48765742,0.94498736){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Strategy: -  \end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.59193953,0.88806041){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}0\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.58891686,0.84725437){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}●\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.3483728,0.66663976){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\textbf{Node 1}\end{tabular}}}}%
+    \put(0.27355163,0.63842817){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Set 0, Parent Index 0\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.19647355,0.58805034){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Strategy: CellCovering[nonzeros]  \end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.28703274,0.53112339){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}1\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.47770275,0.53112339){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}2\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.28401007,0.49082112){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}●\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.47468008,0.49082112){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}●\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=11]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.76953147,0.71979845){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\textbf{Node 3}\end{tabular}}}}%
+    \put(0.69471031,0.69158687){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Set 0, Parent Index 0\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=12]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.63879091,0.64120904){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Strategy: FastCell[varobjvals]  \end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=13]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.63879091,0.59234254){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Cutoff: True\end{tabular}}}}%
+    \put(0.63879091,0.56362717){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Reason: Duplicate\end{tabular}}}}%
+    \put(0.63879091,0.53491181){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Actually Expanded: 1\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=14]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.71877076,0.47798483){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}1\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=15]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.88828208,0.47798483){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}2\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=16]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.71574809,0.43768256){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}●\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=17]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.88525941,0.43768256){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}●\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=18]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.14887656,0.31073043){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\textbf{Node 6}\end{tabular}}}}%
+    \put(0.07405541,0.28251884){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Set 1, Parent Index 0\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=19]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.01813602,0.23214101){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Strategy: FastCell[varobjvals]  \end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=20]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.01813602,0.18327451){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Cutoff: True\end{tabular}}}}%
+    \put(0.01813602,0.15455915){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Reason: Did not change\end{tabular}}}}%
+    \put(0.01813602,0.12584379){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Actually Expanded: -\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=21]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.18287153,0.06891684){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}1\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=22]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.17984886,0.02811079){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}●\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=23]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.54786901,0.31073043){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\textbf{Node 7}\end{tabular}}}}%
+    \put(0.47304784,0.28251884){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Set 2, Parent Index 1\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=24]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.41712845,0.23214101){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Strategy: FastCell[varobjvals]  \end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=25]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.41712845,0.18327451){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Cutoff: True\end{tabular}}}}%
+    \put(0.41712845,0.15455915){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Reason: Did not change\end{tabular}}}}%
+    \put(0.41712845,0.12584379){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Actually Expanded: -\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=26]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.58186396,0.06891684){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}2\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=27]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+    \put(0.57884129,0.02811079){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}●\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=28]{hierarchy_binpack_NOP_svg-tex.pdf}}%
+  \end{picture}%
+\endgroup%

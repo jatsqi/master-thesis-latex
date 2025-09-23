@@ -254,7 +254,12 @@
 	% 1 Seite, HMETIS Detectors
 	% 1 Seite , other Detectors
 	
-		\begin{figure}[ht!]
+		\clearpage
+	
+	\section{Example}
+	\label{chap:gcg:example}
+		
+				\begin{figure}[ht!]
 			\centering
 			\begin{align}
 				&\min &\sum_{j=1}^m y_j \nonumber \\
@@ -267,7 +272,7 @@
 			\label{figure:gcg:example:binpack}
 		\end{figure}
 		\todo{Bild}
-	
+		
 		\begin{table}[ht!]
 			\centering
 			\begin{tabular}{l|l|l}
@@ -281,11 +286,6 @@
 			\caption{For each classifier, the \textit{cons class} detector will produce $2^k - 1$ new partial decompositions with $k$ being the number of classes.}
 			\label{table:gcg:example:consclass}
 		\end{table}
-	
-		\clearpage
-	
-	\section{Example}
-	\label{chap:gcg:example}
 		
 		In order to illustrate the detection with a concrete example, we revisit the textbook Bin-Packing model shown in Figure \ref{figure:gcg:example:binpack}.
 		Constraints \ref{eq:gcg:example:link} enforce that every item is packed in exactly one bin, while inequalities \ref{eq:gcg:example:link} ensure that the capacity of each bin is respected if some item is packed in it.
@@ -294,10 +294,17 @@
 		Without pre-solving enabled, a classifier such as MIPLIB would assign constraints \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the classes \textit{Set Partitioning} and \textit{Bin-Packing} respectively.
 		If unique, this classification is added to a list provided to the detection stage.
 		
-		If no further classifications are found, the \textit{cons class} detector will yield 3 new partial decompositions, first assigning constraints \ref{eq:gcg:example:link}, then \ref{eq:gcg:example:capacity} and finally both \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the master.
+		If no further classifications are found, the \textit{cons class} detector will yield 3 new partial decompositions as shown in Table \ref{table:gcg:example:consclass}, first assigning constraints \ref{eq:gcg:example:link}, then \ref{eq:gcg:example:capacity} and finally both \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the master.
 		The constraint group not assigned to the master remains \textit{open}.
 		
 		During the next round of detection, a detector such as \textit{Connected Base} will receive the partial decomposition with only the packing constraints assigned to the master as input.
 		Here, the induced constraint adjacency graph of the $q \ge 0$ open capacity constraints consists of $q$ isolated connected components, forming the desired block-diagonal structure.
+		This process is illustrated in Figure \ref{fig:gcg:example:consclass}.
 		
+		\begin{figure}[ht!]
+			\centering
+			\includegraphics{Bilder/DrawIO/example_tree}
+			\caption{text}
+			\label{fig:gcg:example:consclass}
+		\end{figure}
 		

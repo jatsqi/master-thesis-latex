@@ -31,8 +31,24 @@
 		\end{figure}
 		
 		As mentioned in the introduction to Chapter \ref{chap:tree}, the approach is implemented as a \textit{Detector} in \ac{GCG}, contrary to the fact that the algorithm outputs a one or multiple partitions of constraints or variables.
-		Generating such partitions is more aligned with the concept of a \textit{classifiers} from Section \ref{chap:gcg:classifiers}, but this comes with an important drawback.
-		Because we want to incorporate information about variables for partitioning constraints and vice vrca for constraints, we have to delay the execution of the algorithm to a point in time \textit{after} the classification has finished, i.e., all relevant data is available.
+		Generating such partitions is more aligned with the concept of a \textit{classifier} from Section \ref{chap:gcg:classifiers}, but this comes with an important drawback.
+		Because we want to incorporate information about variables for partitioning constraints and vice-versa for constraints, we have to delay the execution of the algorithm to a point in time \textit{after} the classification has finished, i.e., all relevant data is available.
+		Circumventing this problem by potentially implementing the algorithm as a classifier and assigning the lowest priority possible to it is not an option as well, because this would introduce additional maintenance overhead in case changes to the overall classification/detection framework are made.
+		An implementation as a detector \textit{ensures} that all classification step are done beforehand.
+		
+		An overview about the relationship between the \ac{GCG} and the detector is shown in Figure \ref{fig:impl:arch:overview}.
+		When implementing an detector, \ac{GCG} provided a set of callbacks that have to implemented such as
+		\begin{itemize}
+			\item Set-up/Tear-down, i.e., for allocation and deallocation of data-structures
+			\item A handler for propagation, which takes a partial decomposition and assigns all or a subset of the remaining open constraints to either a block or the master. This concept was already shown in Figure \ref{fig:gcg:partialdettree}.
+		\end{itemize}
+		
+		\clearpage
+		
+		The callbacks take \ac{GCG}-internal data structures as input and must provide the result as such.
+		In order to ensure better maintainability, the logic realizing the tree refinement should be mostly \textit{independent} of the concrete framework it is being used in.
+		Furthermore, relying on custom data structures increases control about runtime and space considerations. \todo{Wording}
+		This decoupling is being realized by an \textit{Adapter}, as shown in Figure \ref{fig:impl:arch:overview}, which translates between the two \enquote{worlds} of data-structures and ensures compatibility.
 	
 	\section{Metadata}
 	\label{chap:impl:meta}
@@ -40,22 +56,56 @@
 	
 	\section{Data Structures}
 	\label{chap:impl:structures}
-	
 	% 2 Seiten
+	
+		
 	
 	\section{Hashing}
 	\label{chap:impl:hashing}
 	% 1 Seite
 	
+		\clearpage
+	
 	\section{Cutoff Conditions}
 	\label{chap:impl:cutoff}
+	
+		We implemented several cutoff conditions which ensure that we only explore relevant parts of the search space.
+		The conditions can be divided into two groups:
+		
+		\begin{enumerate}
+			\item \textit{Local} Conditions, which can be evaluated by only considering information about one \textit{singular} node or its immediate predecessor.
+			\item \textit{Global} Conditions, whose evaluation requires information about e.g. the precise path to the node, i.e., its position in the tree and therefore information about its ancestors, \textit{or} requires knowledge about other nodes or completely distinct sub-trees.
+		\end{enumerate}
 	
 		\subsection{Local Conditions}
 		% 1 Seite
 		
+			With access only to local information, these conditions are restricted to the information that is stored within one single \lstinline|TreeNode| data structure.
+			
+			\subsubsection{Refined Set Size}
+			
+				Assuming a proper ground-truth is available or any heuristic information about the potential size of the target partition, many found nodes can be excluded from the scoring a-priori. \todo{WIP}
+			
+			\subsubsection{Depth}
+			
+				Under the assumption that most of the \enquote{interesting} sets are found early on, it could be beneficial to abort the search for a sub-tree as soon as a certain depth has been reached.
+				Information about the \textit{depth} of a given node can be extracted from the data-structure itself, or by traversing the graph towards the root node.
+				
+			\subsubsection{No Changes}
+			
+				As soon as the algorithm expands a set $S$ with a strategy, we get a partition $\pi \in \Pi(S)$ as a result.
+				If $S \in \pi$, this implies that $\pi = \{ S \}$ and the strategy did not refine $S$ any further and we can terminate the search for the current sub-tree.
+		
 		\subsection{Global Conditions}
 		% 1 Seite
 		
+			As mentioned before, global conditions are more flexible and allow for more involved logic to be executed.
+			
+			\subsubsection{Sub-Tree Duplication}
+			
+			\subsubsection{Most Optimistic Partition Size}
+	
+			\clearpage
 	
 	\section{Multi-Threading}
 	\label{chap:impl:multi}

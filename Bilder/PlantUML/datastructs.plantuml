@@ -1,0 +1,51 @@
+@startuml
+
+class Set {
+    -elements: Hash Table
+    --
+    +add(x: Element)
+    +remove(x: Element)
+    +contains(x: Element): boolean
+    +elements(): Hash Table
+    --
+    +intersects(other: Set): boolean
+}
+
+class PartitionedSet {
+    -cells: Array of Sets
+    -elementsToSets: Map from Element to Set
+    --
+    +refine(elements: List of Elements)
+}
+
+class HierarchyRefiner {
+    +foundSets: Hash Table of Sets
+    --
+    +addScore(score)
+    --
+    +iterate(config)
+}
+
+Set --o PartitionedSet
+
+class User {
+  -id: int
+  -name: String
+  +login(): boolean
+}
+
+class Admin {
+  -adminLevel: int
+  +banUser(user: User): void
+}
+
+class Post {
+  -postId: int
+  -content: String
+  +publish(): void
+}
+
+User "1" -- "many" Post : creates >
+Admin --|> User
+
+@enduml
