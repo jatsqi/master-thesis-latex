@@ -84,7 +84,9 @@
 			
 			\subsubsection{Refined Set Size}
 			
-				Assuming a proper ground-truth is available or any heuristic information about the potential size of the target partition, many found nodes can be excluded from the scoring a-priori. \todo{WIP}
+				Assuming a proper ground-truth is available or any heuristic information about the potential size $k \in \mathbb{N}$ of the target partition, many found nodes can be excluded from the scoring a-priori. \todo{WIP}
+				Given a \ac{SRT} with node-set $V$ and node $v \in V$, we can terminate search for the sub-tree rooted at $v$ if $| \mathrm{Cells}_v | \gg k$.
+				
 			
 			\subsubsection{Depth}
 			
