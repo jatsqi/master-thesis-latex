@@ -158,7 +158,7 @@
 				The nonzero classifier classified constraints according to their number of non-zero variable coefficients as shown in Figure \ref{fig:gcg:nonzero}.
 				Many types of models including Bin-Packing and Cutting-Stock consist only of constraint groups with a rather \enquote{stable} internal structure, i.e., the capacity constraint for each bin in model \ref{eq:gcg:example:capacity} \todo{Wrong ref} consist of the same number of variables, because each constraint is just a sum over all items differing only in index for the respective bin.
 				In general, constraint groups that are suited for this type of classifiers usually involve summations over fixed-sized sets (e.g. a set of items or bins) whose choice is not dependent on any quantified variable.
-				Example for the latter include problems whose formulation is based on graphs and usually contains flow-conservation constraints shown in Equation \ref{eq:gcg:numerics:flow}. 
+				Example for the latter include problems whose formulation is based on graphs and usually contains flow-conservation constraints shown in Equation \todo{Example} \ref{eq:gcg:numerics:flow}. 
 				%
 				\begin{equation}
 					\label{eq:gcg:numerics:flow}
@@ -179,7 +179,7 @@
 				Partitioning variables according to the first approach is sufficient for models such as Bin-Packing, in which only the $y$-variables appear in the objective function.
 				
 				The second approach might partition the variables in too many small cells when e.g. different costs are associated with variables in the objective function.
-				This behavior can be observed on model types such as Multi-Commodity-Flow and Unit-Commitment.
+				This behavior can be observed on model types such as Multi-Commodity-Flow and Unit-Commitment. \todo{Example}
 				
 				\clearpage
 		
@@ -241,9 +241,9 @@
 				In contrast to the automatic constraint classification performed by SCIP during presolving, the MIPLIB benchmark set provides its own static classification scheme \cite{gleixnerMIPLIB2017Datadriven2021a}. This classification assigns constraints to a set of well-defined structural types such as knapsack, set-partitioning and others as shown in Table \ref{table:constypes:miplib}. Since it is based solely on the syntactic form of the constraints in the original model, it can be applied \textit{independently} of solver presolving.
 				Because all types shown in Table \ref{table:constypes:miplib} are deducible only from \textit{local} information such as type of variables and right hand side coefficient, the types can be detected with one pass over the constraint matrix.
 				
-				This type of classifier shares some issues related to robustness with numeric classifiers.
+				This type of classifier shares some issues related to robustness with numeric classifiers, even thought it does not seem like it on a surface level.
 				Constraint types such as Singleton, Aggregation or Variable Bound depend on the number of non-zeroes, leading to potential miss-classifications on graph based models.
-				Furthermore, the only differentiating factor for more \enquote{complex} types such as \textit{Bin Packing} and \textit{Knapsack} is the presence of a variable which happens to have the same coefficient as the right-hand of that constraint.
+				Furthermore, the only differentiating factor for more \enquote{complex} types such as \textit{Bin Packing} and \textit{Knapsack} is the presence of a variable which happens to have the same coefficient as the right-hand of that constraint. \todo{Explain issue of GCG fixed zero variables}
 				
 				
 	
@@ -288,7 +288,7 @@
 		\end{table}
 		
 		In order to illustrate the detection with a concrete example, we revisit the textbook Bin-Packing model shown in Figure \ref{figure:gcg:example:binpack}.
-		Constraints \ref{eq:gcg:example:link} enforce that every item is packed in exactly one bin, while inequalities \ref{eq:gcg:example:link} ensure that the capacity of each bin is respected if some item is packed in it.
+		Constraints \ref{eq:gcg:example:link} enforce that every item is packed in exactly one bin, while inequalities \ref{eq:gcg:example:link} ensure that the capacity of each bin is respected if some item is packed in it. \todo{Wording}
 		The objective is to minimize the number of bins.
 		
 		Without pre-solving enabled, a classifier such as MIPLIB would assign constraints \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the classes \textit{Set Partitioning} and \textit{Bin-Packing} respectively.

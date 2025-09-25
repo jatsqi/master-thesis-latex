@@ -250,7 +250,7 @@
 		More informally, partition $\pi'$ must reflect a \enquote{finer} classification of the elements than in $\pi$. 
 		
 		Partition refinement refers to an \textit{iterative} process that refines a given initial partition of a set over the course of multiple iterations.
-		In the following, let $f: P \times Q \mapsto \Pi(A)$ be a function, which partitions the elements from $P \subseteq U$ with respect to the elements in $Q \subseteq U$. The arguments $P$ and $Q$ are called \textit{target cell} and \textit{inducing cell} respectively.
+		In the following, let $f: P \times Q \rightarrow \Pi(A)$ be a function, which partitions the elements from $P \subseteq U$ with respect to the elements in $Q \subseteq U$. The arguments $P$ and $Q$ are called \textit{target cell} and \textit{inducing cell} respectively.
 		A partition $\pi$ is called \textit{stable} with respect to $f$, iff
 		%
 		\begin{equation*}
@@ -265,13 +265,13 @@
 			\item The partition $\pi_f$ is \textit{stable} with respect to $f$.
 		\end{enumerate}
 		
-		In the following, we define $Step: \Pi(U) \mapsto \Pi(U)$ as function performing one refinement step, i.e., it picks a splitter-cell $B_j$ if it exists and replaces each cell $B_i$ of the input partition with $f(B_i, B_j)$.
+		In the following, we define $Step: \Pi(U) \rightarrow \Pi(U)$ as function performing one refinement step, i.e., it picks a splitter-cell $B_j$ if it exists and replaces each cell $B_i$ of the input partition with $f(B_i, B_j)$.
 
 		\begin{algorithm}[ht!]
 			\centering
 			\begin{algorithmic}
-				\Require Initial partition $\Pi_{init} = \{ A_1, A_2, \ldots, A_k \}$, splitter-function $f: P \times Q \mapsto \Pi(P)$
-				\Ensure Coarsest stable partition
+				\Require Initial partition $\Pi_{init} = \{ A_1, A_2, \ldots, A_k \}$, splitter-function $f: P \times Q \rightarrow \Pi(P)$
+				\Ensure Stable partition
 				\Statex
 				%
 				\Function{IterateRefinement}{$\Pi_{init}, f$}
@@ -308,6 +308,7 @@
 		
 		For the purposes of this work, $f$ will usually represent a function structurally similar to a \textit{connection function} as it used in many graph automorphism packages.
 		Given a graph $G = (V, E)$, then we define two types of connection function as follows:
+		%
 		\begin{align}
 			f_{\mathrm{count}}(v, X_{\mathrm{ind}}) &= \left| \{ v' \in V \mid \forall (v, v') \in E, v' \in X_{\mathrm{ind}} \} \right| \label{eq:prelims:pref:count} \\
 			f_{\mathrm{exists}}(v, X_{\mathrm{ind}}) &= \begin{cases}
@@ -315,11 +316,11 @@
 				0 & \mathrm{else}
 			\end{cases}
 		\end{align}
-		
+		%
 		If Function \ref{eq:prelims:pref:exists} is used, then the problem of finding the coarsest partition with respect to $f$ is equivalent to the \textit{Relational coarsest partition problem} described in  \cite{paigeThreePartitionRefinement1987} which also contains corresponding correctness and termination proofs.
 		For this case in particular, Algorithm \ref{algo:prelims:refinement} always maintains the invariant $\Pi_i \sqsubseteq \Pi_{i-1}$.
 		
-		Furthermore, the underlying problem structure to which partition refinement is applied, as well as the type of splitter function used, are not inherently restricted. In practice, however, many problems can be reformulated or encoded as graphs, where the function $f$ captures a vertex property.
+		Furthermore, the underlying problem structure to which partition refinement is applied, as well as the type of splitter function used, are not inherently restricted. In practice, however, many problems can be reformulated or encoded as graphs, where the function $f$ captures a vertex property. \todo{roter faden}
 		For instance, in deterministic finite automaton (DFA) minimization, partition refinement is used to iteratively distinguish states by observing the equivalence classes of their transitions (Hopcroft's algorithm): two states are grouped together only if, for every input symbol, their transitions lead into the same partition class; in graph isomorphism testing, it could encode vertex degrees or local neighborhood structures; and in Markov decision processes (MDPs), $f$ might reflect the expected reward or transition behavior.
 		These encodings allow partition refinement to exploit structural symmetries and behavioral equivalences in a wide range of domains, especially if problems in that domain can be encoded as graphs. 
 		Further domains of application include Model Checking \cite{baierPrinciplesModelChecking2008} and sorting algorithms \cite{mehlhornAlgorithmsDataStructures2008}.
@@ -365,7 +366,7 @@
 	
 		\begin{figure}[ht!]
 			\centering
-			\includesvg[scale=0.82]{Bilder/DrawIO/entropy}
+			\includesvg[scale=0.75]{Bilder/DrawIO/entropy}
 			\caption{Entropy is measure of \enquote{surprise} and it increases with decreasing probability. On the left side, both colors are evenly distributed, so drawing either one is equally surprising. On the right side, drawing a red ball from the set of elements would be very surprising, because the probability is only $\frac{1}{12}$. But because this event is so unlikely, one does \textit{not expect} to be surprised. As a result, the expected surprise - that is, the entropy - is low.}
 			\label{figure:prelim:entropy}
 		\end{figure}
@@ -391,7 +392,7 @@
 	\label{chap:prelims:rand}
 	
 		The \textit{Rand Index} is a statistical measure used to compare two different partitions $\pi = \{ A_1, A_2, \ldots, A_k \}, \pi' = \{ B_1, B_2, \ldots, B_l \}$ of elements from the same set $U = \{ 1, 2, \ldots, n \}$.
-		Let $f_\pi(x): U \mapsto \mathbb{N}$ be a function mapping an element $x \in U$ to the index of its cell in partition $\pi$. Function $f_{\pi'}$ is defined analogously.
+		Let $f_\pi(x): U \rightarrow \mathbb{N}$ be a function mapping an element $x \in U$ to the index of its cell in partition $\pi$. Function $f_{\pi'}$ is defined analogously.
 		Furthermore, let
 		%
 		\begin{equation*}
@@ -433,7 +434,7 @@
 				$\vdots$ & $\vdots$ & $\vdots$ & $\ddots$ & $\vdots$ & $\vdots$\\
 				$B_l$ & $v_{l1}$ & $v_{l2}$ & $\cdots$ & $v_{lk}$ & $a_l$ \\
 				\midrule
-				\textbf{sums} & $b_1$ & $b_2$ & $\cdots$ & $b_k$ &
+				\textbf{sums} & $b_1$ & $b_2$ & $\cdots$ & $b_k$ & -
 			\end{tabular}
 			\caption{Contingency Table of partitions $\pi$ and $\pi'$. Entry $v_{ij}$ denotes the number of elements sets $A_i$ and $B_j$ have in common, i.e., $v_{ij} = A_i \cap B_j$.}
 			\label{fig:prelims:rand:contingency}
@@ -442,7 +443,7 @@
 		\begin{algorithm}[ht!]
 			\centering
 			\begin{algorithmic}
-				\Require Partitions $\pi = \{ A_1, A_2, \ldots, A_k \}, \pi' = \{ B_1, B_2, \ldots, B_l \}$, function $f_C: U \mapsto \mathbb{N}$ for $C = \{ C_1, C_2, \ldots \} \in \Pi(U)$ mapping $u \in U$ to $C_i$ iff $u \in C_i$
+				\Require Partitions $\pi = \{ A_1, A_2, \ldots, A_k \}, \pi' = \{ B_1, B_2, \ldots, B_l \}$, function $f_C: U \rightarrow \mathbb{N}$ for $C = \{ C_1, C_2, \ldots \} \in \Pi(U)$ mapping $u \in U$ to $C_i$ iff $u \in C_i$
 				\Ensure Contingency Table of partitions $\pi, \pi'$ and sums of columns and rows
 				\Statex
 				%

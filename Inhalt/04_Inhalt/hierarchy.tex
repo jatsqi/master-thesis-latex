@@ -73,7 +73,7 @@
 			\label{fig:tree:information}
 		\end{figure}
 		
-		Before we present any algorithmic details, we give an overview about the available information which might be used to define suitable strategies.
+		Before we present any algorithmic details, we give an overview about the available information which might be used to define suitable strategies. \todo{roter Faden}
 		
 		\begin{enumerate}
 			\item \textbf{Objective}: For the objective functions, information about the participating variables and their coefficients is available. For some models e.g. for Bin-Packing, this information alone is sufficient to partition the variables.
@@ -95,7 +95,8 @@
 		This can prove especially useful for detectors like consclass, which directly depend on the found classifications.
 		On the other hand, this dependence can result in a sub-optimal runtime investment if the found classifications provide no new information, because the generated partial decompositions based on that will most certainly be of bad quality as well. \todo{wording}
 		
-		Therefore, we will refrain from mentioning all missing model properties for which a classifier \textit{could} be built, and only focus on promising candidates. 
+		Therefore, we will refrain from mentioning all missing model properties for which a classifier \textit{could} be built, and only focus on promising candidates.
+		\todo{Summarize goals for custom classifiers}
 		
 		\clearpage
 		
@@ -206,7 +207,7 @@
 		Each strategy gets a single set $S \subseteq U$ as input and produces a partition $\pi_S \in \Pi(S)$ of that set as output.
 		Each set $A_i \in \pi_S$ corresponds to one child node.
 		Conceptually, each strategy can be seen as a materialization of a specific splitter function as defined in Section \ref{chap:prelims:partitionref}.
-		In the following, we differentiate between re-callable and non re-callable strategies. The former type may be called more than once in any given sub-tree, as the result may depend on the set that is being refined.
+		In the following, we differentiate between re-callable and non re-callable strategies. The former type may be called more than once in any given sub-tree, as the result may depend on precise position of the node that is being expanded.
 		
 		\clearpage
 	
@@ -269,6 +270,7 @@
 				\caption{If a lookup table represented by function $f$ is available, then Function \ref{eq:tree:strat:slice:function} can be implemented in O($|S|$).}
 				\label{algo:tree:strat:slice}
 			\end{algorithm}
+			\todo{Example}
 			
 			\FloatBarrier
 			\clearpage
@@ -300,7 +302,7 @@
 			
 			The strategy can be used to e.g. partition constraints according to the types of variables that they contain.
 			It is functionally equivalent to the refinement method \enquote{fast} from \cite{salvagninDetectingSemanticGroups2016}.
-			The name most likely stems from an algorithm informally described a fast algorithm based on bucket sort to implement such a partition refinement algorithm.
+			The name most likely stems from an algorithm informally described a fast algorithm based on bucket sort to implement such a partition refinement algorithm. \todo{Example}
 			
 			\clearpage
 		
@@ -330,6 +332,49 @@
 			As a consequence, one full execution of the recursive strategy might take orders of magnitude longer than an execution of one of the two slice variants explained previously. \todo{"orders of magnitude" ein wenig übertrieben}
 			
 			\clearpage
+	
+	\section{Cutoff Conditions}
+	\label{chap:impl:cutoff}
+	
+		In order to limit the size of the tree and ensure that we only explore relevant parts of the search space, we propose several conditions the terminate the search early on.
+		The conditions can be divided into two groups:
+		
+		\begin{enumerate}
+			\item \textit{Local} Conditions, which can be evaluated by only considering information about one \textit{singular} node or its immediate predecessor.
+			\item \textit{Global} Conditions, whose evaluation requires information about e.g. the precise path to the node, i.e., its position in the tree and therefore information about its ancestors, \textit{or} requires knowledge about other nodes or completely distinct sub-trees.
+		\end{enumerate}
+		
+		\subsection{Local Conditions}
+		% 1 Seite
+		
+			With access only to local information, these conditions are restricted to the information about a single node of a given \ac{SRT}.
+			
+			\subsubsection{Refined Set Size}
+			
+			Assuming a proper ground-truth is available or any heuristic information about the potential size $k \in \mathbb{N}$ of the target partition, many found nodes can be excluded from the scoring a-priori. \todo{WIP}
+			Given a \ac{SRT} with node-set $V$ and node $v \in V$, we can terminate search for the sub-tree rooted at $v$ if $| \mathrm{Cells}_v | \gg k$.
+			
+			
+			\subsubsection{Depth}
+			
+			Under the assumption that most of the \enquote{interesting} sets are found early on, it could be beneficial to abort the search for a sub-tree as soon as a certain depth has been reached.
+			Information about the \textit{depth} of a given node can be extracted from the data-structure itself, or by traversing the graph towards the root node.
+			
+			\subsubsection{No Changes}
+			
+			As soon as the algorithm expands a set $S$ with a strategy, we get a partition $\pi \in \Pi(S)$ as a result.
+			If $S \in \pi$, this implies that $\pi = \{ S \}$ and the strategy did not refine $S$ any further and we can terminate the search for the current sub-tree.
+			
+		\subsection{Global Conditions}
+			% 1 Seite
+			
+			As mentioned before, global conditions are more flexible and allow for more involved logic to be executed.
+			
+			\subsubsection{Sub-Tree Duplication}
+			
+			\subsubsection{Most Optimistic Partition Size}
+		
+	\clearpage
 	
 	\section{Scoring}
 	\label{chap:gcg:scoring}
@@ -367,6 +412,12 @@
 		One can deduce from the definition of Function \ref{eq:tree:scoring:partcomp} that the number of partitions depends on the depth and maximum out-degree of any given node of the tree.
 		Therefore, it will be of vital interest to only consider \enquote{interesting} sets.
 		Ideas and possible implementations are discusses in Chapter \ref{chap:impl}.
+		
+		\clearpage
+		
+		\subsubsection{Example}
+		
+			\todo{Image + Explanation}
 		
 		\clearpage
 	

@@ -58,56 +58,80 @@
 	\label{chap:impl:structures}
 	% 2 Seiten
 	
-		
+		\clearpage
 	
 	\section{Hashing}
 	\label{chap:impl:hashing}
 	% 1 Seite
 	
+%		template<> struct hash_mix_impl<64>
+%		{
+%			inline static std::uint64_t fn( std::uint64_t x )
+%			{
+%				std::uint64_t const m = 0xe9846af9b1a615d;
+%				
+%				x ^= x >> 32;
+%				x *= m;
+%				x ^= x >> 32;
+%				x *= m;
+%				x ^= x >> 28;
+%				
+%				return x;
+%			}
+%		};
+	
+		\begin{algorithm}[ht!]
+			\centering
+			\begin{algorithmic}
+				\Require List of objects $L$, hash function $h: L \rightarrow \mathbb{N}$.
+				\Ensure Combined hash $x \in \mathbb{N}$ of objects in $L$.
+				\Statex
+				%
+				\Function{HashList}{$L$}
+					\State $\mathrm{randomConst} \gets \mathrm{0xe9846af9b1a615d}$
+					\State $x \gets x \oplus \Call{ShiftRight}{x, 32}$
+					\State $x \gets x \cdot \mathrm{randomConst}$
+					\State $x \gets x \oplus \Call{ShiftRight}{x, 32}$
+					\State $x \gets x \cdot \mathrm{randomConst}$
+					\State $x \gets x \oplus \Call{ShiftRight}{x, 28}$
+					\State \Return $x$
+				\EndFunction
+			\end{algorithmic}
+			\caption{A function to combine the hash values of multiple objects.}
+			\label{algo:impl:hash}
+		\end{algorithm}
+	
+		A very popular implementation of a function combining multiple hashes is shown in Algorithm \ref{algo:impl:hash}.
+		The algorithm shown is the pseudo-code version of \lstinline|boost::hash_combine|, which uses an arbitrary random number \lstinline|randomConst| and multiple bit-shift operations to ensure a cascading effect even for small changes in the input.
+	
+		\subsubsection{Hashing for single cells}
+		
+		In order to keep the \textit{size} of the \ac{SRT} in terms of its actual footprint in RAM as small as possible, we propose a simple solution based on hashing.
+		As soon as a strategy refines a set $S$, we get a partition $\pi = \{ A_1, A_2, \ldots, A_k \}\in \Pi(S)$.
+		The cells of all found partitions including $A_1, A_2, \ldots, A_k$ are stored in a central data structure and assigned a unique index each.
+		Cells that are already stored in the data structure are \textit{not} added again to reduce memory consumption.
+		The duplication check for a cell $A = \{ o_1, o_2, \ldots, o_n \}$ is done by computing $x = \Call{HashList}{A}$ and probing the data structure for $x$.
+		If no match was found, we add the set to the data structure.
+		If a match was found, we abort.
+	
+		\subsubsection{Hashing for \ac{SRT} Nodes}
+	
+		Based on $\textproc{HashList}$, we can define a hash function for nodes of a given \ac{SRT} $T = \srt$ in a similar manner as for individual cells:
+		%
+		\MakeRobust{\Call}
+		\begin{equation*}
+			\mathrm{HashTreeNode}(v) = \Call{HashList}{\Call{Sort}{\{ \mathrm{CellId}(C) \mid \forall C \in \mathrm{Cells}_v \} }}
+		\end{equation*}
+		%
+		The function $\textproc{CellId}$ probes the data structure mentioned in the previous Section for the unique id of the cell.
+		This way, two nodes with identical cells are also assigned the same sequence of ids.
+		Note that the extracted node-ids are sorted before the hashing, because the output of $\textproc{HashList}$ is dependent on the \textit{order} of the elements in the list. 
+		It can be expected that any given node only consists of a small number of cells and function $\textproc{HashList}$ can be implemented very efficiently, $\textproc{HashTreeNode}$ can be as well.
+		Thus, by keeping a table mapping hash values to its associated nodes in memory, we can check for duplicates without a linear search through $V$.
+		In case a duplication of tree nodes is detected, we have to test for equality of the two nodes to account for hash collisions.
+		Here, testing for equality of two nodes $v_1, v_2 \in V$ can be done by evaluating $\mathrm{Cells}_{v_1} = \mathrm{Cells}_{v_2}$ for this single pair.
+		
 		\clearpage
-	
-	\section{Cutoff Conditions}
-	\label{chap:impl:cutoff}
-	
-		We implemented several cutoff conditions which ensure that we only explore relevant parts of the search space.
-		The conditions can be divided into two groups:
-		
-		\begin{enumerate}
-			\item \textit{Local} Conditions, which can be evaluated by only considering information about one \textit{singular} node or its immediate predecessor.
-			\item \textit{Global} Conditions, whose evaluation requires information about e.g. the precise path to the node, i.e., its position in the tree and therefore information about its ancestors, \textit{or} requires knowledge about other nodes or completely distinct sub-trees.
-		\end{enumerate}
-	
-		\subsection{Local Conditions}
-		% 1 Seite
-		
-			With access only to local information, these conditions are restricted to the information that is stored within one single \lstinline|TreeNode| data structure.
-			
-			\subsubsection{Refined Set Size}
-			
-				Assuming a proper ground-truth is available or any heuristic information about the potential size $k \in \mathbb{N}$ of the target partition, many found nodes can be excluded from the scoring a-priori. \todo{WIP}
-				Given a \ac{SRT} with node-set $V$ and node $v \in V$, we can terminate search for the sub-tree rooted at $v$ if $| \mathrm{Cells}_v | \gg k$.
-				
-			
-			\subsubsection{Depth}
-			
-				Under the assumption that most of the \enquote{interesting} sets are found early on, it could be beneficial to abort the search for a sub-tree as soon as a certain depth has been reached.
-				Information about the \textit{depth} of a given node can be extracted from the data-structure itself, or by traversing the graph towards the root node.
-				
-			\subsubsection{No Changes}
-			
-				As soon as the algorithm expands a set $S$ with a strategy, we get a partition $\pi \in \Pi(S)$ as a result.
-				If $S \in \pi$, this implies that $\pi = \{ S \}$ and the strategy did not refine $S$ any further and we can terminate the search for the current sub-tree.
-		
-		\subsection{Global Conditions}
-		% 1 Seite
-		
-			As mentioned before, global conditions are more flexible and allow for more involved logic to be executed.
-			
-			\subsubsection{Sub-Tree Duplication}
-			
-			\subsubsection{Most Optimistic Partition Size}
-	
-			\clearpage
 	
 	\section{Multi-Threading}
 	\label{chap:impl:multi}
