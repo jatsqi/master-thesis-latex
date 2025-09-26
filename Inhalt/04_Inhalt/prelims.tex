@@ -229,6 +229,72 @@
 		\end{figure}
 	
 		\clearpage
+		
+	\section{Hashing}
+		
+		Similar to graph data structures, hashing is a fundamental technique in computer science that transforms data of arbitrary size into a fixed-size sequence of bits of length $k$, called a \textit{hash value}. This value is computed by a so called \textit{hash function}, in the following denoted $h: X \rightarrow \{ 0, 1 \}^k$, which maps elements $x \in X$ to a fixed-sized bit-string. The primary purpose of hashing is to enable efficient \textit{data retrieval}, verification, and comparison without requiring direct access to the original data.
+		Data retrieval in particular is of vital interest in Chapter \ref{chap:impl}.
+		
+		For the purpose of this work, a \enquote{good} hash function must meet the following requirements:
+		
+		\begin{itemize}
+			\item \textit{Determinism}: The same input always produces the same output.
+			\item \textit{Efficiency}: The function should compute the hash quickly, even for large inputs.
+			\item \textit{Collision resistance}: Due to the image of $h$ being of fixed-sized, collisions, i.e., two different inputs resulting in the same hash value, are usually unavoidable. A good hash function should minimize the likelihood of this event.
+		\end{itemize}
+		
+		Hashing is widely applied in multiple domains. In data structures, hash tables use hash functions to achieve average-case constant-time complexity for insertion, deletion, and search operations.
+		Furthermore, hashing is a central part of domains like cryptography, finance and authentication systems. \todo{cite}
+		
+		In practice, the input domain $X$ must not need to be arbitrary. Instead, domains like 32-bit unsigned integer or a sequence of characters (e.g. strings) are often sufficient.
+		For this work, we will need a hash function for the former case which full-fills the requirements mentioned above.
+		A possible implementation of a simple hashing function using only multiplications and xor-shifts is shown in Algorithm \ref{algo:prelims:hash:single}.
+		The magic numbers \lstinline|0x7feb352d| and \lstinline|0x846ca68b| provide a low \textit{avalanche score} in practice \cite{christopherwellonsHashFunctionProspector2025}, i.e., the number of bits that \textit{do not} change if one bit in the input is flipped \cite{9923931}.
+		
+		In case a hash for more complicated structures like lists or arrays is required, Algorithm \ref{algo:prelims:hash:combined} can be used instead.
+		It is a combination of Algorithm \ref{algo:prelims:hash:single} and the frequently used \lstinline|boost::hash_combine| function from the Boost C++ Framework \cite{boostBoostLibraries}.
+		
+		\begin{algorithm}[ht!]
+				\centering
+			\begin{algorithmic}
+				\Require Unsigned 32-bit integer $x$.
+				\Ensure Hash value of $x$, which is an unsigned 32-bit integer as well.
+				\Statex
+				%
+				\Function{HashSingle}{$x$}
+					\State $x \gets (x \oplus \Call{ShiftRight}{x, 16}) \cdot \mathrm{0x7feb352d}$
+					\State $x \gets (x \oplus \Call{ShiftRight}{x, 15}) \cdot \mathrm{0x846ca68b}$
+					\State $x \gets (x \oplus \Call{ShiftRight}{x, 16})$
+					\State \Return $x$
+				\EndFunction
+			\end{algorithmic}
+			\caption{A function to hash 32-bit unsigned integers.}
+			\label{algo:prelims:hash:single}
+		\end{algorithm}
+		
+		\begin{algorithm}[ht!]
+			\centering
+			\begin{algorithmic}
+				\Require List of objects $L$, hash function $h: L \rightarrow \mathbb{N}$.
+				\Ensure Combined hash $x \in \mathbb{N}$ of objects in $L$.
+				\Statex
+				%
+				\Function{HashList}{$L$}
+				\State $\mathrm{hashValue} \gets \Call{SizeOf}{L}$
+				\For{$x \in L$}
+					\State $\mathrm{current} \gets \Call{HashSingle}{x}$
+					\State $\mathrm{left} \gets \Call{ShiftLeft}{\mathrm{hashValue}, 6}$
+					\State $\mathrm{right} \gets \Call{ShiftRight}{\mathrm{hashValue}, 2}$
+					\State $\mathrm{hashValue} \gets x + \mathrm{0x9e3779b9} + \mathrm{left} + \mathrm{right}$
+				\EndFor
+				\State \Return $\mathrm{hashValue}$
+				\EndFunction
+			\end{algorithmic}
+			\caption{A function to combine the hash values of multiple objects.}
+			\label{algo:prelims:hash:combined}
+		\end{algorithm}
+		
+		\clearpage
 	
 	\section{Partition Refinement}
 	\label{chap:prelims:partitionref}
@@ -357,8 +423,6 @@
 			\caption{More efficient refinement, if graph $G=((U, V), E)$ bipartite and $\forall v \in U:\; |E^{-1}(v)| \leq 1$ or $\forall v \in V:\; |E^{-1}(v)| \leq 1$. For the algorithm we assume the former.}
 			\label{algo:prelims:refinement:bipartite}
 		\end{algorithm}
-		
-		
 	
 		\clearpage
 	

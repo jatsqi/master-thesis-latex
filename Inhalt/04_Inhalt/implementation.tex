@@ -60,7 +60,7 @@
 	
 		\clearpage
 	
-	\section{Hashing}
+	\section{Duplication Prevention}
 	\label{chap:impl:hashing}
 	% 1 Seite
 	
@@ -79,30 +79,6 @@
 %				return x;
 %			}
 %		};
-	
-		\begin{algorithm}[ht!]
-			\centering
-			\begin{algorithmic}
-				\Require List of objects $L$, hash function $h: L \rightarrow \mathbb{N}$.
-				\Ensure Combined hash $x \in \mathbb{N}$ of objects in $L$.
-				\Statex
-				%
-				\Function{HashList}{$L$}
-					\State $\mathrm{randomConst} \gets \mathrm{0xe9846af9b1a615d}$
-					\State $x \gets x \oplus \Call{ShiftRight}{x, 32}$
-					\State $x \gets x \cdot \mathrm{randomConst}$
-					\State $x \gets x \oplus \Call{ShiftRight}{x, 32}$
-					\State $x \gets x \cdot \mathrm{randomConst}$
-					\State $x \gets x \oplus \Call{ShiftRight}{x, 28}$
-					\State \Return $x$
-				\EndFunction
-			\end{algorithmic}
-			\caption{A function to combine the hash values of multiple objects.}
-			\label{algo:impl:hash}
-		\end{algorithm}
-	
-		A very popular implementation of a function combining multiple hashes is shown in Algorithm \ref{algo:impl:hash}.
-		The algorithm shown is the pseudo-code version of \lstinline|boost::hash_combine|, which uses an arbitrary random number \lstinline|randomConst| and multiple bit-shift operations to ensure a cascading effect even for small changes in the input.
 	
 		\subsubsection{Hashing for single cells}
 		
