@@ -1,0 +1,28 @@
+@startuml
+skinparam defaultFontName Times New Roman
+left to right direction
+
+class IndexedCellTable {
+    -elements: Hash Table of Cells
+    --
+    +add(x: Cell)
+    +remove(x: Cell)
+    +contains(x: Cell): boolean
+    --
+    +idOfCell(x: Cell): integer
+    +getRepresentative(x: Cell): Cell
+}
+
+class TreeNodeTable {
+    -cellTable: IndexedCellTable
+    --
+    +add(x: TreeNode)
+    +remove(x: TreeNode)
+    +contains(x: TreeNode): boolean
+    --
+    +getRepresentative(x: TreeNode): TreeNode
+}
+
+IndexedCellTable o-- TreeNodeTable
+
+@enduml

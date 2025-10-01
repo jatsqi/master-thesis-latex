@@ -64,21 +64,34 @@
 	\label{chap:impl:hashing}
 	% 1 Seite
 	
-%		template<> struct hash_mix_impl<64>
-%		{
-%			inline static std::uint64_t fn( std::uint64_t x )
-%			{
-%				std::uint64_t const m = 0xe9846af9b1a615d;
-%				
-%				x ^= x >> 32;
-%				x *= m;
-%				x ^= x >> 32;
-%				x *= m;
-%				x ^= x >> 28;
-%				
-%				return x;
-%			}
-%		};
+		In order to keep the memory consumption of the \ac{SRT}, which represents the explored search space, as low as possible within practical bounds, we propose two ways of to achieve this goal:
+		
+		\begin{enumerate}
+			\item A simple approach to storing the actual partitions and its cells in memory by leveraging knowledge about previously generated cells.
+			\item We prevent the generation of \textit{identical sub-trees} by the algorithm to explore the same search space without additional computational effort.
+		\end{enumerate}
+		
+		We propose two data structure for storing and indexing of individual cells and tree nodes as shown in Figure \ref{fig:impl:hashing:datastruct}.
+		Both data structures require the following basic operations:
+		
+		\begin{itemize}
+			\item Basic \ac{CRUD} operations including adding, deleting and containment checks via. \lstinline[mathescape]|add($\cdot$)|, \lstinline[mathescape]|remove($\cdot$)| and \lstinline[mathescape]|contains($\cdot$)| respectively.
+			\item An operation to get, based on some cell or tree node object, the exact duplicate stored inside the data structure. As shown in Figure \ref{fig:impl:hashing:datastruct}, both data structures realize this via. \lstinline[mathescape]|getRepresentative($\cdot$)|
+		\end{itemize}
+		
+		While precise implementation of the hash table is not of interest here, we assume that processing common queries should be done reasonably efficient.
+		
+		\begin{figure}[ht!]
+			\centering
+			\includesvg[inkscapelatex=false]{Bilder/PlantUML/out/setindextable/setindextable}
+			\caption{text}
+			\label{fig:impl:hashing:datastruct}
+		\end{figure}
+		
+		In the following, we will propose two ways of implementing appropriate hashing functions to realize such data structures.
+		With these, we can reduce memory consumption \textit{and} implement the sub-tree duplication mechanism mentioned in Section \ref{chap:impl:cutoff} efficiently.
+		
+		\clearpage
 	
 		\subsubsection{Hashing for single cells}
 		

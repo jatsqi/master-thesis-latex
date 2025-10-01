@@ -37,25 +37,51 @@
 		
 		In the following, we will generalize this process by adopting a similar approach as the one shown in Chapter \ref{chap:gcg}. 
 		Instead of choosing \textit{one} way of refining the constraints or variables based on an initial partition, we try different \textit{strategies} to explore a more broader search space.
-		Afterwards, the found partitions are scored and the most promising ones are selected.
+		Afterwards, the found partitions are scored using a family of scoring functions $g_i: \Pi(U) \rightarrow \mathbb{R}$ and the most promising ones are selected.
 		Note that the overall goal remains unchanged: Based on an initial partition, we aim to iteratively refine the cells in such a way, that ultimately the constraints or variables in each cell belong to the same semantic grouping as the modeler intended to.
 		
-		In order to achieve this, we propose multiple \textit{strategies} which form the basic building blocks of the algorithm and are discusses in Section \ref{chap:tree:strategies}.
+		In order to achieve this, we propose multiple \textit{strategies} which form the basic building blocks of the algorithm and are discussed in Section \ref{chap:tree:strategies}.
 		Each strategy takes a single cell $C_i$ as input and computes a partition $\pi_{C_i} \in \Pi(C_i)$ as output, thereby refining the cell.
 		In the following, the process of refining a cell according to a certain strategy is sometimes referred to as \enquote{expanding a cell}.
 		The partitions of the cells are organized in a \acf{SRT} as shown in Figure \ref{fig:tree:motivation}, i.e., each node, with exception of the root node, corresponds to a possible partitioning of its parent cell, which was computed by a strategy.
 		The root node and its cells correspond to the initial partition and it is the \textit{only} node for which the union of its cells corresponds to the whole set of constraints or variables. The cells of all other nodes only partition its immediate parent cell in the tree.
 		This process implies that an additional post-processing step is required which translates the tree of cell-refinements to actual partitions. This step is discussed in Section \ref{chap:gcg:scoring}.
 		
+		\begin{algorithm}
+			\centering
+			\begin{algorithmic}
+				\Require Initial partition $\pi_{\mathrm{init}}$, set of strategies $S = \{ f_1, f_2, \ldots, f_k \}$ with $f_i: P \mapsto \Pi(P)$
+				\Ensure List of partition $\Pi$
+				\Statex
+				\Function{TreeRefinement}{$\pi_{\mathrm{init}}$}
+					\State Init empty \ac{SRT} $T = \srt$
+					\State $queue \gets \text{Create queue with element} \; \pi_{\mathrm{init}}$
+					\While{\Call{Size}{$queue$} $\ge 0$}
+						\State $\pi_{\mathrm{current}} \gets$ \Call{Pop}{$queue$}
+						\For{$cell \in \pi_{\mathrm{current}}$}
+							\For{$f_{\mathrm{strategy}} \in S$}
+								\State $refined \gets f_{\mathrm{strategy}}(\pi_{\mathrm{current}})$ \Comment{Section \ref{chap:tree:strategies}}
+								\State \Call{Push}{queue, refined}
+							\EndFor
+						\EndFor
+					\EndWhile
+					
+				\EndFunction
+			\end{algorithmic}
+			\caption{A high-level overview of the algorithm. All additional data structures, optimizations and handling of necessary metadata was omitted.}
+			\label{fig:tree:algo}
+		\end{algorithm}
+		\todo{WIP}
+		
 		In order to use a unified notation in the following sections, we will define the \ac{SRT} and its associated information more formally.
 		A \ac{SRT} can be formalized as a tuple $T = (V, E, U, R, S)$ with universe $U$ corresponding to the set of all constraints or variables, designated root node $R \in V$ and set of strategies $S \subseteq \mathbb{N}$.
 		The tuple $(V, E)$ must induce an directed acyclic graph.
-		Each node $v \in V \setminus R$ of the tree is associated with a parent cell $\mathrm{ParentCell}_v \in 2^U$, a set of cells $\mathrm{Cells}_{v} \in \Pi(\mathrm{ParentCell}_v)$ and the strategy $\mathrm{Strategy}_v$ that was used to compute $v$ from its parent.
+		Each node $v \in V \setminus R$ of the tree is associated with a parent cell $\mathrm{ParentCell}_v \in 2^U$, parent node $\mathrm{ParentNode}_v$, a set of cells $\mathrm{Cells}_{v} \in \Pi(\mathrm{ParentCell}_v)$ and the strategy $\mathrm{Strategy}_v$ that was used to compute $v$ from its parent.
 		For the root node it holds that $\mathrm{Cells}_R \in \Pi(U)$.
 		
 		\begin{figure}[ht!]
 			\centering
-			\includesvg[scale=0.6, inkscapelatex=false]{Bilder/Hierarchy/hierarchy_binpack_NOP}
+			\includesvg[scale=0.5, inkscapelatex=false]{Bilder/Hierarchy/hierarchy_binpack_NOP}
 			\caption{WIP WIP WIP A example of a simple refinement tree for the Bin-Packing Problem.}
 			\label{fig:tree:motivation}
 		\end{figure}
@@ -108,7 +134,7 @@
 			
 				The classifier for variable bounds can be considered as a simple mapping from pairs of bounds to a unique class index.
 				More formally, given a list of all unique pairs of lower and upper bounds for variables $B = (b_1, b_2, \ldots, b_k)$, with $b_i \in \mathbb{Q} \times \mathbb{Q}$, we map each variable to the index of its bounds in $B$.
-				This mapping trivially unique.
+				This mapping is trivially unique.
 				
 				Mapping the variables in the described way has the side-effect that $0 \leq x \leq 1$ and $y \in \{ 0, 1 \} $ are mapped to the same class.
 				This behavior is able to account for missing declarations of variables as binary in the input format read by \ac{GCG}.
@@ -158,7 +184,7 @@
 			
 			\clearpage
 			
-		\subsection{Voting (ordered)}
+		\subsection{Voting}
 		\label{chap:tree:classifiers:voting}
 		
 			As mentioned earlier, the motivating idea behind each individual classifier is to group constraints according to some property, while the type of this property can vary greatly between classifiers.
@@ -204,12 +230,10 @@
 	
 		Strategies are \textit{the} central building block of the algorithm and are responsible for refining sets of constraints or variables.
 		Let $U$ be a the total set of constraints or variables.
-		Each strategy gets a single set $S \subseteq U$ as input and produces a partition $\pi_S \in \Pi(S)$ of that set as output.
-		Each set $A_i \in \pi_S$ corresponds to one child node.
+		Each strategy can be formalized as a function $f: S \rightarrow \Pi(S)$ which gets a single set $S \subseteq U$ as input and produces a partition $\pi \in \Pi(S)$ as output.
 		Conceptually, each strategy can be seen as a materialization of a specific splitter function as defined in Section \ref{chap:prelims:partitionref}.
-		In the following, we differentiate between re-callable and non re-callable strategies. The former type may be called more than once in any given sub-tree, as the result may depend on precise position of the node that is being expanded.
 		
-		\clearpage
+		%In the following, we differentiate between re-callable and non re-callable strategies. The former type may be called more than once in any given sub-tree, as the result may depend on precise position of the node that is being expanded.
 	
 		\subsection{Slice (Partition)}
 		\label{chap:tree:strategies:slice:part}
@@ -344,21 +368,29 @@
 			\item \textit{Global} Conditions, whose evaluation requires information about e.g. the precise path to the node, i.e., its position in the tree and therefore information about its ancestors, \textit{or} requires knowledge about other nodes or completely distinct sub-trees.
 		\end{enumerate}
 		
+		Note that the following conditions are only \textit{correct} for the strategies presented in Section \ref{chap:tree:strategies}, which are all a specialized version of the partition slicing strategy.
+		In the following, let $T = \srt$ be a \ac{SRT}.
+		
 		\subsection{Local Conditions}
 		% 1 Seite
 		
-			With access only to local information, these conditions are restricted to the information about a single node of a given \ac{SRT}.
+			With access only to local information, these conditions are restricted to the information about a single node $v_0 \in V$.
 			
-			\subsubsection{Refined Set Size}
+			\subsubsection{Refined Partition Size}
 			
 			Assuming a proper ground-truth is available or any heuristic information about the potential size $k \in \mathbb{N}$ of the target partition, many found nodes can be excluded from the scoring a-priori. \todo{WIP}
-			Given a \ac{SRT} with node-set $V$ and node $v \in V$, we can terminate search for the sub-tree rooted at $v$ if $| \mathrm{Cells}_v | \gg k$.
-			
+			We can terminate search for the sub-tree rooted at $v_0$ if $| \mathrm{Cells}_{v_0} | \gg k$.
 			
 			\subsubsection{Depth}
 			
 			Under the assumption that most of the \enquote{interesting} sets are found early on, it could be beneficial to abort the search for a sub-tree as soon as a certain depth has been reached.
-			Information about the \textit{depth} of a given node can be extracted from the data-structure itself, or by traversing the graph towards the root node.
+			The depth of a certain node $v \in V$ can be computed using a simple recursion to the root node:
+			\begin{equation*}
+				\mathrm{Depth}(v) = \begin{cases}
+					0 & \text{if} \; v = R \\
+					1 + \mathrm{Depth}(\mathrm{ParentNode}_v) & \mathrm{otherwise}
+				\end{cases}
+			\end{equation*}
 			
 			\subsubsection{No Changes}
 			
@@ -372,7 +404,35 @@
 			
 			\subsubsection{Sub-Tree Duplication}
 			
+				If $v_0$ is expanded by the algorithm, then all cells of the node are expanded by all strategies that did not run previously.
+				
+			
 			\subsubsection{Most Optimistic Partition Size}
+			
+				Similar to the local condition terminating the search at a node $v \in V$ exceeding a certain number $k \in \mathbb{N}$ of cells, we can terminate the search as it becomes evident that the size of \textit{any} partition containing $v$ and is generated by function \ref{eq:tree:scoring:partcomp} will exceed $k$.
+				This \textit{Most optimistic partition size}, i.e., the size of the smallest partition that can be generated using $v$, can be computed as shown in Function \ref{eq:tree:cutoff:mos}.
+				%
+				\begin{equation}
+				\label{eq:tree:cutoff:mos}
+					\mathrm{MOS}(v) = \begin{cases}
+						0 & \text{if} \; v = R \\
+						|\mathrm{Cells}_{\mathrm{ParentNode}_v}| + \mathrm{MOS}(\mathrm{ParentNode}_v) - 1 & \mathrm{otherwise}
+					\end{cases}
+				\end{equation}
+				%
+				Because all nodes in the \ac{SRT} are non-empty, it trivially holds that $\mathrm{MOS}(v) \geq \mathrm{MOS}(\mathrm{ParentNode}_v)$ for all $v \in V$.
+				As soon as $MOS(v) \gg k$, we can terminate the search as all partitions generated using at last one descendant of $v$ will exceed the threshold.
+				
+				Node that such condition \textit{can} have unintended side-effects in combination with other global conditions like \textit{Sub-Tree Duplication}.
+				If a certain sub-tree is cut-off ..
+				
+				\begin{figure}[ht!]
+					\centering
+					\includesvg[scale=0.5, inkscapelatex=false]{Bilder/Hierarchy/hierarchy_binpack_NOP}
+					\caption{text}
+					\label{fig:tree:cutoff:mos}
+				\end{figure}
+				\todo{Falsches Bild}
 		
 	\clearpage
 	
