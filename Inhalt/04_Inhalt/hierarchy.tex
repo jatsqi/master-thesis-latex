@@ -451,10 +451,20 @@
 
 			Conditions such as \textit{Depth} or \textit{Most Optimistic Partition Size} can have unintended side-effects in combination with other global conditions like \textit{Sub-Tree Duplication}.
 
-
 			\begin{figure}[ht!]
 				\centering
-				\includesvg[scale=0.5, inkscapelatex=false]{Bilder/Hierarchy/hierarchy_binpack_NOP}
+				\begin{minipage}[t]{0.45\textwidth}
+					\vspace{0pt}
+					\includesvg[scale=0.65, inkscapelatex=false]{Bilder/DrawIO/side_effects_left}
+					\caption{a}
+				\end{minipage}
+				%
+				\begin{minipage}[t]{0.45\textwidth}
+					\vspace{0pt}
+					\includesvg[scale=0.65, inkscapelatex=false]{Bilder/DrawIO/side_effects_right}
+					\vfill
+					\caption{a}
+				\end{minipage}
 				\caption{text}
 				\label{fig:tree:cutoff:mos}
 			\end{figure}
