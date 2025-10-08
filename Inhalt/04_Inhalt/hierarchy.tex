@@ -120,11 +120,8 @@
 		Each new classifier provides new opportunities for existing detectors to find new partial decompositions.
 		This can prove especially useful for detectors like consclass, which directly depend on the found classifications.
 		On the other hand, this dependence can result in a sub-optimal runtime investment if the found classifications provide no new information, because the generated partial decompositions based on that will most certainly be of bad quality as well. \todo{wording}
-		
 		Therefore, we will refrain from mentioning all missing model properties for which a classifier \textit{could} be built, and only focus on promising candidates.
 		\todo{Summarize goals for custom classifiers}
-		
-		\clearpage
 		
 		\subsection{Bounds}
 			
@@ -178,9 +175,13 @@
 					16 & Mixed Binary & $\sum a_i x_i + \sum p_j s_j \; \{\leq, =\} \; b$ & $\forall i: x_i \in \{0, 1\}, \forall j: s_j \; \mathrm{continuous}$ \\
 					17 & General Linear & $\sum a_i x_i \; \{\leq, \geq, =\} \; b$ & No special structure.
 				\end{tabular}
-				\caption{The structure of all 17 constraint types MIPLIB keeps track of.}
-				\label{table:constypes:relaxedd}
+				\caption{The structure of all constraint types which the \textit{relaxed} version of the MIPLIB classifier detects.}
+				\label{table:constypes:relaxed}
 			\end{table}
+			
+			In order to mitigate \textit{some} of the issues 
+			
+			Similar to the MIPLIB classifier, all types can be deduced from local information only. Thus, one pass over the constraint matrix is sufficient to classify all constraints according to Table \ref{table:constypes:relaxed}. \todo{WIP}
 			
 			\clearpage
 			
@@ -423,18 +424,18 @@
 				Because all nodes in the \ac{SRT} are non-empty, it trivially holds that $\mathrm{MOS}(v) \geq \mathrm{MOS}(\mathrm{ParentNode}_v)$ for all $v \in V$.
 				As soon as $MOS(v) \gg k$, we can terminate the search as all partitions generated using at last one descendant of $v$ will exceed the threshold.
 				
-			\subsubsection{Side effects of global conditions}
+		\subsection{Side effects of global conditions}
 				
-				Conditions such as \textit{Depth} or \textit{Most Optimistic Partition Size} can have unintended side-effects in combination with other global conditions like \textit{Sub-Tree Duplication}.
-				
-				
-				\begin{figure}[ht!]
-					\centering
-					\includesvg[scale=0.5, inkscapelatex=false]{Bilder/Hierarchy/hierarchy_binpack_NOP}
-					\caption{text}
-					\label{fig:tree:cutoff:mos}
-				\end{figure}
-				\todo{Falsches Bild}
+			Conditions such as \textit{Depth} or \textit{Most Optimistic Partition Size} can have unintended side-effects in combination with other global conditions like \textit{Sub-Tree Duplication}.
+			
+			
+			\begin{figure}[ht!]
+				\centering
+				\includesvg[scale=0.5, inkscapelatex=false]{Bilder/Hierarchy/hierarchy_binpack_NOP}
+				\caption{text}
+				\label{fig:tree:cutoff:mos}
+			\end{figure}
+			\todo{Falsches Bild}
 		
 	\clearpage
 	

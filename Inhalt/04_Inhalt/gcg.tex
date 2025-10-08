@@ -294,7 +294,8 @@
 		Without pre-solving enabled, a classifier such as MIPLIB would assign constraints \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the classes \textit{Set Partitioning} and \textit{Bin-Packing} respectively.
 		If unique, this classification is added to a list provided to the detection stage.
 		
-		If no further classifications are found, the \textit{cons class} detector will yield 3 new partial decompositions as shown in Table \ref{table:gcg:example:consclass}, first assigning constraints \ref{eq:gcg:example:link}, then \ref{eq:gcg:example:capacity} and finally both \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the master.
+		If no further classifications are found, \ac{GCG} will transition to the detection stage.
+		Here, the \textit{cons class} detector will yield 3 new partial decompositions as shown in Table \ref{table:gcg:example:consclass}, first assigning constraints \ref{eq:gcg:example:link}, then \ref{eq:gcg:example:capacity} and finally both \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the master.
 		The constraint group not assigned to the master remains \textit{open}.
 		
 		During the next round of detection, a detector such as \textit{Connected Base} will receive the partial decomposition with only the packing constraints assigned to the master as input.
