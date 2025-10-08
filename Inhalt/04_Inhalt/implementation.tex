@@ -122,7 +122,23 @@
 		
 		\clearpage
 	
-	\section{Multi-Threading}
+	\section{Concurrency}
 	\label{chap:impl:multi}
 	% 1 Seite
 
+		\begin{figure}[ht!]
+			\centering
+			\includesvg[scale=0.4, inkscapelatex=false]{Bilder/Hierarchy/hierarchy_binpack_NOP.svg}
+			\caption{text}
+			\label{fig:impl:threading}
+		\end{figure}
+		
+		In addition to the optimizations via. hashing and conditional termination of the search mentioned in Sections \ref{chap:impl:cutoff} and \ref{chap:impl:hashing}, which primarily focused on reducing memory requirements, we now propose a method to reduce the actual runtime.
+		Based on the description of the overall algorithm from Chapter \ref{chap:tree}, we recall two important properties:
+		
+		\begin{enumerate}
+			\item When no global cutoff conditions are being used, a node of the \ac{SRT} is expanded is always expanded in the same way regardless of its position in the tree.
+			\item The set $\mathrm{Cells}_v$ for all nodes only depends on the parent cell. \todo{Wording}
+		\end{enumerate} 
+		
+		

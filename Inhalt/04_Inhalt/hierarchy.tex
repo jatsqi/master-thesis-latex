@@ -21,7 +21,7 @@
 
 	\clearpage
 
-	\section{Motivation}
+	\section{The Algorithm}
 	% 2 Seiten
 	
 		In \cite{salvagninDetectingSemanticGroups2016}, the implemented approaches can be seen as a three-step process:
@@ -145,7 +145,7 @@
 			\subsubsection{Constraint bounds}
 			
 				A classifier for constraint bounds works in a similar manner as for variables.
-				By collection all bounds and assigning a class to each constraint based on that list, we obtain a unique mapping.
+				By collecting all bounds and assigning a class to each constraint based on that list, we obtain a unique mapping.
 				Note that for inequalities the absolute value either of the two bounds will always be infinity. For equalities which were not replaced with equivalent inequalities, both bounds will be equal.
 				
 				\todo{cap. lot sizing example}
@@ -381,17 +381,6 @@
 			Assuming a proper ground-truth is available or any heuristic information about the potential size $k \in \mathbb{N}$ of the target partition, many found nodes can be excluded from the scoring a-priori. \todo{WIP}
 			We can terminate search for the sub-tree rooted at $v_0$ if $| \mathrm{Cells}_{v_0} | \gg k$.
 			
-			\subsubsection{Depth}
-			
-			Under the assumption that most of the \enquote{interesting} sets are found early on, it could be beneficial to abort the search for a sub-tree as soon as a certain depth has been reached.
-			The depth of a certain node $v \in V$ can be computed using a simple recursion to the root node:
-			\begin{equation*}
-				\mathrm{Depth}(v) = \begin{cases}
-					0 & \text{if} \; v = R \\
-					1 + \mathrm{Depth}(\mathrm{ParentNode}_v) & \mathrm{otherwise}
-				\end{cases}
-			\end{equation*}
-			
 			\subsubsection{No Changes}
 			
 			As soon as the algorithm expands a set $S$ with a strategy, we get a partition $\pi \in \Pi(S)$ as a result.
@@ -401,6 +390,17 @@
 			% 1 Seite
 			
 			As mentioned before, global conditions are more flexible and allow for more involved logic to be executed.
+			
+			\subsubsection{Depth}
+			
+				Under the assumption that most of the \enquote{interesting} sets are found early on, it could be beneficial to abort the search for a sub-tree as soon as a certain depth has been reached.
+				The depth of a certain node $v \in V$ can be computed using a simple recursion to the root node:
+				\begin{equation*}
+					\mathrm{Depth}(v) = \begin{cases}
+						0 & \text{if} \; v = R \\
+						1 + \mathrm{Depth}(\mathrm{ParentNode}_v) & \mathrm{otherwise}
+					\end{cases}
+				\end{equation*}
 			
 			\subsubsection{Sub-Tree Duplication}
 			
@@ -423,8 +423,10 @@
 				Because all nodes in the \ac{SRT} are non-empty, it trivially holds that $\mathrm{MOS}(v) \geq \mathrm{MOS}(\mathrm{ParentNode}_v)$ for all $v \in V$.
 				As soon as $MOS(v) \gg k$, we can terminate the search as all partitions generated using at last one descendant of $v$ will exceed the threshold.
 				
-				Node that such condition \textit{can} have unintended side-effects in combination with other global conditions like \textit{Sub-Tree Duplication}.
-				If a certain sub-tree is cut-off ..
+			\subsubsection{Side effects of global conditions}
+				
+				Conditions such as \textit{Depth} or \textit{Most Optimistic Partition Size} can have unintended side-effects in combination with other global conditions like \textit{Sub-Tree Duplication}.
+				
 				
 				\begin{figure}[ht!]
 					\centering
