@@ -4,7 +4,7 @@
 
 	Building upon the algorithmic descriptions of Chapter \ref{chap:tree}, we want to discuss how such an algorithm can be efficiently implemented and practice and how the component is integrated into \ac{GCG} as a detector.
 	The Chapter is divided into multiple sections, each describing a different aspect of the implementation:
-	
+
 	\begin{enumerate}
 		\item Section \ref{chap:impl:architecture} contains a high-level overview about the architecture of the detector and its relation with other components in \ac{GCG}.
 		\item In Sections \ref{chap:impl:architecture} - \ref{chap:impl:hashing}, we will give a brief overview about a few custom data structures required to implement the refinement more efficiently and how the tree is represented in memory.
@@ -14,87 +14,97 @@
 			\item For larger and more complicated models, can we ensure a reasonable runtime?
 		\end{itemize}
 	\end{enumerate}
-	
+
 	This Chapter does not include actual numbers concerning space and runtime, we only look at the underlying concepts which are widely used in other algorithms to achieve e.g. a better practical runtime.
-	
+
 	\clearpage
 
 	\section{Architecture}
 	\label{chap:impl:architecture}
 	% 2 Seiten
-	
+
 		\begin{figure}[ht!]
 			\centering
 			\includesvg[scale=0.7, inkscapelatex=false]{Bilder/PlantUML/out/comp/comp}
 			\caption{text}
 			\label{fig:impl:arch:overview}
 		\end{figure}
-		
+
 		As mentioned in the introduction to Chapter \ref{chap:tree}, the approach is implemented as a \textit{Detector} in \ac{GCG}, contrary to the fact that the algorithm outputs a one or multiple partitions of constraints or variables.
 		Generating such partitions is more aligned with the concept of a \textit{classifier} from Section \ref{chap:gcg:classifiers}, but this comes with an important drawback.
 		Because we want to incorporate information about variables for partitioning constraints and vice-versa for constraints, we have to delay the execution of the algorithm to a point in time \textit{after} the classification has finished, i.e., all relevant data is available.
 		Circumventing this problem by potentially implementing the algorithm as a classifier and assigning the lowest priority possible to it is not an option as well, because this would introduce additional maintenance overhead in case changes to the overall classification/detection framework are made.
 		An implementation as a detector \textit{ensures} that all classification step are done beforehand.
-		
+
 		An overview about the relationship between the \ac{GCG} and the detector is shown in Figure \ref{fig:impl:arch:overview}.
 		When implementing an detector, \ac{GCG} provided a set of callbacks that have to implemented such as
 		\begin{itemize}
 			\item Set-up/Tear-down, i.e., for allocation and deallocation of data-structures
 			\item A handler for propagation, which takes a partial decomposition and assigns all or a subset of the remaining open constraints to either a block or the master. This concept was already shown in Figure \ref{fig:gcg:partialdettree}.
 		\end{itemize}
-		
+
 		\clearpage
-		
+
 		The callbacks take \ac{GCG}-internal data structures as input and must provide the result as such.
 		In order to ensure better maintainability, the logic realizing the tree refinement should be mostly \textit{independent} of the concrete framework it is being used in.
 		Furthermore, relying on custom data structures increases control about runtime and space considerations. \todo{Wording}
 		This decoupling is being realized by an \textit{Adapter}, as shown in Figure \ref{fig:impl:arch:overview}, which translates between the two \enquote{worlds} of data-structures and ensures compatibility.
-	
+
 	\section{Metadata}
 	\label{chap:impl:meta}
 	% 1 Seite
-	
+
 	\section{Data Structures}
 	\label{chap:impl:structures}
 	% 2 Seiten
-	
+
+		The implementation of the central tree refinement algorithm uses the following components:
+
+		\begin{itemize}
+			\item \textit{Strategies}: As explained in Section \ref{chap:tree:strategies}, strategies are responsible for refining cells. Each strategy is implemented as a separate data-structure which share a common interface.
+			\item \textit{Rules}: A rule is responsible for deciding whether a certain strategy \textit{is allowed} to expand a node. Rules can be used to implement local cutoff-conditions such as \textit{Depth} or limit the set of applicable strategies dynamically.
+			\item \textit{Scores}: As the name implies, scores are responsible for assigning each found candidate partition a numeric value.
+		\end{itemize}
+
+		The modular structure of the algorithm proved very flexible in terms of testing different approaches.
+
 		\clearpage
-	
+
 	\section{Duplication Prevention}
 	\label{chap:impl:hashing}
 	% 1 Seite
-	
+
 		In order to keep the memory consumption of the \ac{SRT}, which represents the explored search space, as low as possible within practical bounds, we propose two ways of to achieve this goal:
-		
+
 		\begin{enumerate}
 			\item A simple approach to storing the actual partitions and its cells in memory by leveraging knowledge about previously generated cells.
 			\item We prevent the generation of \textit{identical sub-trees} by the algorithm to explore the same search space without additional computational effort.
 		\end{enumerate}
-		
+
 		We propose two data structure for storing and indexing of individual cells and tree nodes as shown in Figure \ref{fig:impl:hashing:datastruct}.
 		Both data structures require the following basic operations:
-		
+
 		\begin{itemize}
 			\item Basic \ac{CRUD} operations including adding, deleting and containment checks via. \lstinline[mathescape]|add($\cdot$)|, \lstinline[mathescape]|remove($\cdot$)| and \lstinline[mathescape]|contains($\cdot$)| respectively.
 			\item An operation to get, based on some cell or tree node object, the exact duplicate stored inside the data structure. As shown in Figure \ref{fig:impl:hashing:datastruct}, both data structures realize this via. \lstinline[mathescape]|getRepresentative($\cdot$)|
 		\end{itemize}
-		
+
 		While precise implementation of the hash table is not of interest here, we assume that processing common queries should be done reasonably efficient.
-		
+
 		\begin{figure}[ht!]
 			\centering
 			\includesvg[inkscapelatex=false]{Bilder/PlantUML/out/setindextable/setindextable}
 			\caption{text}
 			\label{fig:impl:hashing:datastruct}
 		\end{figure}
-		
+
 		In the following, we will propose two ways of implementing appropriate hashing functions to realize such data structures.
 		With these, we can reduce memory consumption \textit{and} implement the sub-tree duplication mechanism mentioned in Section \ref{chap:impl:cutoff} efficiently.
-		
+
 		\clearpage
-	
+
 		\subsubsection{Hashing for single cells}
-		
+
 		In order to keep the \textit{size} of the \ac{SRT} in terms of its actual footprint in RAM as small as possible, we propose a simple solution based on hashing.
 		As soon as a strategy refines a set $S$, we get a partition $\pi = \{ A_1, A_2, \ldots, A_k \}\in \Pi(S)$.
 		The cells of all found partitions including $A_1, A_2, \ldots, A_k$ are stored in a central data structure and assigned a unique index each.
@@ -102,9 +112,9 @@
 		The duplication check for a cell $A = \{ o_1, o_2, \ldots, o_n \}$ is done by computing $x = \Call{HashList}{A}$ and probing the data structure for $x$.
 		If no match was found, we add the set to the data structure.
 		If a match was found, we abort.
-	
+
 		\subsubsection{Hashing for \ac{SRT} Nodes}
-	
+
 		Based on $\textproc{HashList}$, we can define a hash function for nodes of a given \ac{SRT} $T = \srt$ in a similar manner as for individual cells:
 		%
 		\MakeRobust{\Call}
@@ -114,14 +124,14 @@
 		%
 		The function $\textproc{CellId}$ probes the data structure mentioned in the previous Section for the unique id of the cell.
 		This way, two nodes with identical cells are also assigned the same sequence of ids.
-		Note that the extracted node-ids are sorted before the hashing, because the output of $\textproc{HashList}$ is dependent on the \textit{order} of the elements in the list. 
+		Note that the extracted node-ids are sorted before the hashing, because the output of $\textproc{HashList}$ is dependent on the \textit{order} of the elements in the list.
 		It can be expected that any given node only consists of a small number of cells and function $\textproc{HashList}$ can be implemented very efficiently, $\textproc{HashTreeNode}$ can be as well.
 		Thus, by keeping a table mapping hash values to its associated nodes in memory, we can check for duplicates without a linear search through $V$.
 		In case a duplication of tree nodes is detected, we have to test for equality of the two nodes to account for hash collisions.
 		Here, testing for equality of two nodes $v_1, v_2 \in V$ can be done by evaluating $\mathrm{Cells}_{v_1} = \mathrm{Cells}_{v_2}$ for this single pair.
-		
+
 		\clearpage
-	
+
 	\section{Concurrency}
 	\label{chap:impl:multi}
 	% 1 Seite
@@ -132,13 +142,12 @@
 			\caption{text}
 			\label{fig:impl:threading}
 		\end{figure}
-		
+
 		In addition to the optimizations via. hashing and conditional termination of the search mentioned in Sections \ref{chap:impl:cutoff} and \ref{chap:impl:hashing}, which primarily focused on reducing memory requirements, we now propose a method to reduce the actual runtime.
 		Based on the description of the overall algorithm from Chapter \ref{chap:tree}, we recall two important properties:
-		
+
 		\begin{enumerate}
 			\item When no global cutoff conditions are being used, a node of the \ac{SRT} is expanded is always expanded in the same way regardless of its position in the tree.
 			\item The set $\mathrm{Cells}_v$ for all nodes only depends on the parent cell. \todo{Wording}
-		\end{enumerate} 
-		
-		
+		\end{enumerate}
+
