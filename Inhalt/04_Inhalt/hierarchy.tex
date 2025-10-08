@@ -3,50 +3,50 @@
 % 0.5 Seiten
 
 	With the existing capabilities of \ac{GCG} presented in the previous chapter, we continue with the main contributions of this thesis:
-	
+
 	\begin{itemize}
 		\item A new module which is integrated into the detection framework of \ac{GCG} for reverse engineering semantic groupings of the original formulation. This can be seen as a generalization of the approach presented in \cite{salvagninDetectingSemanticGroups2016}
 		\item Additional auxiliary classifiers which implement constraint and variable classification based on information not currently used including examples of \textit{when} they are crucial detecting semantics.
 	\end{itemize}
 
 	This chapter is divided into three main section:
-	
+
 	\begin{enumerate}
 		\item A short summary about the available information we have access to.
 		\item What the motivation and goals are why and how we aim to process this information.
 		\item The concrete algorithm and its most integral parts.
 	\end{enumerate}
-	
+
 	Some concrete details about the implementation itself are not subject of the following sections, but are discussed in Chapter \ref{chap:impl}.
 
 	\clearpage
 
 	\section{The Algorithm}
 	% 2 Seiten
-	
+
 		In \cite{salvagninDetectingSemanticGroups2016}, the implemented approaches can be seen as a three-step process:
-		
+
 		\begin{enumerate}
 			\item Transform a given model to a graph-based representation.
 			\item Select a suitable initial partitioning.
 			\item Choose \textit{one} splitter-function and run the standard partition refinement algorithm until a stable partition is reached.
 		\end{enumerate}
-		
+
 		Depending on the type of model, running the refinement with different initial partitions and splitter-functions might be necessary, which was already recognized in \cite{salvagninDetectingSemanticGroups2016}.
 		Furthermore, we suspect that for some models it might even be required to use different splitter-funtions on different \textit{parts} of the model.
-		
-		In the following, we will generalize this process by adopting a similar approach as the one shown in Chapter \ref{chap:gcg}. 
+
+		In the following, we will generalize this process by adopting a similar approach as the one shown in Chapter \ref{chap:gcg}.
 		Instead of choosing \textit{one} way of refining the constraints or variables based on an initial partition, we try different \textit{strategies} to explore a more broader search space.
 		Afterwards, the found partitions are scored using a family of scoring functions $g_i: \Pi(U) \rightarrow \mathbb{R}$ and the most promising ones are selected.
 		Note that the overall goal remains unchanged: Based on an initial partition, we aim to iteratively refine the cells in such a way, that ultimately the constraints or variables in each cell belong to the same semantic grouping as the modeler intended to.
-		
+
 		In order to achieve this, we propose multiple \textit{strategies} which form the basic building blocks of the algorithm and are discussed in Section \ref{chap:tree:strategies}.
 		Each strategy takes a single cell $C_i$ as input and computes a partition $\pi_{C_i} \in \Pi(C_i)$ as output, thereby refining the cell.
 		In the following, the process of refining a cell according to a certain strategy is sometimes referred to as \enquote{expanding a cell}.
 		The partitions of the cells are organized in a \acf{SRT} as shown in Figure \ref{fig:tree:motivation}, i.e., each node, with exception of the root node, corresponds to a possible partitioning of its parent cell, which was computed by a strategy.
 		The root node and its cells correspond to the initial partition and it is the \textit{only} node for which the union of its cells corresponds to the whole set of constraints or variables. The cells of all other nodes only partition its immediate parent cell in the tree.
 		This process implies that an additional post-processing step is required which translates the tree of cell-refinements to actual partitions. This step is discussed in Section \ref{chap:gcg:scoring}.
-		
+
 		\begin{algorithm}
 			\centering
 			\begin{algorithmic}
@@ -65,20 +65,20 @@
 							\EndFor
 						\EndFor
 					\EndWhile
-					
+
 				\EndFunction
 			\end{algorithmic}
 			\caption{A high-level overview of the algorithm. All additional data structures, optimizations and handling of necessary metadata was omitted.}
 			\label{fig:tree:algo}
 		\end{algorithm}
 		\todo{WIP}
-		
+
 		In order to use a unified notation in the following sections, we will define the \ac{SRT} and its associated information more formally.
 		A \ac{SRT} can be formalized as a tuple $T = (V, E, U, R, S)$ with universe $U$ corresponding to the set of all constraints or variables, designated root node $R \in V$ and set of strategies $S \subseteq \mathbb{N}$.
 		The tuple $(V, E)$ must induce an directed acyclic graph.
 		Each node $v \in V \setminus R$ of the tree is associated with a parent cell $\mathrm{ParentCell}_v \in 2^U$, parent node $\mathrm{ParentNode}_v$, a set of cells $\mathrm{Cells}_{v} \in \Pi(\mathrm{ParentCell}_v)$ and the strategy $\mathrm{Strategy}_v$ that was used to compute $v$ from its parent.
 		For the root node it holds that $\mathrm{Cells}_R \in \Pi(U)$.
-		
+
 		\begin{figure}[ht!]
 			\centering
 			\includesvg[scale=0.5, inkscapelatex=false]{Bilder/Hierarchy/hierarchy_binpack_NOP}
@@ -86,21 +86,21 @@
 			\label{fig:tree:motivation}
 		\end{figure}
 		\todo{wrong image}
-	
+
 		\clearpage
 
 	\section{Information}
 	% 1 Seite
-	
+
 		\begin{figure}[ht!]
 			\centering
 			\includegraphics[scale=0.8]{Bilder/DrawIO/model_information}
 			\caption{All parts of a model that contain useful information for semantic grouping of constraints and variables. Elements with a thick border are already used as a key concept in one of the existing detectors.}
 			\label{fig:tree:information}
 		\end{figure}
-		
+
 		Before we present any algorithmic details, we give an overview about the available information which might be used to define suitable strategies. \todo{roter Faden}
-		
+
 		\begin{enumerate}
 			\item \textbf{Objective}: For the objective functions, information about the participating variables and their coefficients is available. For some models e.g. for Bin-Packing, this information alone is sufficient to partition the variables.
 			\item \textbf{Coefficients}:
@@ -111,10 +111,10 @@
 			\item \textbf{Names}: If specified by the modeler, then variables and constraints might have meaningful names which can be used as a strong indicator which constraints and variables belong to the same group.
 			\item \textbf{Order}: In contrast to other kinds of information, the constraint \enquote{order} is no intrinsic property of the model itself. With the term \enquote{order}, we refer to the order of the constraints as specified in the input format. When a model is created e.g. via. a script, constraints are usually added in \textit{blocks} by the modeler. This information is used in Section \ref{chap:tree:classifiers:voting} to conceptualize a classifier based on that.
 		\end{enumerate}
-	
+
 	\section{Classifiers}
 	% 2 Seite
-	
+
 		In the following Sections we describe different classifiers which are not yet implemented in \ac{GCG} but could potentially provide new information about the model.
 		Adding new classifiers has, in addition to practical implications such as higher maintenance overhead, additional side-effects regarding runtime and memory requirements.
 		Each new classifier provides new opportunities for existing detectors to find new partial decompositions.
@@ -122,35 +122,57 @@
 		On the other hand, this dependence can result in a sub-optimal runtime investment if the found classifications provide no new information, because the generated partial decompositions based on that will most certainly be of bad quality as well. \todo{wording}
 		Therefore, we will refrain from mentioning all missing model properties for which a classifier \textit{could} be built, and only focus on promising candidates.
 		\todo{Summarize goals for custom classifiers}
-		
+
 		\subsection{Bounds}
-			
+
 			When considering bounds, we differentiate between variables and constraint respectively.
-			
+
 			\subsubsection{Variable bounds}
-			
+
 				The classifier for variable bounds can be considered as a simple mapping from pairs of bounds to a unique class index.
 				More formally, given a list of all unique pairs of lower and upper bounds for variables $B = (b_1, b_2, \ldots, b_k)$, with $b_i \in \mathbb{Q} \times \mathbb{Q}$, we map each variable to the index of its bounds in $B$.
 				This mapping is trivially unique.
-				
+
 				Mapping the variables in the described way has the side-effect that $0 \leq x \leq 1$ and $y \in \{ 0, 1 \} $ are mapped to the same class.
 				This behavior is able to account for missing declarations of variables as binary in the input format read by \ac{GCG}.
 				The classification is wrong if $x$ is truly meant to be a continuous variable, but this is offset by the fact that \ac{GCG} already includes a classifiers based on \ac{SCIP} types, which will correctly classify both variables in this case.
-				
-				\todo{container loading example}
-				
+
+				Types of models where information about the variable bounds \textit{can} be leveraged include instances of e.g. Container Loading.
+				Here, variables $x, y, z \in \mathbb{R}$ encoding the positions of parcels to be loaded into a container are continuous. If the container is not a cube, i.e., it has a different length in each spacial dimension, then the variables have to have different bounds.
+
 			\subsubsection{Constraint bounds}
-			
+
 				A classifier for constraint bounds works in a similar manner as for variables.
 				By collecting all bounds and assigning a class to each constraint based on that list, we obtain a unique mapping.
 				Note that for inequalities the absolute value either of the two bounds will always be infinity. For equalities which were not replaced with equivalent inequalities, both bounds will be equal.
-				
+
+				In addition to a classifier based on the actual \textit{values} of the bounds, i.e., for values $a, b \in \mathbb{R}$ of a linear constraint $a \leq \sum a_i x_i \leq b$, we propose a classifier based on the \textit{sign} of  $a$ and $b$.
+				Here, the linear constraint is transformed to standard form to prevent a different classification for equivalent constraints in case the constraint is multiplied by $-1$.
+				Therefore, only four potential classes shown in Table \ref{table:tree:classifiers:bounds:exist} remain.
+				This classifier can be used for variables analogously.
+
+				\begin{table}[ht!]
+					\centering
+					\begin{tabular}{l|l|l|l}
+						\textbf{Class Nr.} & \textbf{Name} & \textbf{$sign(a)$} & \textbf{$sign(b)$} \\
+						\toprule
+						\toprule
+						1 & Positive & $+$ & $+$ \\
+						2 & Mixed &$+$ & $-$ \\
+						2 & Mixed & $-$ & $+$ \\
+						3 & Negative & $-$ & $-$ \\
+						4 & Zero $(a = b = 0)$ & $+/-$ & $+/-$
+					\end{tabular}
+					 \caption{The four classes of the sign-variant of the bounds classifier.}
+					 \label{table:tree:classifiers:bounds:exist}
+				\end{table}
+
 				\todo{cap. lot sizing example}
-				
+
 				\clearpage
-		
+
 		\subsection{Relaxed MIPLIB types}
-			
+
 				\begin{table}[ht!]
 				\centering
 				\begin{tabular}{l|l|l|l}
@@ -178,74 +200,74 @@
 				\caption{The structure of all constraint types which the \textit{relaxed} version of the MIPLIB classifier detects.}
 				\label{table:constypes:relaxed}
 			\end{table}
-			
-			In order to mitigate \textit{some} of the issues 
-			
+
+			In order to mitigate \textit{some} of the issues
+
 			Similar to the MIPLIB classifier, all types can be deduced from local information only. Thus, one pass over the constraint matrix is sufficient to classify all constraints according to Table \ref{table:constypes:relaxed}. \todo{WIP}
-			
+
 			\clearpage
-			
+
 		\subsection{Voting}
 		\label{chap:tree:classifiers:voting}
-		
+
 			As mentioned earlier, the motivating idea behind each individual classifier is to group constraints according to some property, while the type of this property can vary greatly between classifiers.
 			Under the assumptions that groups of constraints share at least \textit{some} of these properties and are thus assigned to the same classes, we can define a new type of classifier.
 			Note that this classifier can be equivalently conceptualized as an additional \textit{strategy}, which are the basic building blocks of the refinement algorithm and explained in Section \ref{chap:tree:strategies}.
 			This assumption is, at least on examples that can be observed in practice, a reasonable one.
-			
+
 			\subsubsection{Voting (unordered)}
-			
+
 				\begin{figure}[ht!]
 					\centering
 					\includegraphics[scale=1.05]{Bilder/DrawIO/strat_ordered_voting_pdf}
 					\caption{text}
 					\label{fig:tree:classifiers:ovoting}
 				\end{figure}
-			
+
 				In order to derive a simple and efficient algorithmic approach to this problem, we can make an additional assumptions not based on the model itself, but on its representation in common input formats like \lstinline|.lp| and \lstinline|.mps| files.
 				A lot of models are generated via. scripts and written to such files for portability and interoperability with other solvers.
 				One exploitable property which can be observed in a lot of models is, that groups constraints are usually \textit{added in bulk}.
 				This results in consecutive blocks of constraints which are semantically related, which is illustrated in the \enquote{Input} column of Figure \ref{fig:tree:classifiers:ovoting}.
 				If a class of constraints is split into two non-consecutive groups like the second partition from Figure \ref{fig:tree:classifiers:ovoting}, then we can deduce that they are meant to be two different groups.
-			
+
 			\subsubsection{Voting (unordered)}
 			\label{chap:tree:classifiers:cooccurence}
-			
+
 				If the read model does \textit{not} have the property of properly ordered constraint blocks, a more involved algorithmic approach can be used.
 				Here, the general problem can be reduced to group constraints with each other which are \textit{often} assigned to the same class. \todo{WIP}
-					
+
 				\clearpage
-		
+
 %	\section{Tree Refinement}
 %	% 4 Seiten
-%	
+%
 %		\begin{figure}[ht!]
 %			\centering
 %			\includesvg{Bilder/Hierarchy/hierarchy_binpack_NOP}
 %			\caption{Test}
 %			\label{fig:tree:binpackNOP}
 %		\end{figure}
-		
+
 	\section{Strategies}
 	\label{chap:tree:strategies}
-	
+
 		Strategies are \textit{the} central building block of the algorithm and are responsible for refining sets of constraints or variables.
 		Let $U$ be a the total set of constraints or variables.
 		Each strategy can be formalized as a function $f: S \rightarrow \Pi(S)$ which gets a single set $S \subseteq U$ as input and produces a partition $\pi \in \Pi(S)$ as output.
 		Conceptually, each strategy can be seen as a materialization of a specific splitter function as defined in Section \ref{chap:prelims:partitionref}.
-		
+
 		%In the following, we differentiate between re-callable and non re-callable strategies. The former type may be called more than once in any given sub-tree, as the result may depend on precise position of the node that is being expanded.
-	
+
 		\subsection{Slice (Partition)}
 		\label{chap:tree:strategies:slice:part}
-		
+
 			\begin{figure}[ht!]
 				\centering
 				\includegraphics[scale=1.2]{Bilder/DrawIO/strat_slicing_pdf}
 				\caption{A simplified illustration assuming that constraint in both partitions can be rearranged into continuous blocks, thus \enquote{slicing} the partitions into different-sized chunks. The output partition inherits all these slices.}
 				\label{fig:tree:strat:slice}
 			\end{figure}
-		
+
 			Slicing strategies are the most simple type of strategy.
 			Given two partition $\pi, \pi' \in \Pi(U)$, we define the \textit{combined partition} $\pi \sqcap \pi'$ as follows:
 			%
@@ -261,7 +283,7 @@
 			%
 			\begin{equation}
 			\label{eq:tree:strat:slice:function}
-				f(\pi_{splitter}, S) = \left\{ A_i \cap S \mid A_i \in \pi_{splitter} \right\} \setminus \emptyset
+				f_{\pi_{splitter}}(S) = \left\{ A_i \cap S \mid A_i \in \pi_{splitter} \right\} \setminus \emptyset
 			\end{equation}
 			%
 			Note that the operator $\sqcap$ is trivially associative, i.e., $(\pi \sqcap \pi') \sqcap \pi'' = \pi \sqcap (\pi' \sqcap \pi'')$:
@@ -272,9 +294,11 @@
 				&\iff \exists A \in \pi, B \in \pi', C \in \pi''&& : \; && X && ={} A \cap (B \cap C) \\
 				&\iff  X \in \pi \sqcap (\pi' \sqcap \pi'')
 			\end{alignat*}
-			
+
 			In conjunction with commutativity, this fact can be used to e.g. eliminate part of the search space by pruning duplicated nodes in the tree and only expanding one instance of any given sub-tree.
-		
+
+			A simple example where two successive applications of this slicing strategy can
+
 			\begin{algorithm}[ht!]
 				\centering
 				\begin{algorithmic}
@@ -295,22 +319,21 @@
 				\caption{If a lookup table represented by function $f$ is available, then Function \ref{eq:tree:strat:slice:function} can be implemented in O($|S|$).}
 				\label{algo:tree:strat:slice}
 			\end{algorithm}
-			\todo{Example}
-			
+
 			\FloatBarrier
 			\clearpage
-		
+
 		\subsection{Slice (Covering)}
-		
+
 			\begin{figure}[ht!]
 				\centering
 				\includesvg[scale=1.25]{Bilder/DrawIO/setcov}
 				\caption{Given $U = \{ 1, \ldots, 6 \}$, and $S = \{ \{ 1, 2, 3 \}, \{ 3, 4 \}, \{ 4, 5, 6 \} \} \subseteq 2^U$, with each $C \in S$ corresponding to one \textit{feature}.
 				Each element $x \in U$ is part of at least one set $C \in S$, thus possessing at least one feature.
-				This example can be encoded as a graph, where the right side \enquote{the features} are pre-partitioned into individual cells. By applying the standard partition refinement framework from Section \ref{chap:prelims:partitionref} with function \ref{eq:prelims:pref:exists}, we obtain a partition $\pi \in \Pi(U)$ in which the elements any given cell possess the same features.} 
+				This example can be encoded as a graph, where the right side \enquote{the features} are pre-partitioned into individual cells. By applying the standard partition refinement framework from Section \ref{chap:prelims:partitionref} with function \ref{eq:prelims:pref:exists}, we obtain a partition $\pi \in \Pi(U)$ in which the elements any given cell possess the same features.}
 				\label{fig:tree:strat:cov}
 			\end{figure}
-			
+
 			%Before we explain the \textit{covering} version of the previous strategy, Function \ref{eq:tree:strat:slice:function} can be seen as an instantiation f
 			Let $U$ be an arbitrary set. Then a covering can be defined as a set $S \subseteq 2^U$, where $S^U$ denotes the power set, such that:
 			%
@@ -319,20 +342,20 @@
 			\end{equation*}
 			%
 			The definition is equivalent to a set partitioning without the condition that sets of $S$ must be pairwise disjuct.
-			Each set $C \in S$ corresponds to one \textit{feature}, with the elements $x \in C$ considered to possessing said feature.			
+			Each set $C \in S$ corresponds to one \textit{feature}, with the elements $x \in C$ considered to possessing said feature.
 			The goal of the covering version of the slicing strategy is to partition the elements of a given set in such a way, that elements in the same cells all possess the same features.
 			In order to obtain such a partition from a set covering $S$, we can encode the underlying problem as a graph and use the standard partition refinement framework.
 			%The splitter-function that is being used here corresponds to Function \ref{eq:prelims:pref:exists}.
 			Afterwards, the resulting partition can be used to slice the given set as described in Section \ref{chap:tree:strategies:slice:part}.
-			
+
 			The strategy can be used to e.g. partition constraints according to the types of variables that they contain.
 			It is functionally equivalent to the refinement method \enquote{fast} from \cite{salvagninDetectingSemanticGroups2016}.
 			The name most likely stems from an algorithm informally described a fast algorithm based on bucket sort to implement such a partition refinement algorithm. \todo{Example}
-			
+
 			\clearpage
-		
+
 		\subsection{Recursive}
-		
+
 			\begin{figure}[ht!]
 				\centering
 				\includesvg[scale=1.25]{Bilder/DrawIO/strat_rec}
@@ -350,50 +373,50 @@
 				G = (V, E) = (X \cup C, \{ \{ x_i, c_j \} \mid x_i \in X, c_j \in C, a_{ij} \neq 0 \})
 			\end{equation*}
 			%
-			The size of the graph in terms of it's edges and vertices depends entirely to the underlying problem. 
+			The size of the graph in terms of it's edges and vertices depends entirely to the underlying problem.
 			A partition is obtained by running the algorithm with either Function \ref{eq:prelims:pref:count} or Function \ref{eq:prelims:pref:exists}.
 			Afterwards, the partition is used to slice a given set according to the method described in Section \ref{chap:tree:strategies:slice:part}.
 			Note that even thought the generated graph is always bi-partite, it does not necessarily fulfill the conditions mentioned in Section \ref{chap:prelims:partitionref} for the fast variant of the refinement algorithm, i.e., that all nodes on one of the two sides of the bi-partite graph are all in their own cell.
 			As a consequence, one full execution of the recursive strategy might take orders of magnitude longer than an execution of one of the two slice variants explained previously. \todo{"orders of magnitude" ein wenig übertrieben}
-			
+
 			\clearpage
-	
+
 	\section{Cutoff Conditions}
 	\label{chap:impl:cutoff}
-	
+
 		In order to limit the size of the tree and ensure that we only explore relevant parts of the search space, we propose several conditions the terminate the search early on.
 		The conditions can be divided into two groups:
-		
+
 		\begin{enumerate}
 			\item \textit{Local} Conditions, which can be evaluated by only considering information about one \textit{singular} node or its immediate predecessor.
 			\item \textit{Global} Conditions, whose evaluation requires information about e.g. the precise path to the node, i.e., its position in the tree and therefore information about its ancestors, \textit{or} requires knowledge about other nodes or completely distinct sub-trees.
 		\end{enumerate}
-		
+
 		Note that the following conditions are only \textit{correct} for the strategies presented in Section \ref{chap:tree:strategies}, which are all a specialized version of the partition slicing strategy.
 		In the following, let $T = \srt$ be a \ac{SRT}.
-		
+
 		\subsection{Local Conditions}
 		% 1 Seite
-		
+
 			With access only to local information, these conditions are restricted to the information about a single node $v_0 \in V$.
-			
+
 			\subsubsection{Refined Partition Size}
-			
+
 			Assuming a proper ground-truth is available or any heuristic information about the potential size $k \in \mathbb{N}$ of the target partition, many found nodes can be excluded from the scoring a-priori. \todo{WIP}
 			We can terminate search for the sub-tree rooted at $v_0$ if $| \mathrm{Cells}_{v_0} | \gg k$.
-			
+
 			\subsubsection{No Changes}
-			
+
 			As soon as the algorithm expands a set $S$ with a strategy, we get a partition $\pi \in \Pi(S)$ as a result.
 			If $S \in \pi$, this implies that $\pi = \{ S \}$ and the strategy did not refine $S$ any further and we can terminate the search for the current sub-tree.
-			
+
 		\subsection{Global Conditions}
 			% 1 Seite
-			
+
 			As mentioned before, global conditions are more flexible and allow for more involved logic to be executed.
-			
+
 			\subsubsection{Depth}
-			
+
 				Under the assumption that most of the \enquote{interesting} sets are found early on, it could be beneficial to abort the search for a sub-tree as soon as a certain depth has been reached.
 				The depth of a certain node $v \in V$ can be computed using a simple recursion to the root node:
 				\begin{equation*}
@@ -402,14 +425,14 @@
 						1 + \mathrm{Depth}(\mathrm{ParentNode}_v) & \mathrm{otherwise}
 					\end{cases}
 				\end{equation*}
-			
+
 			\subsubsection{Sub-Tree Duplication}
-			
+
 				If $v_0$ is expanded by the algorithm, then all cells of the node are expanded by all strategies that did not run previously.
-				
-			
+
+
 			\subsubsection{Most Optimistic Partition Size}
-			
+
 				Similar to the local condition terminating the search at a node $v \in V$ exceeding a certain number $k \in \mathbb{N}$ of cells, we can terminate the search as it becomes evident that the size of \textit{any} partition containing $v$ and is generated by function \ref{eq:tree:scoring:partcomp} will exceed $k$.
 				This \textit{Most optimistic partition size}, i.e., the size of the smallest partition that can be generated using $v$, can be computed as shown in Function \ref{eq:tree:cutoff:mos}.
 				%
@@ -423,12 +446,12 @@
 				%
 				Because all nodes in the \ac{SRT} are non-empty, it trivially holds that $\mathrm{MOS}(v) \geq \mathrm{MOS}(\mathrm{ParentNode}_v)$ for all $v \in V$.
 				As soon as $MOS(v) \gg k$, we can terminate the search as all partitions generated using at last one descendant of $v$ will exceed the threshold.
-				
+
 		\subsection{Side effects of global conditions}
-				
+
 			Conditions such as \textit{Depth} or \textit{Most Optimistic Partition Size} can have unintended side-effects in combination with other global conditions like \textit{Sub-Tree Duplication}.
-			
-			
+
+
 			\begin{figure}[ht!]
 				\centering
 				\includesvg[scale=0.5, inkscapelatex=false]{Bilder/Hierarchy/hierarchy_binpack_NOP}
@@ -436,16 +459,16 @@
 				\label{fig:tree:cutoff:mos}
 			\end{figure}
 			\todo{Falsches Bild}
-		
+
 	\clearpage
-	
+
 	\section{Scoring}
 	\label{chap:gcg:scoring}
 	% 1 Seite
-	
+
 		Up until this point we have only described how the algorithm refines sets based on different strategies, despite the goal being a list of promising partitions.
 		Before we describe how to select such partitions, we have to define how we actually \textit{get} a list of partitions from the refinement tree.
-		
+
 		Let $G = (V, R, E)$ the set refinement tree with vertex set $V$, designated root node $R \in V$ and edges $E \subseteq V \times V$. \\
 		Let $Recombine_k(U_1, U_2, \ldots, U_k): U_1 \times U_2 \times \ldots \times U_k \xrightarrow{} 2^{U_1 \cup U_2 \cup \ldots \cup U_k}, k \in \mathbb{N}$ be a Function defined as follows:
 		%
@@ -471,22 +494,48 @@
 		%
 		It is clear that setting $v = R$ gives the set of all possible partitions.
 		\todo{Add simple proof}
-		
+
 		One can deduce from the definition of Function \ref{eq:tree:scoring:partcomp} that the number of partitions depends on the depth and maximum out-degree of any given node of the tree.
 		Therefore, it will be of vital interest to only consider \enquote{interesting} sets.
 		Ideas and possible implementations are discusses in Chapter \ref{chap:impl}.
-		
+
 		\clearpage
-		
+
 		\subsubsection{Example}
-		
-			\todo{Image + Explanation}
-		
+
+			\begin{figure}[ht!]
+				\centering
+				\includesvg[scale=0.5, inkscapelatex=false]{Bilder/Hierarchy/scoring_example}
+				\caption{A sample \ac{SRT} with four nodes. Node 1 has one descendant, so the recursive function will generate multiple possible partitions because of that.}
+				\label{fig:tree:scoring:example}
+			\end{figure}
+
+			In order to illustrate the generation of partition from a given \ac{SRT}, we use the tree shown in Figure \ref{fig:tree:scoring:example} as an example.
+			In the following, we abbreviate a node \enquote{Node $i$} with $N_i$.
+			Applying the definition of Function \ref{eq:tree:scoring:partcomp} to the \ac{SRT}, we have start at the root node with identifier 0.
+			%
+			\begin{equation*}
+				Partitions(N_0) = {Recombine}_1
+			\end{equation*}
+			\todo{WIP}
+			%
+			Because the root node only consists of one cell, we just take the union of $Partitions(N_1)$ and $Partitions(N_3)$.
+			For the latter, we can compute the result easily, because $N_3$ is a leaf node. Thus, the set of all possible ways of generating partitions for cell 0 in this sub-tree consists of the single partition $\{ \{ 1, 3, 4 \} \}$
+			For $N_1$, we have to execute the recursion twice:
+
+			\begin{enumerate}
+				\item The first possibility to partition cell 0 is $\{ 1, 2 \}$.
+				\item In addition, we have another option to partition set $2$: $\{ 3, 4 \}$, which is possible because of Node 9.
+			\end{enumerate}
+
+			Thus, we can partition cell 0 in this sub-tree in two ways: $\{ \{ 1, 2 \}, \{ 1, 3, 4 \} \}$.
+			The union of the left and right sub-tree results in three possible ways to partition cell 0, finishing the partition generation phase.
+
 		\clearpage
-	
+
 		\subsection{Constraint Names}
 		\label{chap:tree:scoring:names}
-		
+
 			One important piece of information that usually reflects the modelers \textit{intent} when it comes to the semantic difference are the names of the constraints or variables, in the following abbreviated with just \enquote{names}.
 			As discusses in Section \ref{chap:gcg:classifiers:name}, names usually consist of multiple parts, with one part containing all the information related to \textit{semantics}.
 			Extracting this part of the name can be done heuristically using Algorithm \ref{algo:tree:scoring:nameheur}.
@@ -494,30 +543,30 @@
 			\begin{enumerate}
 				\item Remove \textit{modifies} which are usually enclosed in either brackets or some other special character combination which consists of an \textit{opening} and \textit{closing} character.
 				\item \enquote{Normalize} the string by replacing any non-alpha-numeric separators such as spaces, tabs, $\ldots$ with a single character $c$ such as \enquote{\_}.
-				\item Split the string according to $c$ and try to detect the part with the relevant semantics. 
+				\item Split the string according to $c$ and try to detect the part with the relevant semantics.
 				\item \textit{(Optional)} Remove any left-over non-alpha characters such as numbers.
 			\end{enumerate}
-			
+
 			Step 4 is explicitly marked as optional, because sometimes numbers are integral part of the name, sometimes they are not.
 			Both of these cases can actually be observed in the same model \footnote{StrIPlib UUID: d48c9568-e0ea-4c77-9a3b-b7f4dc530d5f}.
 			For this model in particular, the constraints \enquote{cut1} to \enquote{cut4} are of interest.
 			The constraints with the prefix \enquote{cut1} and \enquote{cut2} are structurally identical, i.e, the they all share the same number of non-zeros and the same type of variables, while \enquote{cut3} and \enquote{cut4} do not.
 			Here, \enquote{cut1} and \enquote{cut2} would have to belong to the same group, while \enquote{cut3} and \enquote{cut4} belong in a group their own.
 			With the heuristic as is, this case is not detected with or without step 4 because additional information about the actual structure of constraint is required.
-			
+
 			Note that the Algorithm makes some implicit key assumptions, such as:
 			\begin{itemize}
 				\item That the name actually carriers any semantically relevant information at all.
 				\item The names adhere to a \enquote{common} format, i.e., the modifier comes \textit{after} the semantics part. Here, constraint names such as \enquote{capacity\_bin\_k}, \enquote{out\_flow\_k} qualify, but the same names in reverse do not.
 			\end{itemize}
-			
+
 			These assumptions proved reasonable for almost all models observed in practice which had proper names available. Still, there cases where this approach fails \todo{Give MIPLIB examples}.
-		
+
 			\begin{algorithm}[ht!]
 				\centering
 				\begin{algorithmic}
 					\Require Name of a constraint
-					\Ensure Relevant semantics of the constraint name if the name adheres 
+					\Ensure Relevant semantics of the constraint name if the name adheres
 					\Statex
 					%
 					\Function{extractSemanticPart}{$name$}
@@ -527,7 +576,7 @@
 							\State ${name}_{old} \gets name$
 							\State $start \gets$ Position of opening character e.g. $\lbrack$, \{, (, $\ldots$
 							\State $end \gets$ Position of corresponding closing character e.g. $\rbrack$, \}, ), $\ldots$
-							\State ${name}_{new} \gets {name}_{old}$ without characters in range $[start, end]$ 
+							\State ${name}_{new} \gets {name}_{old}$ without characters in range $[start, end]$
 						\Until{${name}_{new} = {name}_{old}$}
 					\EndFunction
 				\end{algorithmic}
@@ -535,7 +584,7 @@
 				\label{algo:tree:scoring:nameheur}
 			\end{algorithm}
 			\todo{WIP}
-			
+
 			As soon as the semantic part of all names is extracted, constraints and variables can be grouped based on this information.
 			Possible post-processing steps might include an application of the mentioned Levenshtein-Distance from Chapter \ref{chap:gcg}.
 			Even thought the Algorithm has quadratic time complexity and is therefore unlikely to be used with the full set of original constraint or variable names, a reasonable assumption is that
@@ -546,55 +595,55 @@
 			%
 			Analogously, the assumption is made for variable names as well.
 			Thus, an Algorithm for the Levenshtein-Distance, even under worst-case considerations, might be applicable and thus resulting in a better partitioning.
-			
+
 			\clearpage
-			
+
 
 		\subsection{Ground Truth based}
 		\label{chap:tree:scoring:groundtruth}
 		% 1 Seite
-		
+
 			As discusses in the previous Sections, the algorithm starts with a set in which all constraints or variables are in the same cell.
 			In order to \textit{guide} the search towards a plausible semantic partitioning, the existence of a ground-truth partition which approximates the desired partition reasonably well can be used to terminate the search or select promising partitions after the search-space has been explored.
 			Terminating the search can, in practice, be very useful, because preventing the algorithm from expanding a node not only prevents unnecessary work being done for this particular node, but also prevents the generation of the entire sub-tree below; reducing the number of potential candidate partitions and overall runtime and space requirements of the algorithm.
-			
+
 			Potential sources for a suitable ground-truth partitions include
 			\begin{itemize}
-				\item Constraint names using the heuristic from Section \ref{chap:tree:scoring:names}. 
+				\item Constraint names using the heuristic from Section \ref{chap:tree:scoring:names}.
 				\item Variable information, i.e., given a ground-truth of semantic groupings of variables, one could obtain a corresponding ground-truth partition for constraints by assigning two constraints to different groups iff they contain different kinds of variables according to the ground-truth.
 			\end{itemize}
-			
+
 			Without the availability of a reasonably ground-truth, it is currently unclear how to know when to terminate the search and more importantly, what structured the desired target partitions should have.
 			Here, the term \enquote{structure} refers to all relevant properties of the target partition, including but not limited to, the number and size of the cells.
-			
+
 			Assuming a reasonable ground-truth has been obtained, a partition-comparing score such as the Rand-Index already discussed in Section \ref{chap:prelims:rand} can be used a number of promising candidates.
 			Furthermore, the refinement can be terminates for sets which are already \textit{homogeneous} according to the ground-truth partition.
 			The idea being is that by refining the set further we do not gain any new information.
-			\todo{completeness missing} 
-			
+			\todo{completeness missing}
+
 			\clearpage
-	
+
 		\subsection{Connected Components Score}
 		% 1 Seite
-	
+
 			The ground-truth based scoring from Section \ref{chap:tree:scoring:groundtruth} scores candidates based on a partition $\pi$, which is assumed to resemble a semantic grouping reasonable close to the real partitioning in order to \enquote{guide} the search and find promising candidates.
 			In case this assumption is not true, it can be expected that the selected partitions provide no useful information about the model.
-			
+
 			In the following, let $A \in \mathbb{Q}^{m \times n}$ be a constraint matrix, $G = (V, E)$ with $V = \{ 1, 2, \ldots, m \}$ and $E = \{ \{ u, v \} \in V \times V \mid \exists i: \; A_{ui} \neq 0 \land A_{vi} \neq 0 \}$ a graph with the constraints as its vertices.
 			There exists an edge between two constraints iff they share at least one variable with non-zero coefficient.
 			Furthermore, let $cc(v): V \xrightarrow{} 2^V$ be a function mapping every vertex to its connected component in $G$.
 			It is a well known result from graph-theory that every graph can be decomposed into its connected components, so the function is unique.
-			
-			In order to get to a score based on connected components, we define the relation $\sim_\pi = \{ (B_i, B_j) \in \pi \times \pi \mid (cc(B_i) \divides cc(B_j)) \lor (cc(B_j) \divides cc(B_i)) \}$, where $a \divides b$ with $a, b \in \mathbb{N}$ denotes the standard divisibility relation defined on natural numbers. 
+
+			In order to get to a score based on connected components, we define the relation $\sim_\pi = \{ (B_i, B_j) \in \pi \times \pi \mid (cc(B_i) \divides cc(B_j)) \lor (cc(B_j) \divides cc(B_i)) \}$, where $a \divides b$ with $a, b \in \mathbb{N}$ denotes the standard divisibility relation defined on natural numbers.
 			Given a partition $\pi = \{ B_1, B_2, \ldots, B_k \}$, we can compute a \enquote{connected components score} as follows:
 			%
 			\begin{equation*}
-				\mathrm{connectedScore}(\pi) = |\pi/\sim_\pi|				
+				\mathrm{connectedScore}(\pi) = |\pi/\sim_\pi|
 			\end{equation*}
 			%
 			The score corresponds to the amount of connected components of \enquote{different} sizes.
 			Here, two sizes $a, b \in \mathbb{N}$ are considered different, if $a$ is not divisible by $b$ \textit{and} vice-versa.
 			\todo{motivating example}
 			\todo{consequence}
-			
+
 			\clearpage
