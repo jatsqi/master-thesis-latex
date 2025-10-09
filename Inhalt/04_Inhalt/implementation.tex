@@ -87,13 +87,14 @@
 		\begin{itemize}
 			\item Basic \ac{CRUD} operations including adding, deleting and containment checks via. \lstinline[mathescape]|add($\cdot$)|, \lstinline[mathescape]|remove($\cdot$)| and \lstinline[mathescape]|contains($\cdot$)| respectively.
 			\item An operation to get, based on some cell or tree node object, the exact duplicate stored inside the data structure. As shown in Figure \ref{fig:impl:hashing:datastruct}, both data structures realize this via. \lstinline[mathescape]|getRepresentative($\cdot$)|
+			\item A function \lstinline[mathescape]|addIfMissing($\cdot$)| adding the tree node iff it doesn't exist already. These two actions are performed \textit{atomically}.
 		\end{itemize}
 
 		While precise implementation of the hash table is not of interest here, we assume that processing common queries should be done reasonably efficient.
 
 		\begin{figure}[ht!]
 			\centering
-			\includesvg[inkscapelatex=false]{Bilder/PlantUML/out/setindextable/setindextable}
+			\includesvg[inkscapelatex=false, scale=0.8]{Bilder/PlantUML/out/setindextable/setindextable}
 			\caption{text}
 			\label{fig:impl:hashing:datastruct}
 		\end{figure}
@@ -150,4 +151,57 @@
 			\item When no global cutoff conditions are being used, a node of the \ac{SRT} is expanded is always expanded in the same way regardless of its position in the tree.
 			\item The set $\mathrm{Cells}_v$ for all nodes only depends on the parent cell. \todo{Wording}
 		\end{enumerate}
+
+		Therefore, we can parallelized the algorithm rather easily by using a centralized queue which is explained in more detail in Section \ref{chap:impl:threading:queue}.
+		In general, a queue is a data-structure providing access to a set of mutable elements in first-in first-out order.
+		For the purposes of this Section, we require the existence of three methods for accessing the elements:
+
+		\begin{enumerate}
+			\item \lstinline[mathescape]|push($\cdot$)|, adding an element to the end of the queue.
+			\item \lstinline[mathescape]|pop($\cdot$)|, returning the last element of the queue and removing it.
+			\item \lstinline|size()|, returning the amount elements still remaining in the queue.
+		\end{enumerate}
+
+		The queue $Q = \{ q_1, q_2, \ldots, q_n \}, q_i \in V$ for a \ac{SRT} $T = \srt$ is initialized with $R$. Afterwards, a fixed amount of \textit{workers} is started that will perform the following steps until an \textit{termination signal} is received or no further progress can be made.
+		A high-level overview of the logic executed by a single worker is shown in Algorithm \ref{algo:impl:queue}.
+		An exact implementation for the termination signal is omitted, but a proposal can be found in Section \ref{chap:impl:threading:queue}.
+		Because of the multi-threaded nature of this approach, the queue and all auxiliary data-structures used \textit{must} provide appropriate synchronization to prevent race-conditions.
+
+		\begin{algorithm}[ht!]
+			\centering
+			\begin{algorithmic}
+				\Require An instance $treeNodeTable$ of the Tree Node Table from Figure \ref{fig:impl:hashing:datastruct}, a $queue$ shared among all workers, a list of $strategies$.
+				\Ensure None
+				\Statex
+				%
+				\Function{Worker}{treeNodeTable, queue, strategies}
+					\While{true}
+						\If{termination signal received}
+							\State \Return \Comment{Shutdown worker}
+						\EndIf
+						\State $q \gets \Call{Pop}{queue}$
+						\For{$cell \gets \mathrm{Cells}_q$}
+							\For{$f_{\mathrm{strat}} \in strategies$}
+								\State $refined \gets f_{\mathrm{strat}}(cell)$
+								\If{$refined$ violates a cutoff-condition}
+									\State \textbf{continue}
+								\EndIf
+								\State $treeNode \gets$ create new tree node for $refined$
+								\State $added \gets $ \Call{addIfMissing}{treeNodeTable, treeNode}
+								\If{$added$ is true} \Comment{Only add to queue if no duplicate}
+									\State \Call{Push}{queue, treeNode}
+								\EndIf
+							\EndFor
+						\EndFor
+					\EndWhile
+				\EndFunction
+			\end{algorithmic}
+			\caption{Algo}
+			\label{algo:impl:queue}
+		\end{algorithm}
+
+		\clearpage
+
+		\section{Queue}
+		\label{chap:impl:threading:queue}
 

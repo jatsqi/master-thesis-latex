@@ -20,6 +20,7 @@ class TreeNodeTable {
     +remove(x: TreeNode)
     +contains(x: TreeNode): boolean
     --
+    +addIfMissing(x: TreeNode): boolean
     +getRepresentative(x: TreeNode): TreeNode
 }
 
