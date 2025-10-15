@@ -158,7 +158,7 @@
 
 		\begin{enumerate}
 			\item \lstinline[mathescape]|push($\cdot$)|, adding an element to the end of the queue.
-			\item \lstinline[mathescape]|pop($\cdot$)|, returning the last element of the queue and removing it.
+			\item \lstinline[mathescape]|pop($\cdot$)|, returning the last element of the queue and removing it. If the queue is empty, this method should block execution of the calling thread until an element was added via. \lstinline[mathescape]|push($\cdot$)|.
 			\item \lstinline|size()|, returning the amount elements still remaining in the queue.
 		\end{enumerate}
 
@@ -205,3 +205,71 @@
 		\section{Queue}
 		\label{chap:impl:threading:queue}
 
+			In order to design a queue with the requirements mentioned in Section \ref{chap:impl:multi} that support access to its data from multiple threads, we use a \enquote{standard} queue and restrict access to it via. two synchronization primitives:
+
+			\begin{enumerate}
+				\item A \textit{mutex}, which is used to protect the queue itself from simultaneous access from different threads.
+				\item A so called \enquote{condition variable}, which allows threads to suspend and resume execution until some predicate or \textit{condition} on shared data is satisfied. Here, the shared data in question is the queue itself. The predicate evaluates to true iff the queue is non-empty, i.e., a calling thread is blocked until there is at least one element in the queue.
+			\end{enumerate}
+
+			For our proposed implementation, we will use two condition variables with two different predicates:
+
+			\begin{enumerate}
+				\item A variable \lstinline|queueNonEmptyCond|, which blocks workers until the queue is non-empty.
+				\item The variable \lstinline|workersWaitingCondVar|, which blocks workers until the queue \textit{is} empty and all workers are being blocked. This variable is being to wait until the correct moment to terminate the search as explained below.
+			\end{enumerate}
+
+			Algorithm \ref{algo:impl:queue} requires an addition mechanism which we integrate into the queue data structure itself: a way to send all workers a termination signal. We will only use the signal to notify all threads to shut down until all possible nodes have been expanded, that is, until all $k$ workers have called $\textproc{Pop}$ and were suspended because the queue is empty. If this condition is met, we add $k$ instances of a special element $\Omega$ to the queue, unblocking the workers. As soon as a worker pops an element from which corresponds to $\Omega$, it terminates.
+			These special elements are often referred to as \enquote{poison pills} and are used to communicate with workers without modifications to the interface of the data structure. \todo{cite}
+
+			\clearpage
+
+			\begin{algorithm}[ht!]
+				\centering
+				\begin{algorithmic}
+					\Function{push}{queue, element}
+						\State \Call{Lock}{mutex} \Comment{Protect queue}
+						\State \Call{Push}{queue, element}
+						\State \Call{Unlock}{mutex}
+						\State \Call{Notify}{queueNonEmptyCond} \Comment{Notify other threads that queue size changed}
+					\EndFunction
+				\end{algorithmic}
+				\caption{text}
+				\label{algo:impl:queue:sync:push}
+			\end{algorithm}
+
+			\begin{algorithm}[ht!]
+				\centering
+				\begin{algorithmic}
+					\Function{pop}{queue}
+						\State \Call{Lock}{mutex}
+						\Statex
+						\State $numWaiting \gets numWaiting + 1$
+						\State \Call{Notify}{workersWaitingCondVar}
+						\State \Call{WaitFor}{queueNonEmptyCond, mutex}
+						\State $numWaiting \gets numWaiting - 1$
+						\Statex
+						\State $element \gets \Call{Pop}{queue}$
+						\State \Call{Unlock}{mutex}
+						\State \Return $element$
+					\EndFunction
+				\end{algorithmic}
+				\caption{text}
+				\label{algo:impl:queue:sync:pop}
+			\end{algorithm}
+
+			\begin{algorithm}[ht!]
+			\centering
+			\begin{algorithmic}
+				\Function{injectPoison}{queue, numWorkers}
+					\State \Call{Lock}{mutex}
+					\State \Call{WaitFor}{workersWaitingCondVar, mutex}
+					\Repeat
+						\State \Call{Push}{queue, $\Omega$}
+					\Until $numWorkers$ element have been added
+					\State \Call{Unlock}{mutex}
+				\EndFunction
+			\end{algorithmic}
+			\caption{text}
+			\label{algo:impl:queue:sync:inject}
+			\end{algorithm}
