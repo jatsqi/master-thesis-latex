@@ -38,14 +38,21 @@
 		In the following, we will generalize this process by adopting a similar approach as the one shown in Chapter \ref{chap:gcg}.
 		Instead of choosing \textit{one} way of refining the constraints or variables based on an initial partition, we try different \textit{strategies} to explore a more broader search space.
 		Afterwards, the found partitions are scored using a family of scoring functions $g_i: \Pi(U) \rightarrow \mathbb{R}$ and the most promising ones are selected.
+		In addition to a scoring function, each score must provide an individual \textit{total order} on $\mathbb{R}$, to support scores for which higher values reflect better partitions and vice versa. The ordering ensures a well-defined meaning of \enquote{promising} for each score.
 		Note that the overall goal remains unchanged: Based on an initial partition, we aim to iteratively refine the cells in such a way, that ultimately the constraints or variables in each cell belong to the same semantic grouping as the modeler intended to.
 
 		In order to achieve this, we propose multiple \textit{strategies} which form the basic building blocks of the algorithm and are discussed in Section \ref{chap:tree:strategies}.
-		Each strategy takes a single cell $C_i$ as input and computes a partition $\pi_{C_i} \in \Pi(C_i)$ as output, thereby refining the cell.
+		Each strategy is defined by a function $f_{strat}: C_i \rightarrow \Pi(C_i)$ taking a single cell $C_i$ as input and computes a partition $\pi_{C_i} \in \Pi(C_i)$ as output, thereby refining the cell.
 		In the following, the process of refining a cell according to a certain strategy is sometimes referred to as \enquote{expanding a cell}.
 		The partitions of the cells are organized in a \acf{SRT} as shown in Figure \ref{fig:tree:motivation}, i.e., each node, with exception of the root node, corresponds to a possible partitioning of its parent cell, which was computed by a strategy.
 		The root node and its cells correspond to the initial partition and it is the \textit{only} node for which the union of its cells corresponds to the whole set of constraints or variables. The cells of all other nodes only partition its immediate parent cell in the tree.
 		This process implies that an additional post-processing step is required which translates the tree of cell-refinements to actual partitions. This step is discussed in Section \ref{chap:gcg:scoring}.
+
+		In order to use a unified notation in the following sections, we will define the \ac{SRT} and its associated information more formally.
+		A \ac{SRT} can be formalized as a tuple $T = (V, E, U, R, S)$ with universe $U$ corresponding to the set of all constraints or variables, designated root node $R \in V$ and set of strategies $S \subseteq \mathbb{N}$.
+		The tuple $(V, E)$ must induce an directed acyclic graph.
+		Each node $v \in V \setminus R$ of the tree is associated with a parent cell $ParentCell(v) \in 2^U$, parent node $ParentNode(v)$, a set of cells $Cells(v) \in \Pi(ParentCell(v))$ and the strategy $UsedStrategy(v)$ that was used to compute $v$ from its parent.
+		For the root node we require $Cells(R) \in \Pi(U)$, i.e., a valid partition of $U$ must be used to initialize the tree.
 
 		\begin{algorithm}
 			\centering
@@ -65,19 +72,12 @@
 							\EndFor
 						\EndFor
 					\EndWhile
-
 				\EndFunction
 			\end{algorithmic}
 			\caption{A high-level overview of the algorithm. All additional data structures, optimizations and handling of necessary metadata was omitted.}
 			\label{fig:tree:algo}
 		\end{algorithm}
 		\todo{WIP}
-
-		In order to use a unified notation in the following sections, we will define the \ac{SRT} and its associated information more formally.
-		A \ac{SRT} can be formalized as a tuple $T = (V, E, U, R, S)$ with universe $U$ corresponding to the set of all constraints or variables, designated root node $R \in V$ and set of strategies $S \subseteq \mathbb{N}$.
-		The tuple $(V, E)$ must induce an directed acyclic graph.
-		Each node $v \in V \setminus R$ of the tree is associated with a parent cell $\mathrm{ParentCell}_v \in 2^U$, parent node $\mathrm{ParentNode}_v$, a set of cells $\mathrm{Cells}_{v} \in \Pi(\mathrm{ParentCell}_v)$ and the strategy $\mathrm{Strategy}_v$ that was used to compute $v$ from its parent.
-		For the root node it holds that $\mathrm{Cells}_R \in \Pi(U)$.
 
 		\begin{figure}[ht!]
 			\centering
@@ -113,6 +113,7 @@
 		\end{enumerate}
 
 	\section{Classifiers}
+	\label{chap:tree:classifiers}
 	% 2 Seite
 
 		In the following Sections we describe different classifiers which are not yet implemented in \ac{GCG} but could potentially provide new information about the model.
@@ -234,7 +235,41 @@
 			\label{chap:tree:classifiers:cooccurence}
 
 				If the read model does \textit{not} have the property of properly ordered constraint blocks, a more involved algorithmic approach can be used.
-				Here, the general problem can be reduced to group constraints with each other which are \textit{often} assigned to the same class. \todo{WIP}
+				Here, the general problem can be reduced to group constraints with each other which are \textit{often} assigned to the same class.
+				Given a set of partitions $Q = \{ \pi_1, \pi_2, \ldots, \pi_k \}$, we can compute a matrix  $A = (n_{ij})_{1 \leq i, j \leq m}$ which contains the pair-wise occurrences of all elements with $m$ being the number of constraints in total.
+				Here, the set of partitions $Q$ might correspond to the found classifications in e.g. \ac{GCG}s classification stage.
+				Each entry $n_{ij}$ can be computed by using Equation \ref{eq:tree:classifiers:cooccurence}.
+				%
+				\begin{equation}
+				\label{eq:tree:classifiers:cooccurence}
+					n_{ij} = | \{ x \mid \forall \pi \in Q, i \in \pi, \forall x \in \pi \} |
+				\end{equation}
+				%
+				If all entries are computed the matrix requires $O(m^2)$ space in memory, which is not feasible for large models. A simple method to reduce the memory requirements of $A$ is the concept of a \textit{sparse matrix}, i.e., only those $n_{ij} \neq 0$ are actually held in memory.
+
+				For set of partitions in which the individual cells do not \enquote{agree} with each other, i.e., it holds that $n_{ij} \geq 0$ for almost all pairs, we propose a heuristically approach based on min-heaps.
+				A min-heap is a tree-like data-structure always maintaining the invariant that the key associated with a node $P$ is less than or equal to the keys associated with all nodes that are children of $P$.
+				We associate one min-heap with each constraint of maximum size $a \leq m$.
+
+				\begin{algorithm}[ht!]
+					\centering
+					\begin{algorithmic}
+						\Require Set of partitions $Q = \{ \pi_1, \pi_2, \ldots, \pi_k \}$
+						\Statex
+						\Function{VotingUnordered}{Q}
+							\State $heaps \gets m$ min-heaps
+							\For{$\pi \in Q$}
+								\For{$x, y \in \pi$}
+									\State \Call{PushPair}{heaps[x], }
+								\EndFor
+							\EndFor
+						\EndFunction
+					\end{algorithmic}
+					\caption{a}
+					\label{algo:tree:classifiers:cooccurence}
+				\end{algorithm}
+
+				An additional pre-processing step can be done by e.g. filtering out cells of partitions whose entropy is below a certain threshold or not removing trivial partitions before computing $A$.
 
 				\clearpage
 
@@ -403,7 +438,8 @@
 			\subsubsection{Refined Partition Size}
 
 			Assuming a proper ground-truth is available or any heuristic information about the potential size $k \in \mathbb{N}$ of the target partition, many found nodes can be excluded from the scoring a-priori. \todo{WIP}
-			We can terminate search for the sub-tree rooted at $v_0$ if $| \mathrm{Cells}_{v_0} | \gg k$.
+			We can terminate the search for any sub-tree rooted at $v_0$ if $| \mathrm{Cells}_{v_0} | \gg k$.
+			Here, the motivation is that in any partition $\pi$ computed in the post-processing in which $v_0$ is participating, $|\pi| \gg k$ holds.
 
 			\subsubsection{No Changes}
 
@@ -415,21 +451,19 @@
 
 			As mentioned before, global conditions are more flexible and allow for more involved logic to be executed.
 
-			\subsubsection{Depth}
-
-				Under the assumption that most of the \enquote{interesting} sets are found early on, it could be beneficial to abort the search for a sub-tree as soon as a certain depth has been reached.
-				The depth of a certain node $v \in V$ can be computed using a simple recursion to the root node:
-				\begin{equation*}
-					\mathrm{Depth}(v) = \begin{cases}
-						0 & \text{if} \; v = R \\
-						1 + \mathrm{Depth}(\mathrm{ParentNode}_v) & \mathrm{otherwise}
-					\end{cases}
-				\end{equation*}
-
 			\subsubsection{Sub-Tree Duplication}
 
-				If $v_0$ is expanded by the algorithm, then all cells of the node are expanded by all strategies that did not run previously.
+				\begin{figure}[ht!]
+					\centering
+					\includesvg[scale=0.7]{Bilder/DrawIO/subtree_virtual_ref}
+					\caption{Node B is a duplicate of Node E, but the latter was added to the tree before Node B. Thus, as soon as Node B is created this duplication is detected and is never added to the tree. Because this is just an optimization to improve runtime, we have to act \textit{as if} Node B was expanded. Thus, a dummy node is created which \textit{refers} to Node E to keep e.g. the scoring system functional.}
+					\label{fig:tree:cutoff:subtree}
+				\end{figure}
 
+				If $v_0$ is expanded by the algorithm, then all cells of the node are expanded in the same way by all strategies that did not run previously.
+				The expansion of a cell by a certain strategy usually results in a new tree node, which is in turn expanded during a future iteration of the algorithm.
+				If a new node that is about to be added already exists somewhere else in the tree, i.e., there is a already an equivalent tree node present, the expansion can stop at that point, since it would lead to the same subtree structure and therefore redundant computation.
+				Here, two tree nodes are considered \enquote{equivalent} if they consist of the same cells, i.e., $v_i = v_j \iff \mathrm{Cells}_{v_i} = \mathrm{Cells}_{v_j}$. An example of this condition is illustrated in Figure \ref{fig:tree:cutoff:subtree}.
 
 			\subsubsection{Most Optimistic Partition Size}
 
@@ -447,9 +481,23 @@
 				Because all nodes in the \ac{SRT} are non-empty, it trivially holds that $\mathrm{MOS}(v) \geq \mathrm{MOS}(\mathrm{ParentNode}_v)$ for all $v \in V$.
 				As soon as $MOS(v) \gg k$, we can terminate the search as all partitions generated using at last one descendant of $v$ will exceed the threshold.
 
-		\subsection{Side effects of global conditions}
+		\subsubsection{Depth}
 
-			Conditions such as \textit{Depth} or \textit{Most Optimistic Partition Size} can have unintended side-effects in combination with other global conditions like \textit{Sub-Tree Duplication}.
+			Under the assumption that most of the \enquote{interesting} sets are found early, it could be beneficial to abort the search for a sub-tree as soon as a certain depth has been reached.
+			The depth of a certain node $v \in V$ can be computed using a simple recursion to the root node:
+
+			\begin{equation*}
+				\mathrm{Depth}(v) = \begin{cases}
+					0 & \text{if} \; v = R \\
+					1 + \mathrm{Depth}(\mathrm{ParentNode}_v) & \mathrm{otherwise}
+				\end{cases}
+			\end{equation*}
+
+			This condition should be used with care, as more complex models will most likely require multiple iterations of the algorithm until the \ac{SRT} has been enriched with enough information to reverse-engineer the original formulation.
+
+			\clearpage
+
+		\subsubsection{Side effects of global conditions}
 
 			\begin{figure}[ht!]
 				\centering
@@ -457,6 +505,7 @@
 					\vspace{0pt}
 					\includesvg[scale=0.65, inkscapelatex=false]{Bilder/DrawIO/side_effects_left}
 					\caption{a}
+					\label{fig:tree:cutoff:sideeffect:a}
 				\end{minipage}
 				%
 				\begin{minipage}[t]{0.45\textwidth}
@@ -464,11 +513,21 @@
 					\includesvg[scale=0.65, inkscapelatex=false]{Bilder/DrawIO/side_effects_right}
 					\vfill
 					\caption{a}
+					\label{fig:tree:cutoff:sideeffect:b}
 				\end{minipage}
 				\caption{text}
 				\label{fig:tree:cutoff:mos}
 			\end{figure}
 			\todo{Falsches Bild}
+
+			Conditions such as \textit{Depth} or \textit{Most Optimistic Partition Size} can have unintended side-effects in combination with other global conditions like \textit{Sub-Tree Duplication}.
+			As shown in Figures \ref{fig:tree:cutoff:sideeffect:a} and \ref{fig:tree:cutoff:sideeffect:b} with identical Nodes B and D, the \ac{SRT} can have a different structure depending on the \textit{order} of node expansion. In the visualizations, nodes were expanded in the order of numbers shown in small circles attached to the nodes. During expansion, the only active cutoff-cconditions were the aforementioned \textit{Sub-Tree Duplication} and \textit{Depth}, which cut off all nodes below or at a depth of 3.
+
+			In Figure \ref{fig:tree:cutoff:sideeffect:a}, Node B was added to the tree before Node D, thus cutting off the tree after the latter.
+			The sub-tree rooted at Node B was expanded further, until the \textit{Depth}-condition became active.
+			In Figure \ref{fig:tree:cutoff:sideeffect:b}, the exact opposite happened. Node D was expanded before Node B, which resulted in the creation of Node C before a sufficient cutoff depth has been reached.
+
+			In the case of \textit{Sub-Tree Duplication} and \textit{Depth}, expanding the tree in breath-first order solves the described problem, but side-effects with other conditions are still possible. Thus, depending on the precise set of implemented conditions, one has to evaluate possible side-effects.
 
 	\clearpage
 
@@ -642,7 +701,7 @@
 			In the following, let $A \in \mathbb{Q}^{m \times n}$ be a constraint matrix, $G = (V, E)$ with $V = \{ 1, 2, \ldots, m \}$ and $E = \{ \{ u, v \} \in V \times V \mid \exists i: \; A_{ui} \neq 0 \land A_{vi} \neq 0 \}$ a graph with the constraints as its vertices.
 			There exists an edge between two constraints iff they share at least one variable with non-zero coefficient.
 			Furthermore, let $cc(v): V \xrightarrow{} 2^V$ be a function mapping every vertex to its connected component in $G$.
-			It is a well known result from graph-theory that every graph can be decomposed into its connected components, so the function is unique.
+			It is a well known result from graph-theory that every graph can be decomposed into its connected components, so the function is unique. \todo{cite}
 
 			In order to get to a score based on connected components, we define the relation $\sim_\pi = \{ (B_i, B_j) \in \pi \times \pi \mid (cc(B_i) \divides cc(B_j)) \lor (cc(B_j) \divides cc(B_i)) \}$, where $a \divides b$ with $a, b \in \mathbb{N}$ denotes the standard divisibility relation defined on natural numbers.
 			Given a partition $\pi = \{ B_1, B_2, \ldots, B_k \}$, we can compute a \enquote{connected components score} as follows:

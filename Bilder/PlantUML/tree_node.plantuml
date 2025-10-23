@@ -1,0 +1,18 @@
+@startuml
+skinparam defaultFontName Times New Roman
+left to right direction
+
+struct TreeNode {
+    +id: Int
+    +parent: TreeNode
+    +refersTo: TreeNode
+    +alreadyExpanded: Boolean
+    ---
+    +cells: List of Ids of Sets
+    +childrenForEachCell: List of List of TreeNode
+    ---
+    +depth: Int
+    +history: List of Ids of Strategies
+}
+
+@enduml

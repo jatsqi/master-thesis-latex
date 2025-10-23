@@ -2,20 +2,25 @@
 \label{chap:impl}
 % 0.5 Seiten
 
-	Building upon the algorithmic descriptions of Chapter \ref{chap:tree}, we want to discuss how such an algorithm can be efficiently implemented and practice and how the component is integrated into \ac{GCG} as a detector.
+	Building upon the algorithmic descriptions of Chapter \ref{chap:tree}, we want to discuss how such an algorithm can be efficiently implemented and practice and how the component is integrated into \ac{GCG} as a detector. In the actual code, all shown algorithms and data structures were implemented and tested in \lstinline|C++|.
 	The Chapter is divided into multiple sections, each describing a different aspect of the implementation:
 
 	\begin{enumerate}
 		\item Section \ref{chap:impl:architecture} contains a high-level overview about the architecture of the detector and its relation with other components in \ac{GCG}.
 		\item In Sections \ref{chap:impl:architecture} - \ref{chap:impl:hashing}, we will give a brief overview about a few custom data structures required to implement the refinement more efficiently and how the tree is represented in memory.
-		\item Sections \ref{chap:impl:cutoff} and \ref{chap:impl:multi} conclude the Chapter with two practical considerations:
-		\begin{itemize}
-			\item Is it possible to reduce to the number of candidate partitions before scoring?
-			\item For larger and more complicated models, can we ensure a reasonable runtime?
-		\end{itemize}
+		\item Sections \ref{chap:impl:multi} and \ref{chap:impl:threading:queue} conclude this Chapter with an extension to the algorithm to improve the overall runtime on modern hardware.
 	\end{enumerate}
 
+	We only discuss the most noteworthy aspects of the implementation, thus excluding the following components:
+
+	\begin{itemize}
+		\item All classifiers as described in Section \ref{chap:tree:classifiers}.
+		\item \enquote{Glue code} putting together all individual pieces of the implementation which are discussed in the following sections, i.e., the actual code and logic that combines the parts to one coherent algorithm.
+		\item Concrete pieces of \lstinline|C++|, as we do not require the reader to know this particular programming language on a sufficient level.
+	\end{itemize}
+
 	This Chapter does not include actual numbers concerning space and runtime, we only look at the underlying concepts which are widely used in other algorithms to achieve e.g. a better practical runtime.
+
 
 	\clearpage
 
@@ -50,23 +55,40 @@
 		Furthermore, relying on custom data structures increases control about runtime and space considerations. \todo{Wording}
 		This decoupling is being realized by an \textit{Adapter}, as shown in Figure \ref{fig:impl:arch:overview}, which translates between the two \enquote{worlds} of data-structures and ensures compatibility.
 
-	\section{Metadata}
-	\label{chap:impl:meta}
-	% 1 Seite
-
 	\section{Data Structures}
 	\label{chap:impl:structures}
 	% 2 Seiten
 
-		The implementation of the central tree refinement algorithm uses the following components:
+		The implementation of the central tree refinement algorithm uses the following core components:
 
 		\begin{itemize}
-			\item \textit{Strategies}: As explained in Section \ref{chap:tree:strategies}, strategies are responsible for refining cells. Each strategy is implemented as a separate data-structure which share a common interface.
-			\item \textit{Rules}: A rule is responsible for deciding whether a certain strategy \textit{is allowed} to expand a node. Rules can be used to implement local cutoff-conditions such as \textit{Depth} or limit the set of applicable strategies dynamically.
-			\item \textit{Scores}: As the name implies, scores are responsible for assigning each found candidate partition a numeric value.
+			\item \textit{Strategies}: As explained in Section \ref{chap:tree:strategies}, strategies are responsible for refining cells. Each strategy is implemented as a separate data-structure which share a common interface. Each strategy is uniquely identified by its name and splitter-function $f_{strat}: U \rightarrow \Pi(U)$.
+			\item \textit{Rules}: A rule is responsible for deciding whether a certain strategy \textit{is allowed} to expand a \ac{SRT} node. Rules \textit{can} be used to implement local cutoff-conditions such as \textit{Depth} or limit the set of applicable strategies dynamically. Conceptually, they can be seen as a predicate taking a node and strategy as input. In contrast to strategies and scores, rules are purely an implementation detail and are not required for a functioning algorithm, as cutoff-conditions might be implemented in a less dynamic way.
+			\item \textit{Scores}: As the name implies, scores are responsible for assigning each found candidate partition a numeric value. In addition to that, each scores defines a total order on the numeric values, i.e., for some scores higher values correspond to \enquote{better} partitions, while for others it might be the opposite. Similar to strategies, a score is uniquely defined by its name. Each score provides a function $g: \pi \mapsto \mathbb{R}$, mapping a partition to a number, and an order on these values.
+			\item \textit{Auxiliary data structures}, such as a thread-safe queue, an efficient hash-table for representing partitions in-memory and the representation of a single tree node of an \ac{SRT}.
 		\end{itemize}
 
-		The modular structure of the algorithm proved very flexible in terms of testing different approaches.
+		\subsubsection{Representing a Tree Node}
+
+			\begin{figure}[ht!]
+				\centering
+				\includesvg[scale=0.75, inkscapelatex=false]{Bilder/PlantUML/out/tree_node/tree_node}
+				\caption{a}
+				\label{fig:impl:structures:node}
+			\end{figure}
+
+			One of the \textit{central} data structure is the \ac{SRT}, for which a shortened version is shown in Figure \ref{fig:impl:structures:node}.
+			To simplify data access to all information about a singular node, we store all data in one centralized object. This allows other parts of the algorithm to access all necessary data related to a node at once, which consists of the following properties:
+
+			\begin{itemize}
+				\item Basic information identifying a node, such as its \textit{id}.
+				\item The \textit{parent} node, including a copy of the \textit{history} of all strategies that were applied before.
+				\item The \textit{cells} the node consist of including all \textit{children} that were created after expansion of each cell.
+				\item Information about the nodes \textit{depth} in the tree and a pointer to a different tree node to support certain cutoff-conditions such as \textit{Subtree Duplication} more easily (see Figure \ref{fig:tree:cutoff:subtree}).
+			\end{itemize}
+
+			The tree can be accessed through a reference to the root node $R$ of the \ac{SRT}.
+			Properties like \textit{cells} and their efficient storage will be of vital interested in Section \ref{chap:impl:hashing}.
 
 		\clearpage
 
@@ -85,9 +107,9 @@
 		Both data structures require the following basic operations:
 
 		\begin{itemize}
-			\item Basic \ac{CRUD} operations including adding, deleting and containment checks via. \lstinline[mathescape]|add($\cdot$)|, \lstinline[mathescape]|remove($\cdot$)| and \lstinline[mathescape]|contains($\cdot$)| respectively.
+			\item Basic operations including adding, deleting and containment checks via. \lstinline[mathescape]|add($\cdot$)|, \lstinline[mathescape]|remove($\cdot$)| and \lstinline[mathescape]|contains($\cdot$)| respectively.
 			\item An operation to get, based on some cell or tree node object, the exact duplicate stored inside the data structure. As shown in Figure \ref{fig:impl:hashing:datastruct}, both data structures realize this via. \lstinline[mathescape]|getRepresentative($\cdot$)|
-			\item A function \lstinline[mathescape]|addIfMissing($\cdot$)| adding the tree node iff it doesn't exist already. These two actions are performed \textit{atomically}.
+			\item A function \lstinline[mathescape]|addIfMissing($\cdot$)| adding the tree node iff it doesn't exist already. These two actions are performed \textit{atomically}, i.e., to an outside observer the method behaves as if it executes both operations at once.
 		\end{itemize}
 
 		While precise implementation of the hash table is not of interest here, we assume that processing common queries should be done reasonably efficient.
@@ -101,8 +123,6 @@
 
 		In the following, we will propose two ways of implementing appropriate hashing functions to realize such data structures.
 		With these, we can reduce memory consumption \textit{and} implement the sub-tree duplication mechanism mentioned in Section \ref{chap:impl:cutoff} efficiently.
-
-		\clearpage
 
 		\subsubsection{Hashing for single cells}
 
@@ -182,6 +202,9 @@
 						\State $q \gets \Call{Pop}{queue}$
 						\For{$cell \gets \mathrm{Cells}_q$}
 							\For{$f_{\mathrm{strat}} \in strategies$}
+								\If{the pair $(q, strat)$ is forbidden by some rule}
+									\State \textbf{continue}
+								\EndIf
 								\State $refined \gets f_{\mathrm{strat}}(cell)$
 								\If{$refined$ violates a cutoff-condition}
 									\State \textbf{continue}
@@ -205,7 +228,7 @@
 		\section{Queue}
 		\label{chap:impl:threading:queue}
 
-			In order to design a queue with the requirements mentioned in Section \ref{chap:impl:multi} that support access to its data from multiple threads, we use a \enquote{standard} queue and restrict access to it via. two synchronization primitives:
+			In order to design a queue with the requirements mentioned in Section \ref{chap:impl:multi} that support access to its data from multiple threads, we use a \enquote{standard} queue and restrict access to it via. two synchronization primitives which are explained in more detail in Section \ref{chap:prelims:par}:
 
 			\begin{enumerate}
 				\item A \textit{mutex}, which is used to protect the queue itself from simultaneous access from different threads.
