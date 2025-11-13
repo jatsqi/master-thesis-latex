@@ -1,4 +1,5 @@
 \chapter{Preliminaries}
+\label{chap:prelims}
 % 0.5 Seiten
 
 	In this chapter, we provide sufficient background needed to understand the algorithmic details and ideas discussed in Chapter \ref{chap:tree}.
@@ -204,7 +205,7 @@
 
 		\textit{Bi-partite} graphs are a special kind of graph class, where the set $V$ can be represented with two sets $L, R \subseteq V$ such that $L \cap R = \emptyset$ and $E \subseteq \{ (u, v) \mid u \in L, v \in R \}$.
 		More informally, the vertex $V$ can be split into two disjoint subsets $L, R \subseteq V$ such that no edges exists between vertices in each corresponding set.
-		Bi-partite graphs are especially interesting, because the relationship between variables and the constraints they participate in can be encoded as such a graph as shown in Figure \ref{fig:prelims:graphs:binpackbipartite}. This concept will be used in Chapter \ref{chap:gcg} to algorithmically detect various underlying structures. \todo{Wording}
+		Bi-partite graphs are especially interesting, because the constraint matrix $A \in \mathbb{Q}^{n \times m}$ can be encoded as a bi-partite graph $\mathcal{G}_A = (V, E)$ with $E = \{ \{ var, cons \} \mid var \in \mathrm{rows} \; A, cons \in \mathrm{cols} \; A \}$ and one node for each variable/constraint as shown in Figure \ref{fig:prelims:graphs:binpackbipartite}.
 	%
 	%	A graph is called a \textit{tree} iff all unordered pairs of vertices $\{ u, v \} \in V \times V$ by \textit{at most} one path in the underlying un-directed graph.
 	%

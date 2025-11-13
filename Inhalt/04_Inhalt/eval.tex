@@ -1,9 +1,10 @@
 \chapter{Evaluation}
+\label{chap:eval}
 % 0.5 Seiten
 
 	\section{Setup}
 	% 0.5 Seiten
-	
+
 		\begin{table}[ht!]
 			\centering
 			\begin{tabular}{l|l|l}
@@ -16,30 +17,29 @@
 			\caption{Consumer-grade components used to run all experiments.}
 			\label{table:eval:setup}
 		\end{table}
-		
+
 		All experiences were run on a system with components as specified in Table \ref{table:eval:setup}.
-		
+
 		\clearpage
-		
+
 
 	\section{StrIPlib}
-	
+
 		\begin{figure}[ht!]
 			\centering
 			\includesvg[scale=0.6]{Bilder/slib_stats.svg}
 			\caption{The distribution of different categories of model within \acs{strIPlib}. Most problems are part of \enquote{common} categories like Bin-Packing, Scheduling and Routing. The category \enquote{Others} includes e.g. Fantasy Football, Train Scheduling and different types for which only a small number of model files are available.}
 			\label{fig:eval:striplib}
 		\end{figure}
-	
+
 		The \acf{strIPlib} is a collection of over 21000 mixed-integer programs with an exploitable structure such as Block-Diagonal and Staircase \todo{ref}.
 		All instances are assign to exactly one of the 33 main categories as highlighted in Figure \ref{fig:eval:striplib}.
 		Each categories is further sub-divided into a number of smaller sub-categories, because each kind of problem can be modeled (e.g. three-index vs. four-index) \textit{or} decomposed in a variety of different ways.
-		
+
 		The number of available instances per category ranges from as low as $2$ for Binary/Ternary Code Construction and up to $\approx 4700$ for Container Loading, which makes the data-set in-balanced with respect to available models per main category. This is only of theoretical concern and is further discussed in section \todo{ref}.
 		Furthermore, the largest four categories account for $\approx 80\%$ of the total instance count with the remaining $20\%$ distributed across 29 categories.
 		One singular category \enquote{Haplotype Inference} with 40 instances is excluded from all tests, because the problem files are not readable by either \acs{GCG} or \acs{SCIP}. This behavior can be traced back to the used variable names in these models, which all contain the special character \enquote{\^}.
 		\todo{Models ohne Namen noch ergänzen (Problembeschreibung)}
-	
+
 	\section{Stuff}
 	% 10 Seiten
-	

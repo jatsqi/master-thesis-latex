@@ -13,7 +13,7 @@
 	Readers already experienced with GCG and its capabilities may still find some details and observations interesting.
 	For a given problem, \acs{GCG} is able to perform an automatic Dantzig-Wolfe reformulation which is then solved using a branch-price-and-cut algorithm.
 	Alternatively, \ac{GCG} support a special \textit{Benders-Mode} which reformulated the problem using Benders decomposition.
-	
+
 	In contrast to other open-source solvers like \acfreverse{BaPCod} \cite{sadykovBaPCodGenericBranchandprice2021} or commercial software such as \textit{SAS} \cite{SASDataAI} which rely solely on user-provided decompositions, \ac{GCG} is able to automatically detect different kinds of structures algorithmically, including but not limited to
 	\begin{itemize}
 		\item Single-Bordered structures
@@ -21,25 +21,25 @@
 		\item Staircase structures
 	\end{itemize}
 	\todo{Entfernen und auf Kapitel vorher ref}
-	
+
 	The solving process in divided into multiple consecutive stages as shown in Figure \ref{fig:gcg:overview}. Each stage will be explained in more detail in the following section as needed.
 	The detection in particular aims to make \ac{GCG} more accessible to a wider range of users which do not necessarily have the required theoretical background and practical experience to reformulate linear programs on their own.
 	For more details about individual features and capabilities, we refer to the official documentation \cite{GCG}. \todo{Kurz die 4 Schritte aus Bild erwähnen und einen Satz}
 
 	\section{Detection}
 	% 2 Seiten, Detection Loop etc.
-	
+
 		\begin{figure}[ht!]
 			\centering
 			\includesvg[scale=0.7]{Bilder/DrawIO/detection_loop}
 			\caption{A simplified overview of the detection process and its detection loop.}
 			\label{fig:gcg:detectionloop}
 		\end{figure}
-	
+
 		As mentioned in the introduction to this chapter, one integral part and distinguishing feature of \ac{GCG} is its detection framework.
 		A simplified overview of the detection currently \footnote{\ac{GCG} version 3.5, as of 2025-07-18.} implemented in \ac{GCG} is shown in Figure \ref{fig:gcg:detectionloop}. For a more detailed visualization including additional information about how pre-solving is handled we refer to the official documentation \cite{GCG}.
 		The framework consists of two major parts:
-		
+
 		\begin{enumerate}
 			\item A \textbf{classification} step, in which a set of classifiers is partitioning the constraints (and variables) according to a certain property, producing one partition each.
 			The goal of this step is to detect different underlying structures of the constraint matrix, which can be used during the detection loop to make more informed decisions about which constraints to assign to which block or master.
@@ -48,25 +48,25 @@
 			In round $n+1$ a detector receives a \textit{partial} decomposition, that is, a decomposition in which \textit{not all} constraints are assigned yet, from round $n$ as input and pushes a set of newly created (partial) decompositions to a queue.
 			In case the user did not provide a partial decomposition as input in round $0$, the loop is initialized with a decomposition in which no constraint is assigned yet.
 		\end{enumerate}
-	
+
 		\begin{figure}[ht!]
 			\centering
 			\includegraphics{Bilder/DrawIO/partialdec_tree_pdf}
 			\caption{Visualization of the induced tree of propagated partial decompositions.}
 			\label{fig:gcg:partialdettree}
 		\end{figure}
-		
+
 		The concept of detecting structures in different rounds is visualized in Figure \ref{fig:gcg:partialdettree}.
 		Starting from a root decomposition in which all constraints are still unassigned or \enquote{open}, different detectors produce a set of new partial decomposition.
 		Depending on the configuration, a detector is not allowed to work on a certain partial decomposition or its decedents twice.
 		A very simple but concrete example of how such a tree might look like in practice can be found in Section \ref{chap:gcg:example}.
-		
+
 		Furthermore, if no detector found any new decomposition in round $k$, or $k$ exceed the maximum number of rounds, the detection loop is stopped and all complete decomposition are collected, scored and exactly one is chosen for which the solving is started. \todo{Grammatik, Wortwahl}
 		The scoring and selection stage is of particular interest in practice, because the tree in Figure \ref{fig:gcg:partialdettree} might grow beyond thousand of decompositions, of which the best in terms of solving time or a different metric must be selected.
 		Because the scoring of decompositions is not of major interest for \textit{this} thesis, we refer to the official documentation for details \cite{GCG}.
-	
+
 	\clearpage
-	
+
 	\section{Classifiers}
 	\label{chap:gcg:classifiers}
 		% 1 Seite, Var Classifiers
@@ -76,27 +76,27 @@
 		Given a set of constraints $C = \{ c_1, c_2, \ldots, c_m \}$, classifiers can be seen as a \textit{injective} function $f: C \mapsto \mathbb{Z}$, i.e., a function that assigns each constraint to exactly one number or \textit{class}.
 		Note that in \acs{GCG}, classifiers are allowed to only classify a subset $C' \subseteq C$, leaving $C \setminus C'$ unassigned to any class \footnote{When using \ac{GCG} as a library, this can be checked via. \lstinline|IndexPartition::isIndexClassified|.}.
 		In the current version of \ac{GCG}, however, all classifiers always assign every constraint to some class.
-		
-		Furthermore, each classifier is identified with an unique \textit{name} and an integral priority, influencing the order in which the classifiers are being executed by the framework. 
-		
+
+		Furthermore, each classifier is identified with an unique \textit{name} and an integral priority, influencing the order in which the classifiers are being executed by the framework.
+
 		\subsection{Name Classifiers}
 		\label{chap:gcg:classifiers:name}
-		
+
 			The names of constraints and variables are, if provided, a strong indicator to which constraints or variables are related to each other.
 			The names usually consist of two parts:
 			\begin{enumerate}
-				\item The semantic group name, such as \enquote{capacity} or \enquote{link} for e.g. a Bin-Packing model. 
+				\item The semantic group name, such as \enquote{capacity} or \enquote{link} for e.g. a Bin-Packing model.
 				\item A \textit{modifier}, which usually consists of numbers, capital letters or a combination of both. Typically, the modifier is separated from the semantic group name via.  non alpha-numeric characters such as \enquote{\_} or \enquote{\#}.
 			\end{enumerate}
-		
+
 			Constraints in the same group typically share similar names, with the \textit{modifier} being the only differentiating factor. For example, in a Bin-Packing problem, capacity constraints such as \enquote{capacity\_1}, \enquote{capacity\_2}, $\ldots$ usually vary only in the index indicating the bin. This similarity can be quantified using metrics like the \textit{Levenshtein Distance}, which is the minimum number of single-character edits required to change one word into the other.
-			
+
 			\clearpage
-			
+
 			Because there is no standardized naming scheme for either variables or constraints, name classifiers usually operate under the assumption that the modeler provided \textit{reasonable} names, if any at all.
 			A non-exhaustive collection of different naming schemes observed is provided in Appendix \todo{Appendix}.
 			If the modelers provided no names of it's own, then the underlying solver usually chooses a default prefix such as \enquote{c} or \enquote{cons} for constraints, followed by an increasing number, resulting in constraint names \enquote{c0} - \enquote{c4999} for a model with 5000 constraints.
-			
+
 			Given a alphabet $\Sigma$, words $w, v \in \Sigma^*$, then the \textit{Levenshtein} distance between those two words can be computed as:
 			%
 			\begin{equation}
@@ -118,7 +118,7 @@
 			Furthermore, let $reach(v)$ be the set of reachable vertices from vertex $v \in V$ which is defined as the fix-point of the following function for $s = v$:
 			%
 			\begin{equation*}
-				{reachEventually}_t(T) = \{ u \in V \mid \exists v \in T: v \in E(u) \;  \} \cup \{ t \}
+				\mathrm{reachEventually}_t(T) = \{ u \in V \mid \exists v \in T: v \in E(u) \;  \} \cup \{ t \}
 			\end{equation*}
 			\todo{WIP}
 			%
@@ -126,20 +126,20 @@
 			A small example of this concept is shown in Figure \ref{fig:gcg:levenshtein}.
 			\todo{5000 cons limit}
 			This idea can also be applied to variable names.
-			
+
 			\begin{figure}[ht!]
 				\centering
 				\includesvg[scale=0.8]{Bilder/DrawIO/levenshtein}
 				\caption{The graph of pair-wise Levenshtein weights for three capacity constraints. For $k=1$, the edge between $capacity_3$ and $capacity_{12}$ vanishes, but because they is still a connecting path via. $capacity_1$, both constraints are assigned to the same class.}
 				\label{fig:gcg:levenshtein}
 			\end{figure}
-			
+
 			\FloatBarrier
-		
+
 		\subsection{Numeric Classifiers}
-			
+
 			\subsubsection{Nonzero}
-			
+
 				\begin{figure}[ht!]
 					\centering
 					\begin{equation*}
@@ -154,11 +154,11 @@
 					\caption{A constraint matrix with coefficients for each variable. Each constraint is assigned to a class corresponding to its number of non-zero entries.}
 					\label{fig:gcg:nonzero}
 				\end{figure}
-				
+
 				The nonzero classifier classified constraints according to their number of non-zero variable coefficients as shown in Figure \ref{fig:gcg:nonzero}.
 				Many types of models including Bin-Packing and Cutting-Stock consist only of constraint groups with a rather \enquote{stable} internal structure, i.e., the capacity constraint for each bin in model \ref{eq:gcg:example:capacity} \todo{Wrong ref} consist of the same number of variables, because each constraint is just a sum over all items differing only in index for the respective bin.
 				In general, constraint groups that are suited for this type of classifiers usually involve summations over fixed-sized sets (e.g. a set of items or bins) whose choice is not dependent on any quantified variable.
-				Example for the latter include problems whose formulation is based on graphs and usually contains flow-conservation constraints shown in Equation \todo{Example} \ref{eq:gcg:numerics:flow}. 
+				Example for the latter include problems whose formulation is based on graphs and usually contains flow-conservation constraints shown in Equation \todo{Example} \ref{eq:gcg:numerics:flow}.
 				%
 				\begin{equation}
 					\label{eq:gcg:numerics:flow}
@@ -166,40 +166,40 @@
 				\end{equation}
 				%
 				The amount of non-zeros in these constraint is entirely dependent on the number of outgoing and incoming edges for each vertex.
-		
+
 			\subsubsection{Objective Function}
-			
+
 				A simple classification for variables can be done using information from the objective function, such as:
-				
+
 				\begin{enumerate}
 					\item Partition variables according to the sign of their coefficient in the objective function. This approach yields three classes in total Positive, Negative and Zero.
 					\item Partition them according to the actual \textit{value} of the coefficient.
 				\end{enumerate}
-				
+
 				Partitioning variables according to the first approach is sufficient for models such as Bin-Packing, in which only the $y$-variables appear in the objective function.
-				
+
 				The second approach might partition the variables in too many small cells when e.g. different costs are associated with variables in the objective function.
 				This behavior can be observed on model types such as Multi-Commodity-Flow and Unit-Commitment. \todo{Example}
-				
+
 				\clearpage
-		
+
 		\subsection{Type Classifiers}
 		\label{chap:gcg:classifiers:type}
-		
+
 			Type classifiers examine the constraint matrix to infer a higher-level \textit{type} for each individual constraint.
 			A key objective of such classifiers is ensuring or at least improving \textit{robustness}.
 			Even minor modifications to a single constraint - such as the removal of one variable - can lead to a different classification, as seen with the previously discussed nonzero classifier.
 			Moreover, the likelihood of such changes increases when pre-processing is enabled.
-			
+
 			\subsubsection{SCIP Types}
-			
+
 				When using \ac{GCG} as a library, the type of a variable or constraint can be retrieved via. \lstinline|SCIPconsGetType(cons)| or \lstinline|SCIPvarGetType(cons)| respectively.
 				The former function is not provided by \ac{SCIP} itself, but is implemented in \ac{GCG} instead.
 				The implementation compares the name of the handler the constraint is assigned to and compares it to a known list of constraint handlers. \todo{the}
 				The list of supported handlers includes \emph{Knapsack}, \emph{Set Partitioning}, \emph{Set Covering}, \emph{Set Packing}, \emph{Varbound} and \emph{General}, in case no special structure was detected. \todo{Check List}
 				Variables can be classified as \emph{Integer}, \emph{Binary} or \emph{Continuous}
 				\footnote{There are more types of variables in newer versions of \ac{SCIP} such as \emph{Implicit Integer}, but these three basic types are sufficient for the purpose of this discussion.}.
-				
+
 				The clear downside of this classification is its important precondition.
 				In order to use this feature properly and retrieve a meaningful type via. the two methods, pre-solving must have been executed prior to detection.
 				When \ac{GCG} reads the problem as e.g. an \lstinline|.lp| file, all constraints are added as linear constraints to the underlying \ac{SCIP} model.
@@ -207,9 +207,9 @@
 				This is done in order to take advantage of properties only possessed by certain types of constraints, e.g. a solution to a set of Knapsack constraints \textit{can} be computed more efficiently by using an algorithm based on dynamic programming.
 				For more detailed information we refer to the official documentation \cite{SCIPDoxygenDocumentation}.
 				Preliminary testing showed that it is not trivial to configure the pre-processing in such a way that \textit{only} the upgrade mechanism is triggered and variables and constraints remain unchanged. \todo{Add test config to appendix}
-		
+
 			\subsubsection{MIPLIB Constraint Types}
-			
+
 				\begin{table}[ht!]
 					\centering
 					\begin{tabular}{l|l|l|l}
@@ -237,28 +237,75 @@
 					\caption{The structure of all 17 constraint types MIPLIB keeps track of.}
 					\label{table:constypes:miplib}
 				\end{table}
-				
+
 				In contrast to the automatic constraint classification performed by SCIP during presolving, the MIPLIB benchmark set provides its own static classification scheme \cite{gleixnerMIPLIB2017Datadriven2021a}. This classification assigns constraints to a set of well-defined structural types such as knapsack, set-partitioning and others as shown in Table \ref{table:constypes:miplib}. Since it is based solely on the syntactic form of the constraints in the original model, it can be applied \textit{independently} of solver presolving.
 				Because all types shown in Table \ref{table:constypes:miplib} are deducible only from \textit{local} information such as type of variables and right hand side coefficient, the types can be detected with one pass over the constraint matrix.
-				
+
 				This type of classifier shares some issues related to robustness with numeric classifiers, even thought it does not seem like it on a surface level.
 				Constraint types such as Singleton, Aggregation or Variable Bound depend on the number of non-zeroes, leading to potential miss-classifications on graph based models.
 				Furthermore, the only differentiating factor for more \enquote{complex} types such as \textit{Bin Packing} and \textit{Knapsack} is the presence of a variable which happens to have the same coefficient as the right-hand of that constraint. \todo{Explain issue of GCG fixed zero variables}
-				
-				
-	
+
 				\clearpage
-	
+
 	\section{Existing Detectors}
 	% 1 Seite, trivial Detectors
 	% 1 Seite, HMETIS Detectors
 	% 1 Seite , other Detectors
-	
+
+		Building upon the different kinds of classifiers mentioned in the previous section, we continue with a brief summary of existing detectors that have been developed and integrated into the framework since its creation. Each detector follows a distinct idea of how structural information can be identified and exploited, providing complementary perspectives on the decomposition of mixed-integer programs.
+		We do not provide a full list of all available detectors, but only focus on the most relevant for this work.
+
+		\subsection{Power Set Detectors}
+		\todo{Title}
+%			\begin{algorithm}[ht!]
+%				\centering
+%				\begin{algorithmic}
+%					\Require
+%					\Ensure
+%					\Statex
+%					\Function{detect}{classifiers}
+%						\For{$class \in classifiers$}
+%							\State $partialDecomp \gets $ Create new partial decomposition
+%							\For{$class \in classifier$}
+%								\For{$cons \in class$}
+%									\State \Call{FixToMaster}{$partialDecomp$, $cons$}
+%								\EndFor
+%							\EndFor
+%						\EndFor
+%					\EndFunction
+%				\end{algorithmic}
+%				\caption{Illustration of how such a \enquote{power set detector} works internally.}
+%			\end{algorithm}
+
+			The term \textit{Power Set Detectors}, is a term only used in this section and is not used in any official documentation, but it emphasizes the core of their behavior.
+			They operate by exploiting pre-computed classifications of constraints and then generating partial decompositions that assign some constraints or variables to the master problem and leave others open, i.e., in general, they only output partial decompositions.
+
+			In more detail: it cycles through each classifier and, for \textit{each subset} of constraint classes it creates a decomposition in which all constraints of those classes are fixed to the master. In addition to that, classifiers may mark constraints or variables as \enquote{master only}, which are also assigned to the master problem. All remaining constraints not in the current subset remain unassigned (open). Thus it explores combinations of \enquote{which constraint classes go into master} vs \enquote{which go into blocks}.
+
+			By doing so, it aims to identify decompositions where groups of constraints move coherently together (because they share class membership) and thus suggest a meaningful split into master and block parts. In aggregate, the detector provides heuristic suggestions for decompositions by leveraging the class structure of constraints rather than purely graph‐cut or adjacency heuristics.
+			It does not guarantee that the decomposition is complete or optimal; rather, it produces candidates of partial decompositions which then may be refined by other detectors.
+
+			An example involving such a detector is explained more in-depth in Section \ref{chap:gcg:example}.
+
+		\subsection{Connected Components Detector}
+
+			The \textit{Connected Base} detector focuses on completion by breadth‐first search (BFS) in the dependency graph of constraints and variables, which was already shown in Figure \ref{fig:prelims:graphs:binpackbipartite}. It takes as input a \textit{partial decomposition} and tries to complete the assignment by selecting all open constraints and variables reachable from already assigned elements (via adjacency) and assigning them accordingly.
+
+			Functionally, it walks the adjacency frontier: given an \textit{open} constraint $c_i$, it computes the set of all reachable constraints $\mathrm{reach}(c_i)$. A constraint $c_j$ is considered reachable from $c_i$ iff they either share a common variable \textit{or} if there is some constraint $c_k$ which reachable from both $c_i$ and $c_j$.
+			This process is iterated until all such sets $R = \{ \mathrm{reach}(c) \mid c \in Cons \}$ are found and a new block is created for each $r \in R$.
+			Afterwards, all remaining open variables are assigned to either the first block (it it exists), or to the master.
+
+		\subsection{\ac{hMETIS} Detector}
+
+			The hypergraph‐partitioning detector (using the external tool \ac{hMetis}) treats the problem’s constraint–variable incidence structure as a hypergraph: constraints and variables become nodes, and hyperedges represent the incidence relations.
+			Then it applies a heuristic partitioning of this hypergraph into multiple components (blocks) aiming to minimise the coupling (i.e., hyperedges) between blocks. Each block becomes a candidate for a subproblem (pricing) and the remainder becomes the master. Thus the detector identifies “natural” substructures in the problem where variables/constraints are more tightly connected internally than externally.
+			In practice, this leads to decompositions where the incidence structure suggests a separation into loosely‐coupled modules. Because the hypergraph partitioning is heuristic, the resulting decomposition is approximate and depends on the connectivity pattern of the original MIP matrix. But for highly modular problems it can yield good block structures.
+
 		\clearpage
-	
+
 	\section{Example}
 	\label{chap:gcg:example}
-		
+
 				\begin{figure}[ht!]
 			\centering
 			\begin{align}
@@ -272,40 +319,39 @@
 			\label{figure:gcg:example:binpack}
 		\end{figure}
 		\todo{Bild}
-		
+
 		\begin{table}[ht!]
 			\centering
 			\begin{tabular}{l|l|l}
 				\textbf{Nr.} & \textbf{Master} & \textbf{Open} \\
 				\toprule
 				\toprule
-				1 & (\ref{eq:gcg:example:link}) & (\ref{eq:gcg:example:capacity}) \\ 
+				1 & (\ref{eq:gcg:example:link}) & (\ref{eq:gcg:example:capacity}) \\
 				2 & (\ref{eq:gcg:example:capacity}) & (\ref{eq:gcg:example:link}) \\
 				3 & (\ref{eq:gcg:example:link}), (\ref{eq:gcg:example:capacity}) & -
 			\end{tabular}
 			\caption{For each classifier, the \textit{cons class} detector will produce $2^k - 1$ new partial decompositions with $k$ being the number of classes.}
 			\label{table:gcg:example:consclass}
 		\end{table}
-		
+
 		In order to illustrate the detection with a concrete example, we revisit the textbook Bin-Packing model shown in Figure \ref{figure:gcg:example:binpack}.
 		Constraints \ref{eq:gcg:example:link} enforce that every item is packed in exactly one bin, while inequalities \ref{eq:gcg:example:link} ensure that the capacity of each bin is respected if some item is packed in it. \todo{Wording}
 		The objective is to minimize the number of bins.
-		
+
 		Without pre-solving enabled, a classifier such as MIPLIB would assign constraints \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the classes \textit{Set Partitioning} and \textit{Bin-Packing} respectively.
 		If unique, this classification is added to a list provided to the detection stage.
-		
+
 		If no further classifications are found, \ac{GCG} will transition to the detection stage.
 		Here, the \textit{cons class} detector will yield 3 new partial decompositions as shown in Table \ref{table:gcg:example:consclass}, first assigning constraints \ref{eq:gcg:example:link}, then \ref{eq:gcg:example:capacity} and finally both \ref{eq:gcg:example:link} and \ref{eq:gcg:example:capacity} to the master.
 		The constraint group not assigned to the master remains \textit{open}.
-		
+
 		During the next round of detection, a detector such as \textit{Connected Base} will receive the partial decomposition with only the packing constraints assigned to the master as input.
 		Here, the induced constraint adjacency graph of the $q \ge 0$ open capacity constraints consists of $q$ isolated connected components, forming the desired block-diagonal structure.
 		This process is illustrated in Figure \ref{fig:gcg:example:consclass}.
-		
+
 		\begin{figure}[ht!]
 			\centering
 			\includegraphics{Bilder/DrawIO/example_tree}
 			\caption{A possible tree of partial decompositions for a textbook Bin-Packing model.}
 			\label{fig:gcg:example:consclass}
 		\end{figure}
-		

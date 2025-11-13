@@ -51,8 +51,8 @@
 		In order to use a unified notation in the following sections, we will define the \ac{SRT} and its associated information more formally.
 		A \ac{SRT} can be formalized as a tuple $T = (V, E, U, R, S)$ with universe $U$ corresponding to the set of all constraints or variables, designated root node $R \in V$ and set of strategies $S \subseteq \mathbb{N}$.
 		The tuple $(V, E)$ must induce an directed acyclic graph.
-		Each node $v \in V \setminus R$ of the tree is associated with a parent cell $ParentCell(v) \in 2^U$, parent node $ParentNode(v)$, a set of cells $Cells(v) \in \Pi(ParentCell(v))$ and the strategy $UsedStrategy(v)$ that was used to compute $v$ from its parent.
-		For the root node we require $Cells(R) \in \Pi(U)$, i.e., a valid partition of $U$ must be used to initialize the tree.
+		Each node $v \in V \setminus R$ of the tree is associated with a parent cell $\mathrm{ParentCell}(v) \in 2^U$, parent node $\mathrm{ParentNode}(v)$, a set of cells $\mathrm{Cells}(v) \in \Pi(\mathrm{ParentCell}(v))$ and the strategy $\mathrm{UsedStrategy}(v)$ that was used to compute $v$ from its parent.
+		For the root node we require $\mathrm{Cells}(R) \in \Pi(U)$, i.e., a valid partition of $U$ must be used to initialize the tree.
 
 		\begin{algorithm}
 			\centering
@@ -190,21 +190,17 @@
 					8 & Set Packing & $\sum 1 x_i \leq 1$ & $\forall i: x_i \in \{0, 1\}$ \\
 					9 & Set Covering & $\sum 1 x_i \geq 1$ & $\forall i: x_i \in \{0, 1\}$ \\
 					10 & Cardinality & $\sum 1 x_i = b$ & $\forall i: x_i \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$ \\
-					11 & Invariant Knapsack & $\sum 1 x_i \leq b$ & $\forall i: x_i \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$ \\
-					12 & Equation Knapsack & $\sum a_i x_i = 1$ & $\forall i: x_i \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$ \\
-					13 & Bin Packing & $\sum a_i x_i + ay \leq a$ & $\forall i: x_i, y \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$ \\
-					14 & Knapsack & $\sum a_i x_i \leq b$ & $\forall i: x_i \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$ \\
-					15 & Integer Knapsack & $\sum a_i x_i \leq b$ & $\forall i: x_i \in \mathbb{Z}, b \in \mathbb{N}$ \\
-					16 & Mixed Binary & $\sum a_i x_i + \sum p_j s_j \; \{\leq, =\} \; b$ & $\forall i: x_i \in \{0, 1\}, \forall j: s_j \; \mathrm{continuous}$ \\
-					17 & General Linear & $\sum a_i x_i \; \{\leq, \geq, =\} \; b$ & No special structure.
+					11 & Invariant Knapsack & $\sum 1 x_i \leq b$ & $\forall i: x_i \in \{0, 1\}, b \in \mathbb{N}_{\geq 2}$
 				\end{tabular}
 				\caption{The structure of all constraint types which the \textit{relaxed} version of the MIPLIB classifier detects.}
 				\label{table:constypes:relaxed}
-			\end{table}
+			\end{table} \todo{table}
 
-			In order to mitigate \textit{some} of the issues
-
-			Similar to the MIPLIB classifier, all types can be deduced from local information only. Thus, one pass over the constraint matrix is sufficient to classify all constraints according to Table \ref{table:constypes:relaxed}. \todo{WIP}
+			As outlined in Section \ref{chap:gcg:classifiers}, the classification of constraints and variables plays a key role in structure detection of mixed-integer programs. The MIPLIB types provides a detailed list of constraint types, ranging from simple set-packing relations to complex mixed-binary expressions. This fine-grained categorization can be counterproductive when used directly within a detection framework, because excessive granularity can lead to fragmentation of the constraint set: two constraints that are functionally similar but formally classified as different types would end up in separate partitions, preventing the discovery of broader structural \textit{patterns}.
+			To address this, we propose a simple but functional similar classifier which \textit{deliberately} defines a smaller and more permissive set of constraint types as shown in Table \ref{table:constypes:relaxed}.
+			Each type is allowed to encompass a wider range of constraint types, i.e., we \enquote{allow} more deviation from the original MIPLIB types.
+			In other words, the classifier merges several fine-grained MIPLIB categories into coarser types, without loosing to much information.
+			Similar to the MIPLIB classifier, all types can be deduced from local information only. Thus, one pass over the constraint matrix is sufficient to classify all constraints.
 
 			\clearpage
 
@@ -245,31 +241,72 @@
 					n_{ij} = | \{ x \mid \forall \pi \in Q, i \in \pi, \forall x \in \pi \} |
 				\end{equation}
 				%
-				If all entries are computed the matrix requires $O(m^2)$ space in memory, which is not feasible for large models. A simple method to reduce the memory requirements of $A$ is the concept of a \textit{sparse matrix}, i.e., only those $n_{ij} \neq 0$ are actually held in memory.
+				If all entries are computed the matrix requires $O(m^2)$ space in memory and $O(m^2)$ runtime, which is not feasible for large models. A simple method to reduce the memory requirements of $A$ is the concept of a \textit{sparse matrix}, i.e., only those $n_{ij} \neq 0$ are actually held in memory.
+				Furthermore, computing the all entries $n_{ij}$ results in lot of unnecessary computations, as we are only interested in $\max \{ n_{i1}, n_{i2}, \ldots, n_{i,i-1}, n_{i,i+1}, \ldots, n_{i,m} \}$ for each constraint $1 \leq i \leq m$.
 
-				For set of partitions in which the individual cells do not \enquote{agree} with each other, i.e., it holds that $n_{ij} \geq 0$ for almost all pairs, we propose a heuristically approach based on min-heaps.
-				A min-heap is a tree-like data-structure always maintaining the invariant that the key associated with a node $P$ is less than or equal to the keys associated with all nodes that are children of $P$.
-				We associate one min-heap with each constraint of maximum size $a \leq m$.
+				For sets of partitions in which the individual cells do not \enquote{agree} with each other, i.e., it holds that $n_{ij} \geq 1$ for almost all pairs, we propose a different approach with $O(m)$ space complexity but slightly worse runtime complexity of $O(m^2 |Q|)$. In practice, however, the approach is expected to be much faster. \todo{why}
+				We assume the existence of a fast lookup table $f_\pi: \{ 1, 2, \ldots, m \} \rightarrow C_i$ which maps a constraint or variable to its cell in $\pi$.
+				Instead of computing each $n_{ij}$, we propose to construct each row individually as shown in Algorithm \ref{algo:tree:classifiers:cooccurence}.
+				The algorithm looks though all constraints $1 \leq i \leq m$ and finds \textit{a} constraint $1 \leq j \leq m, i \neq j$ which is most often part of the same cells as $i$.
+				Afterwards, a union-find like procedure can be applied to successively merge constraints with their top partner.  \todo{cite union find}
 
 				\begin{algorithm}[ht!]
-					\centering
-					\begin{algorithmic}
-						\Require Set of partitions $Q = \{ \pi_1, \pi_2, \ldots, \pi_k \}$
-						\Statex
-						\Function{VotingUnordered}{Q}
-							\State $heaps \gets m$ min-heaps
-							\For{$\pi \in Q$}
-								\For{$x, y \in \pi$}
-									\State \Call{PushPair}{heaps[x], }
-								\EndFor
-							\EndFor
-						\EndFunction
-					\end{algorithmic}
-					\caption{a}
-					\label{algo:tree:classifiers:cooccurence}
-				\end{algorithm}
+						\centering
+						\begin{algorithmic}
+								\Require Set of partitions $Q = \{ \pi_1, \pi_2, \ldots, \pi_k \}$
+								\Statex
+								\Function{VotingUnordered}{Q}
+								 	\State $mostFrequentPartners[1, \ldots, m] \gets m$ Integers
+									\For{$x \in \{ 1, 2, \ldots, m \}$}
+										\State $occurences \gets m$ Integers
+										\For{$\pi \in Q$}
+											\State $cell \gets f_\pi(x)$
+											\For{$y \in cell$}
+												\If{x = y}
+													\State \textbf{continue}
+												\EndIf
+												\State $occurences[y] \gets occurences[y] + 1$
+											\EndFor
+										\EndFor
+										\State $mostFrequentPartners[x] \gets \max\limits_{i \in \{ 1, 2, \ldots, m \}} occurences[i]$
+									\EndFor
+									\State Merge constraints based on $mostFrequentPartners$ with union-find approach
+									\State \Return Partition after Union-Find procedure
+								\EndFunction
+							\end{algorithmic}
+						\caption{Algorithm for constructing a partition in which two constraints $c_i, c_j$ are in same cell if $n_{ij} = \max \{ n_{i1}, n_{i2}, \ldots, n_{i,i-1}, n_{i,i+1} \}$ and vice. versa.}
+						\label{algo:tree:classifiers:cooccurence}
+					\end{algorithm}
 
-				An additional pre-processing step can be done by e.g. filtering out cells of partitions whose entropy is below a certain threshold or not removing trivial partitions before computing $A$.
+%				For sets of partitions in which the individual cells do not \enquote{agree} with each other, i.e., it holds that $n_{ij} \geq 1$ for almost all pairs, we propose a heuristically approach based on min-heaps storing key-value pairs $(k, v) \in \mathbb{N} \times \mathbb{N}$.
+%				A min-heap is a tree-like data-structure always maintaining the invariant that the key associated with a node $P$ is less than or equal to the keys associated with all nodes that are children of $P$. We associate one min-heap of maximum size $a \leq m$ with each constraint $c_i$.
+%				Here, the value corresponds to the index of some constraint $c_j \neq c_i$, while the key indicates how often $c_j$ was assigned to the same class as $c_i$ \textit{so far}.
+%				An additional pre-processing step can be done by e.g. filtering out cells of partitions whose entropy is below a certain threshold or not removing trivial partitions before computing $A$.
+%
+%				\begin{algorithm}[ht!]
+%					\centering
+%					\begin{algorithmic}
+%						\Require Set of partitions $Q = \{ \pi_1, \pi_2, \ldots, \pi_k \}$
+%						\Statex
+%						\Function{VotingUnordered}{Q}
+%							\State $heaps \gets m$ min-heaps
+%							\For{$\pi \in Q$}
+%								\For{$C \in \pi$}
+%									\For{$x, y \in \pi, x \neq y$}
+%										\If{$y$ is not in $heap$ and key of top element is $= 0$}
+%
+%										\EndIf
+%										\State $heap \gets heaps[x]$
+%										\State $(k, v) \gets \Call{Remove}{heap, y}$
+%										\State $\Call{Add}{heap, (y, v + 1)}$
+%									\EndFor
+%								\EndFor
+%							\EndFor
+%						\EndFunction
+%					\end{algorithmic}
+%					\caption{a}
+%					\label{algo:tree:classifiers:cooccurence}
+%				\end{algorithm}
 
 				\clearpage
 
@@ -635,7 +672,7 @@
 				\centering
 				\begin{algorithmic}
 					\Require Name of a constraint
-					\Ensure Relevant semantics of the constraint name if the name adheres
+					\Ensure Relevant semantics of the constraint name if the name adheres to well known naming scheme
 					\Statex
 					%
 					\Function{extractSemanticPart}{$name$}

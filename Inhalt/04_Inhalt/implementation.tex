@@ -2,6 +2,7 @@
 \label{chap:impl}
 % 0.5 Seiten
 
+	In the context of this work, the algorithm including all described classifiers, scores and strategies from Chapter \ref{chap:tree} were implemented and integrated into \ac{GCG}, with the only exception being the unordered variant of the \textit{voting classifier} \footnote{In practice, almost all tested models obeyed the precondition of coherent constraint blocks}.
 	Building upon the algorithmic descriptions of Chapter \ref{chap:tree}, we want to discuss how such an algorithm can be efficiently implemented and practice and how the component is integrated into \ac{GCG} as a detector. In the actual code, all shown algorithms and data structures were implemented and tested in \lstinline|C++|.
 	The Chapter is divided into multiple sections, each describing a different aspect of the implementation:
 
@@ -19,8 +20,7 @@
 		\item Concrete pieces of \lstinline|C++|, as we do not require the reader to know this particular programming language on a sufficient level.
 	\end{itemize}
 
-	This Chapter does not include actual numbers concerning space and runtime, we only look at the underlying concepts which are widely used in other algorithms to achieve e.g. a better practical runtime.
-
+	%This Chapter does not include actual numbers concerning space and runtime, we only look at the underlying concepts which are widely used in other algorithms to achieve e.g. a better practical runtime.
 
 	\clearpage
 
@@ -109,7 +109,7 @@
 		\begin{itemize}
 			\item Basic operations including adding, deleting and containment checks via. \lstinline[mathescape]|add($\cdot$)|, \lstinline[mathescape]|remove($\cdot$)| and \lstinline[mathescape]|contains($\cdot$)| respectively.
 			\item An operation to get, based on some cell or tree node object, the exact duplicate stored inside the data structure. As shown in Figure \ref{fig:impl:hashing:datastruct}, both data structures realize this via. \lstinline[mathescape]|getRepresentative($\cdot$)|
-			\item A function \lstinline[mathescape]|addIfMissing($\cdot$)| adding the tree node iff it doesn't exist already. These two actions are performed \textit{atomically}, i.e., to an outside observer the method behaves as if it executes both operations at once.
+			\item A function \lstinline[mathescape]|addIfMissing($\cdot$)| adding the tree node if it doesn't exist already. These two actions are performed \textit{atomically}, i.e., to an outside observer the method behaves as if it executes both operations at once.
 		\end{itemize}
 
 		While precise implementation of the hash table is not of interest here, we assume that processing common queries should be done reasonably efficient.
